@@ -1,0 +1,29 @@
+{
+    "title": "株式種類",
+    "description": "",
+    "type": "object",
+    "properties": {
+        "object_type": {
+            "const": "STOCK_CLASS"
+        },
+        "name": {
+            "description": "株式種類名",
+            "type": "string"
+        },
+        "id": {
+            "description": "株式種類のID",
+            "type": "string"
+        },
+        "class_type": {
+            "description": "株式種類のタイプ（例. 普通、もしくは優先）",
+            "$ref": "../enums/StockClassType.schema.json"
+        }
+    },
+    "additionalProperties": false,
+    "required": [
+        "object_type",
+        "name",
+        "id",
+        "class_type"
+    ]
+}

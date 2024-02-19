@@ -1,0 +1,17 @@
+{
+    "type": "object",
+    "properties": {
+        "items": {
+            "type": "array",
+            "description": "株式種類のリスト",
+            "items": {
+                "$ref": "../objects/StockClass.schema.json"
+            }
+        },
+        "file_type": {
+            "const": "JOCF_STOCK_CLASSES_FILE"
+        }
+    },
+    "additionalProperties": false,
+    "required": ["items", "file_type"]
+}

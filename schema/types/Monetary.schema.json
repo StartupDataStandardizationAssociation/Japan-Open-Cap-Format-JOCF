@@ -1,0 +1,17 @@
+{
+    "title": "金額",
+    "description": "特定の通貨における金額",
+    "type": "object",
+    "properties": {
+      "amount": {
+        "description": "総額",
+        "$ref": "./Numeric.schema.json"
+      },
+      "currency": {
+        "description": "ISO 4217 国別通貨コード",
+        "$ref": "./CurrencyCode.schema.json"
+      }
+    },
+    "additionalProperties": false,
+    "required": ["amount", "currency"]
+  }

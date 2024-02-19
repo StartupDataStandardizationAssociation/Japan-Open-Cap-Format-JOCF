@@ -1,0 +1,33 @@
+{
+    "title": "株式併合トランザクション",
+    "description": "株式併合トランザクション",
+    "type": "object",
+    "properties": {
+      "object_type": {
+        "const": "TX_STOCK_MERGER"
+      },
+      "id": {
+        "description": "この株式併合トランザクションのID",
+        "type": "string"
+      },
+      "stock_class_id": {
+        "description": "併合する株式種類のID",
+        "type": "string"
+      },
+      "merger_ratio": {
+        "description": "新株数に対して古い株数の比率",
+        "$ref": "../../../types/Ratio.schema.json"
+      },
+      "description": {
+        "description": "説明",
+        "type": "string"
+      },
+      "date": {
+        "description": "発生日時",
+        "type": "string",
+        "format": "date"
+      }
+    },
+    "additionalProperties": false,
+    "required": ["id", "stock_class_id", "merger_ratio", "date"]
+  }

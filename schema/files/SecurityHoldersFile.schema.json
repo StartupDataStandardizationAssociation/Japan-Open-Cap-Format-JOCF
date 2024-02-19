@@ -1,0 +1,17 @@
+{
+    "type": "object",
+    "properties": {
+        "items": {
+            "type": "array",
+            "description": "証券保有者のリスト",
+            "items": {
+                "$ref": "../objects/SecurityHolder.schema.json"
+            }
+        },
+        "file_type": {
+            "const": "JOCF_SECURITY_HOLDERS_FILE"
+        }
+    },
+    "additionalProperties": false,
+    "required": ["items", "file_type"]
+}

@@ -1,0 +1,18 @@
+{
+    "title": "Type - 連絡先",
+    "description": "個人の連絡先",
+    "type": "object",
+    "properties": {
+      "phone_number": {
+        "description": "電話番号",
+        "type": "string"
+      },
+      "email": {
+        "description": "メールアドレス",
+        "type": "string",
+        "format": "email"
+      }
+    },
+    "additionalProperties": false,
+    "required": ["email"]
+  }

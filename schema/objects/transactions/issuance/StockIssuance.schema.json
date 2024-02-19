@@ -1,0 +1,37 @@
+{
+    "title": "株式発行トランザクション",
+    "description": "株式発行トランザクション",
+    "type": "object",
+    "properties": {
+      "object_type": {
+        "const": "TX_STOCK_ISSUANCE"
+      },
+      "id": {
+        "description": "この株式発行トランザクションのID",
+        "type": "string"
+      },
+      "stock_class_id": {
+        "description": "この株式発行で発行する株式種類のID",
+        "type": "string"
+      },
+      "share_price": {
+        "description": "1株の価格",
+        "$ref": "../../../types/Monetary.schema.json"
+      },
+      "quantity": {
+        "description": "発行株式数",
+        "$ref": "../../../types/Numeric.schema.json"
+      },
+      "description": {
+        "description": "説明",
+        "type": "string"
+      },
+      "date": {
+        "description": "日時",
+        "type": "string",
+        "format": "date"
+      }
+    },
+    "additionalProperties": false,
+    "required": ["id", "stock_class_id", "share_price", "quantity", "date"]
+  }

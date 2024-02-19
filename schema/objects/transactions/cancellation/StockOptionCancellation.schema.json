@@ -1,0 +1,28 @@
+{
+    "title": "ストックオプション消却トランザクション",
+    "description": "ストックオプション消却トランザクション",
+    "type": "object",
+    "properties": {
+      "object_type": {
+        "const": "TX_STOCK_OPTION_CANCELLATION"
+      },
+      "id": {
+        "description": "このストックオプション消却トランザクションのID",
+        "type": "string"
+      },
+      "quantity": {
+        "description": "消却個数",
+        "$ref": "../../../types/Numeric.schema.json"
+      },
+      "description": {
+        "description": "説明",
+        "type": "string"
+      },
+      "date": {
+        "description": "ストックオプション消却トランザクションの発生日時",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "required": ["id", "quantity", "date"]
+  }

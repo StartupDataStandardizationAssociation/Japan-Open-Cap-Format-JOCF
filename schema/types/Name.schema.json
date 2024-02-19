@@ -1,0 +1,21 @@
+{
+    "title": "名前",
+    "description": "Type comprising of multiple name components",
+    "type": "object",
+    "properties": {
+      "legal_name": {
+        "description": "法的な正式な名称",
+        "type": "string"
+      },
+      "first_name": {
+        "description": "姓",
+        "type": "string"
+      },
+      "last_name": {
+        "description": "名",
+        "type": "string"
+      }
+    },
+    "additionalProperties": false,
+    "required": ["legal_name"]
+  }

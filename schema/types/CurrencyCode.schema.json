@@ -1,0 +1,8 @@
+{
+    "title": "通貨コード",
+    "description": "ISO 4217 国別通貨コード",
+    "type": "string",
+    "minLength": 3,
+    "maxLength": 3,
+    "pattern": "^[A-Z]{3}$"
+  }

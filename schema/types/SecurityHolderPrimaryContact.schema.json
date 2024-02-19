@@ -1,0 +1,22 @@
+{
+    "title": "Type - 主要連絡先",
+    "description": "組織（ファンドなど）の連絡先",
+    "type": "object",
+    "properties": {
+      "name": {
+        "description": "担当者名",
+        "$ref": "./Name.schema.json"
+      },
+      "phone_number": {
+        "description": "担当者の電話番号",
+        "type": "string"
+      },
+      "email": {
+        "description": "担当者のメールアドレス",
+        "type": "string",
+        "format": "email"
+      }
+    },
+    "additionalProperties": false,
+    "required": ["name", "email"]
+  }

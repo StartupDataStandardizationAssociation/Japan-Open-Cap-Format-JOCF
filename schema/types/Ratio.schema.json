@@ -1,0 +1,17 @@
+{
+    "title": "比率",
+    "description": "比率",
+    "type": "object",
+    "properties": {
+      "numerator": {
+        "description": "比率の分子",
+        "$ref": "./Numeric.schema.json"
+      },
+      "denominator": {
+        "description": "比率の分母",
+        "$ref": "./Numeric.schema.json"
+      }
+    },
+    "additionalProperties": false,
+    "required": ["numerator", "denominator"]
+  }

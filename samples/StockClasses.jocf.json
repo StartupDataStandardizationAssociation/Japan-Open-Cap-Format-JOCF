@@ -1,0 +1,17 @@
+{
+    "file_type": "JOCF_STOCK_CLASSES_FILE",
+    "items": [
+        {
+            "object_type": "STOCK_CLASS",
+            "name": "普通株式",
+            "id": "test-stock-class-1",
+            "class_type": "COMMON"
+        },
+        {
+            "object_type": "STOCK_CLASS",
+            "id": "test-stock-class-2",
+            "name": "A種優先株式",
+            "class_type": "CLASS"
+        }
+    ]
+}

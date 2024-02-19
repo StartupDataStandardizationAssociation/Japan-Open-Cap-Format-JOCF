@@ -1,0 +1,37 @@
+{
+    "title": "コンバーティブルエクイティ転換トランザクション",
+    "description": "コンバーティブルエクイティ転換トランザクション",
+    "type": "object",
+    "properties": {
+      "object_type": {
+        "const": "TX_CONVERTIBLE_CONVERSION"
+      },
+      "id": {
+        "description": "このコンバーティブルエクイティ転換トランザクションのID",
+        "type": "string"
+      },
+      "quantity_converted": {
+        "description": "転換されたコンバーティブルエクイティ個数",
+        "$ref": "../../../types/Numeric.schema.json"
+      },
+      "stock_quantity": {
+        "description": "転換後の株式数",
+        "$ref": "../../../types/Numeric.schema.json"
+      },
+      "stock_class_id": {
+        "description": "転換後の株式種類のID",
+        "type": "string"
+      },
+      "description": {
+        "description": "説明",
+        "type": "string"
+      },
+      "date": {
+        "description": "発生日時",
+        "type": "string",
+        "format": "date"
+      }
+    },
+    "additionalProperties": false,
+    "required": ["id", "quantity_converted", "stock_quantity", "stock_class_id_converted", "date"]
+  }

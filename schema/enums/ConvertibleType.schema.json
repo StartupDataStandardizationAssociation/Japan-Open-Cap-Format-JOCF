@@ -1,0 +1,6 @@
+{
+    "title": "コンバーティブルエクイティの種類",
+    "description": "コンバーティブルエクイティ種類のEnum",
+    "type": "string",
+    "enum": ["J-KISS_1", "J-KISS_2", "SAFE", "OTHER"]
+  }

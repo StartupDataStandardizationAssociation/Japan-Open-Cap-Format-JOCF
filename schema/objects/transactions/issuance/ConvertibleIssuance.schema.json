@@ -1,0 +1,38 @@
+{
+    "title": "コンバーティブルエクイティ発行トランザクション",
+    "description": "コンバーティブルエクイティ発行トランザクション",
+    "type": "object",
+    "properties": {
+      "object_type": {
+        "const": "TX_CONVERTIBLE_ISSUANCE"
+      },
+      "id": {
+        "description": "このコンバーティブルエクイティ発行トランザクションのID",
+        "type": "string"
+      },
+      "investment_amount": {
+        "description": "発行されたコンバーティブルエクイティに対する総投資額",
+        "$ref": "../../../types/Monetary.schema.json"
+      },
+      "convertible_type": {
+        "description": "発行されたコンバーティブルエクイティの種類",
+        "$ref": "../../../enums/ConvertibleType.schema.json"
+      },
+      "description": {
+        "description": "説明",
+        "type": "string"
+      },
+      "date": {
+        "description": "発生日時",
+        "type": "string",
+        "format": "date"
+      }
+    },
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "convertible_type",
+      "investment_amount",
+      "date"
+    ]
+  }
