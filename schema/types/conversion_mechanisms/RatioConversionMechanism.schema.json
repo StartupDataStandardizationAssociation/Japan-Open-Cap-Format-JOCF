@@ -1,0 +1,26 @@
+{
+    "$id": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_mechanisms/RatioConversionMechanism.schema.json",
+    "title": "Conversion Mechanism - Ratio",
+    "description": "比率による転換メカニズムを設定します（例えば、優先株から普通株式への転換を記述するために使用されます)",
+    "type": "object",
+    "properties": {
+      "type": {
+        "const": "RATIO_CONVERSION"
+      },
+      "conversion_price": {
+        "description": "What is the effective conversion price per share of this stock class?",
+        "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Monetary.schema.json"
+      },
+      "ratio": {
+        "description": "One share of this stock class converts into this many target stock class shares",
+        "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Ratio.schema.json"
+      },
+      "rounding_type": {
+        "description": "How should fractional shares be rounded?",
+        "$ref": "https://jocf.startupstandard.org/jocf/main/schema/enums/RoundingType.schema.json"
+      }
+    },
+    "additionalProperties": false,
+    "required": ["ratio", "conversion_price", "rounding_type", "type"]
+  }
+  

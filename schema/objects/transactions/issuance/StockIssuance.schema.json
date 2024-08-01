@@ -30,8 +30,26 @@
         "description": "日時",
         "type": "string",
         "format": "date"
+      },
+      "payment_due_date" : {
+        "description": "払込期日",
+        "type" : "string",
+        "format": "date"
+      },
+      "preffered_stock_attributes" : {
+        "description": "優先株の発行に関する項目",
+        "type" : "object",
+        "properties": {
+          "series_name" : {
+            "description": "シリーズ名",
+            "type" : "string"
+          },
+          "trigger_id" : {
+            "description" : "優先株から普通株への転換条件"
+          }
+        }
       }
     },
     "additionalProperties": false,
-    "required": ["id", "stock_class_id", "share_price", "quantity", "date"]
+    "required": ["id", "stock_class_id", "share_price", "quantity", "date", "payment_due_date"]
   }

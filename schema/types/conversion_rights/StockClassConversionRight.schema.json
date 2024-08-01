@@ -1,0 +1,30 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "https://jocf.startupstandard.org/jocf/schema/types/conversion_rights/StockClassConversionRight.schema.json",
+    "title": "Type - Stock Class Conversion Rights",
+    "description": "あるストッククラスから別のストッククラスへの転換のタイプ表現",
+    "type": "object",
+    "properties": {
+      "type": {
+        "const": "STOCK_CLASS_CONVERSION_RIGHT"
+      },
+      "conversion_mechanism": {
+        "oneOf": [
+          {
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_mechanisms/RatioConversionMechanism.schema.json"
+          }
+        ]
+      },
+      "converts_to_future_round": {
+        "description": "現時点で未確定な株式クラスに転換可能かどうか",
+        "type": "boolean"  
+      },
+      "converts_to_stock_class_id": {
+        "description": "転換可能な既存の株式クラスのID",
+        "type": "string"  
+      }
+    },
+    "additionalProperties": false,
+    "required": ["conversion_mechanism"]
+  }
+  

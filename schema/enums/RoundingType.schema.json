@@ -1,0 +1,8 @@
+{
+    "$id": "https://jocf.startupstandard.org/jocf/main/schema/enums/RoundingType.schema.json",
+    "title": "Enum - Rounding Type",
+    "description": "丸め方のEnum",
+    "type": "string",
+    "enum": ["CEILING", "FLOOR", "NORMAL"]
+  }
+  

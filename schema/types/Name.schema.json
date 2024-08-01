@@ -1,5 +1,6 @@
 {
-    "title": "名前",
+  "id" : "https://jocf.startupstandard.org/jocf/main/schema/types/Name.schema.json",
+  "title": "名前",
     "description": "Type comprising of multiple name components",
     "type": "object",
     "properties": {
