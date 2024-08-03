@@ -1,55 +1,56 @@
 {
-    "title": "株式発行トランザクション",
-    "description": "株式発行トランザクション",
-    "type": "object",
-    "properties": {
-      "object_type": {
-        "const": "TX_STOCK_ISSUANCE"
-      },
-      "id": {
-        "description": "この株式発行トランザクションのID",
-        "type": "string"
-      },
-      "stock_class_id": {
-        "description": "この株式発行で発行する株式種類のID",
-        "type": "string"
-      },
-      "share_price": {
-        "description": "1株の価格",
-        "$ref": "../../../types/Monetary.schema.json"
-      },
-      "quantity": {
-        "description": "発行株式数",
-        "$ref": "../../../types/Numeric.schema.json"
-      },
-      "description": {
-        "description": "説明",
-        "type": "string"
-      },
-      "date": {
-        "description": "日時",
-        "type": "string",
-        "format": "date"
-      },
-      "payment_due_date" : {
-        "description": "払込期日",
-        "type" : "string",
-        "format": "date"
-      },
-      "preffered_stock_attributes" : {
-        "description": "優先株の発行に関する項目",
-        "type" : "object",
-        "properties": {
-          "series_name" : {
-            "description": "シリーズ名",
-            "type" : "string"
-          },
-          "trigger_id" : {
-            "description" : "優先株から普通株への転換条件"
-          }
-        }
-      }
+  "title": "株式発行トランザクション",
+  "description": "株式発行トランザクション",
+  "type": "object",
+  "properties": {
+    "object_type": {
+      "const": "TX_STOCK_ISSUANCE"
     },
-    "additionalProperties": false,
-    "required": ["id", "stock_class_id", "share_price", "quantity", "date", "payment_due_date"]
-  }
+    "id": {
+      "description": "この株式発行トランザクションのID",
+      "type": "string"
+    },
+    "stock_class_id": {
+      "description": "この株式発行で発行する株式種類のID",
+      "type": "string"
+    },
+    "share_price": {
+      "description": "1株の価格"
+    },
+    "quantity": {
+      "description": "発行株式数"
+    },
+    "description": {
+      "description": "説明",
+      "type": "string"
+    },
+    "date": {
+      "description": "日時",
+      "type": "string",
+      "format": "date"
+    },
+    "payment_due_date": {
+      "description": "払込期日",
+      "type": "string",
+      "format": "date"
+    },
+    "series_name": {
+      "description": "シリーズ名",
+      "type": "string"
+    },
+    "representations_and_warranties_by_issuing_company": {
+      "description": "発行会社による表明および保証",
+      "type": "object",
+      "properties": {},
+      "required": []
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "stock_class_id",
+    "share_price",
+    "quantity",
+    "date"
+  ]
+}
