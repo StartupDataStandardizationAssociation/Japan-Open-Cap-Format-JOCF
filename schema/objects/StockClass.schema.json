@@ -93,6 +93,31 @@
                 "votes_per_share_at_class_meeting": {
                     "description": "一株あたりの議決権(種類株主総会)",
                     "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
+                },
+                "dilution_protection_attributes" : {
+                    "description": "希薄化防止に関する項目",
+                    "type": "object",
+                    "properties": {
+                        "dilution_protection_type": {
+                            "description": "希薄化保護種別",
+                            "type": "string",
+                            "enum": [
+                                "FULL_RATCHET",
+                                "BROAD_BASED_WEIGHTED_AVERAGE",
+                                "NARROW_BASED_WEIGHTED_AVERAGE",
+                                "NONE"
+                            ]
+                        }
+                    },
+                    "required": []
+                },
+                "redemption_rights" : {
+                    "description": "償還請求権が設定されているかどうか",
+                    "type": "boolean"
+                },
+                "mandatory_conversion_triggers": {
+                    "description": "強制転換条項が設定されているかどうか",
+                    "type": "boolean"
                 }
             },
             "required": []
