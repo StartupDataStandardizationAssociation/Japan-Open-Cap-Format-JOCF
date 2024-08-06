@@ -22,6 +22,17 @@
             "description": "一株あたりの議決権(株主総会)",
             "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
         },
+        "initial_shares_authorized": {
+            "description": "発行可能株式数",
+            "oneOf": [
+                {
+                    "$ref" : "https://jocf.startupstandard.org/jocf/main/schema/types/AuthorizedShares.schema.json"
+                },
+                {
+                    "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
+                }
+            ]
+        },
         "preffered_stock_attributes": {
             "description": "優先株の発行に関する項目",
             "type": "object",
