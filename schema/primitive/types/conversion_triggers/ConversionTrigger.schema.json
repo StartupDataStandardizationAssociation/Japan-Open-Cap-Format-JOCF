@@ -1,0 +1,25 @@
+{
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/primitives/types/conversion_triggers/ConversionTrigger.schema.json",
+  "title": "Primitive - Conversion Trigger Type",
+  "description": "転換トリガーに関する基底クラス",
+  "type": "object",
+  "properties": {
+    "type": {
+      "description": "",
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/enums/ConversionTriggerType.schema.json"
+    },
+    "trigger_id": {
+      "description": "トリガーのID",
+      "type": "string"
+    },
+    "conversion_right": {
+      "description": "トリガー条件を満たした場合に発動する転換権",
+      "oneOf": [
+        {
+          "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_rights/StockClassConversionRight.schema.json"
+        }
+      ]
+    }
+  },
+  "required": ["type", "trigger_id", "conversion_right"]
+}

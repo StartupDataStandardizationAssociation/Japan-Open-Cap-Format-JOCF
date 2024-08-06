@@ -3,11 +3,13 @@
     "$id": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_triggers/ElectiveConversionAtWillTrigger.schema.json",
     "description": "投資家の意思で実行されるトリガー",
     "type": "object",
+    "allOf": [
+        {
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/types/conversion_triggers/ConversionTrigger.schema.json"
+        }
+    ],
     "properties": {
-      "trigger_id": {
-        "description": "トリガーのID",
-        "type": "string"
-      },
+      "trigger_id": {},
       "nickname": {
         "description": "トリガーのニックネーム",
         "type": "string"
@@ -19,14 +21,7 @@
       "type": {
         "const": "ELECTIVE_AT_WILL"
       },
-      "conversion_right": {
-        "description": "トリガーの条件が満たされた場合の転換に関する権利",
-        "oneOf": [
-          {
-            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_rights/StockClassConversionRight.schema.json"
-          }
-        ]  
-      }
+      "conversion_right": {}
     },
     "additionalProperties": false,
     "required": ["trigger_id", "type", "conversion_right"]

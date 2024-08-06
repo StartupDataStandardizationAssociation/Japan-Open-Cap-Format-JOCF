@@ -8,15 +8,15 @@
         "const": "RATIO_CONVERSION"
       },
       "conversion_price": {
-        "description": "What is the effective conversion price per share of this stock class?",
+        "description": "株式の1株当たりの転換価格",
         "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Monetary.schema.json"
       },
       "ratio": {
-        "description": "One share of this stock class converts into this many target stock class shares",
+        "description": "転換比率",
         "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Ratio.schema.json"
       },
       "rounding_type": {
-        "description": "How should fractional shares be rounded?",
+        "description": "転換時の丸め方",
         "$ref": "https://jocf.startupstandard.org/jocf/main/schema/enums/RoundingType.schema.json"
       }
     },

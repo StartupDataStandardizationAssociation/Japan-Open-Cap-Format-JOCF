@@ -116,7 +116,17 @@
                     "type": "boolean"
                 },
                 "mandatory_conversion_triggers": {
-                    "description": "強制転換条項が設定されているかどうか",
+                    "description": "強制転換条項一覧",
+                    "items": {
+                        "oneOf": [
+                            {
+                                "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_triggers/ElectiveConversionAtWillTrigger.schema.json"
+                            }
+                        ]
+                    }
+                },
+                "has_transfer_restrictions": {
+                    "description": "譲渡制限の有無",
                     "type": "boolean"
                 }
             },
