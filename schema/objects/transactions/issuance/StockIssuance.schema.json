@@ -41,7 +41,48 @@
     "representations_and_warranties_by_issuing_company": {
       "description": "発行会社による表明および保証",
       "type": "object",
-      "properties": {},
+      "properties": {
+        "incorporation_and_existence": {
+          "description": "設立および存続等に関する表明および保証",
+          "type": "string"
+        },
+        "authorization": {
+          "description": "株式発行に関する表明および保証",
+          "type": "string"
+        },
+        "validity_and_enforceability": {
+          "description": "本契約の有効性および執行可能性に関する表明および保証",
+          "type": "string"
+        },
+        "absence_of_violations": {
+          "description": "違反の不存在に関する表明および保証",
+          "type": "string"
+        },
+        "absence_of_bankruptcy_proceedings": {
+          "description": "倒産手続きの不存在に関する表明および保証",
+          "type": "string"
+        },
+        "complete_and_accurate_capitalization": {
+          "description": "発行会社の株式等に関する表明および保証",
+          "type": "string"
+        },
+        "compliance_with_laws": {
+          "description": "法令遵守に関する表明および保証",
+          "type": "string"
+        },
+        "absence_of_antisocial_forces": {
+          "description": "反社会的勢力に対する表明および保証",
+          "type": "string"
+        },
+        "absence_of_litigation": {
+          "description": "訴訟の不存在に関する表明および保証",
+          "type": "string"
+        },
+        "compliance_with_taxes_and_duties": {
+          "description": "公租公課への適切な対応に関する表明および保証",
+          "type": "string"
+        }
+      },
       "required": []
     }
   },
