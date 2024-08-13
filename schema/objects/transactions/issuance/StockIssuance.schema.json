@@ -47,7 +47,7 @@
           "type": "string"
         },
         "authorization": {
-          "description": "株式発行に関する表明および保証",
+          "description": "授権に関する表明および保証",
           "type": "string"
         },
         "validity_and_enforceability": {
@@ -84,7 +84,33 @@
         }
       },
       "required": []
-    }
+    },
+    "representations_and_warranties_by_investor": {
+      "description": "投資家による表明および保証",
+      "type": "object",
+      "properties": {
+        "incorporation_and_existence": {
+          "description": "設立および存続等に関する表明および保証",
+          "type": "string"
+        },
+        "authorization": {
+          "description": "授権に関する表明および保証",
+          "type": "string"
+        },
+        "validity_and_enforceability": {
+          "description": "本契約の有効性および執行可能性に関する表明および保証",
+          "type": "string"
+        },
+        "absence_of_violations": {
+          "description": "違反の不存在に関する表明および保証",
+          "type": "string"
+        },
+        "absence_of_antisocial_forces": {
+          "description": "反社会的勢力に対する表明および保証",
+          "type": "string"
+        }
+      },
+      "required": []
   },
   "additionalProperties": false,
   "required": [
