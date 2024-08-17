@@ -5,6 +5,7 @@
   "type": "string",
   "enum": [
     "AUTOMATIC_ON_CONDITION",
-    "ELECTIVE_AT_WILL"
+    "ELECTIVE_AT_WILL",
+    "ANTI_DILUTION_IN_DOWN_ROUND"
   ]
 }
