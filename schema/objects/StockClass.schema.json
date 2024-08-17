@@ -125,15 +125,18 @@
                         }
                     }
                 },
-                "mandatory_conversion_triggers": {
-                    "description": "強制転換条項一覧",
-                    "type": "array",
-                    "items": {
-                        "oneOf": [
-                            {
-                                "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_triggers/AutomaticConversionOnConditionTrigger.schema.json"
-                            }
-                        ]
+                "mandatory_conversion_attributes": {
+                    "description": "強制転換条項に関する項目",
+                    "type": "object",
+                    "properties": {
+                        "mandatory_conversion_trigger": {
+                            "description": "強制転換条項が行使可能となる条件を記述する法的文言",
+                            "type": "string"
+                        },
+                        "mandatory_conversion_formula": {
+                            "description": "強制転換額を決定する計算式を記述する法的文言",
+                            "type": "string"
+                        }
                     }
                 },
                 "has_transfer_restrictions": {
