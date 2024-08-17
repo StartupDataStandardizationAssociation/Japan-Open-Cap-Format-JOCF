@@ -1,5 +1,5 @@
 {
-  "$id": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_triggers/AntiDilutionProtectionInDownRoundTrigger.schema.json",
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_triggers/AntiDilutionProtectionTrigger.schema.json",
   "title": "Type - Conversion on Down Round Trigger",
   "description": "ダウンラウンドによる希薄化防止条項が発動するトリガー",
   "type": "object",
@@ -21,11 +21,11 @@
     "nickname": {},
     "trigger_description": {},
     "type": {
-      "const": "ANTI_DILUTION_IN_DOWN_ROUND"
+      "const": "ANTI_DILUTION_PROTECTION"
     },
     "conversion_right": {},
     "anti_dilution_protection_type": {
-      "description": "希薄化保護種別",
+      "description": "希薄化防止種別",
       "type": "string",
       "enum": [
         "FULL_RATCHET",
