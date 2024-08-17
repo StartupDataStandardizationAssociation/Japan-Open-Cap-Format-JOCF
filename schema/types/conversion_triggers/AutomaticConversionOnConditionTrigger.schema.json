@@ -1,7 +1,7 @@
 {
   "$id": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_triggers/AutomaticConversionOnConditionTrigger.schema.json",
   "title": "Type - Automatic Conversion on Condition Trigger",
-  "description": "条件による自動的に発動するトリガー",
+  "description": "条件により自動的に発動するトリガー",
   "type": "object",
   "allOf": [
     {

@@ -44,6 +44,12 @@
                         "oneOf": [
                             {
                                 "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_triggers/ElectiveConversionAtWillTrigger.schema.json"
+                            },
+                            {
+                                "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_triggers/AntiDilutionProtectionInDownRoundTrigger.schema.json"
+                            },
+                            {
+                                "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_triggers/AutomaticConversionOnConditionTrigger.schema.json"
                             }
                         ]
                     }
@@ -105,33 +111,27 @@
                     "description": "一株あたりの議決権(種類株主総会)",
                     "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
                 },
-                "dilution_protection_attributes" : {
-                    "description": "希薄化防止に関する項目",
-                    "type": "object",
+                "redemption_right_attributes" : {
+                    "description": "償還請求権に関する項目",
+                    "type": "object", 
                     "properties": {
-                        "dilution_protection_type": {
-                            "description": "希薄化保護種別",
-                            "type": "string",
-                            "enum": [
-                                "FULL_RATCHET",
-                                "BROAD_BASED_WEIGHTED_AVERAGE",
-                                "NARROW_BASED_WEIGHTED_AVERAGE",
-                                "NONE"
-                            ]
+                        "redemption_trigger": {
+                            "description": "償還請求権が行使可能となる条件",
+                            "type": "string"
+                        },
+                        "redemption_formula": {
+                            "description": "償還額を決定する計算式",
+                            "type": "string"
                         }
-                    },
-                    "required": []
-                },
-                "redemption_rights" : {
-                    "description": "償還請求権が設定されているかどうか",
-                    "type": "boolean"
+                    }
                 },
                 "mandatory_conversion_triggers": {
                     "description": "強制転換条項一覧",
+                    "type": "array",
                     "items": {
                         "oneOf": [
                             {
-                                "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_triggers/ElectiveConversionAtWillTrigger.schema.json"
+                                "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_triggers/AutomaticConversionOnConditionTrigger.schema.json"
                             }
                         ]
                     }
