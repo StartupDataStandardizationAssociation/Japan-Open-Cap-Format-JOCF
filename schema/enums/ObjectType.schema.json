@@ -1,0 +1,13 @@
+{
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/enums/ObjectType.schema.json",
+  "title": "Enum - Object Type",
+  "description": "オブジェクトタイプの列挙",
+  "type": "string",
+  "enum": [
+    "STAKEHOLDER",
+    "STOCK_CLASS",
+    "TX_ISSUER_AUTHORIZED_SHARES_ADJUSTMENT",
+    "TX_STOCK_CLASS_CONVERSION_RATIO_ADJUSTMENT",
+    "TX_STOCK_CLASS_AUTHORIZED_SHARES_ADJUSTMENT"
+  ]
+}

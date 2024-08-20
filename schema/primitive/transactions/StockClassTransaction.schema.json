@@ -1,0 +1,13 @@
+{
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/StockClassTransaction.schema.json",
+  "title": "Primitive - Stock Class Transaction",
+  "description": "株式クラスに影響を与えるすべてのトランザクションオブジェクトによって拡張される抽象トランザクションオブジェクト",
+  "type": "object",
+  "properties": {
+    "stock_class_id": {
+      "description": "株式クラスオブジェクトの識別子、このトランザクションの主題",
+      "type": "string"
+    }
+  },
+  "required": ["stock_class_id"]
+}

@@ -1,0 +1,24 @@
+{
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/Object.schema.json",
+  "title": "Primitive - Object",
+  "description": "他のすべてのオブジェクトによって拡張される抽象オブジェクト",
+  "type": "object",
+  "properties": {
+    "id": {
+      "description": "オブジェクトの識別子",
+      "type": "string"
+    },
+    "comments": {
+      "description": "オブジェクトに関連して保存されている構造化されていないテキストコメント",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "object_type": {
+      "description": "Object type field",
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/enums/ObjectType.schema.json"
+    }
+  },
+  "required": ["id", "object_type"]
+}
