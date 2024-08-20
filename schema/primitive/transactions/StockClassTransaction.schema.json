@@ -5,7 +5,7 @@
   "type": "object",
   "properties": {
     "stock_class_id": {
-      "description": "株式クラスオブジェクトの識別子、このトランザクションの主題",
+      "description": "株式クラスオブジェクトの識別子",
       "type": "string"
     }
   },

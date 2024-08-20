@@ -1,0 +1,39 @@
+{
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/adjustment/StockClassAuthorizedSharesAdjustment.schema.json",
+  "title": "Object - 株式クラス発行可能株式調整トランザクション",
+  "description": "株式クラスの発行可能株式数を変更するためのイベント",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/Object.schema.json"
+    },
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/Transaction.schema.json"
+    },
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/StockClassTransaction.schema.json"
+    }
+  ],
+  "properties": {
+    "object_type": {
+      "const": "TX_STOCK_CLASS_AUTHORIZED_SHARES_ADJUSTMENT"
+    },
+    "id": {},
+    "comments": {},
+    "date": {},
+    "stock_class_id": {},
+    "new_shares_authorized": {
+      "description": "新しい発行可能株式数",
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
+    },
+    "board_approval_date": {
+      "description": "取締役会承認日付",
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Date.schema.json"
+    },
+    "stockholder_approval_date": {
+      "description": "株主承認日付",
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Date.schema.json"
+    }
+  },
+  "required": ["new_shares_authorized"]
+}
