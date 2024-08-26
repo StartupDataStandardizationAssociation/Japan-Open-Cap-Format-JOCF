@@ -1,0 +1,12 @@
+{
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/enums/FileType.schema.json",
+  "title": "Enum - JOCF File Type",
+  "description": "JOCFファイル種別, ファイル内のJSONオブジェクトを適切なスキーマでロードするために使用される",
+  "type": "string",
+  "enum": [
+    "JOCF_SECURITYHOLDERS_FILE",
+    "JOCF_STOCK_CLASSES_FILE",
+    "JOCF_TRANSACTIONS_FILE",
+    "JOCF_STAKEHOLDERS_AGREEMENT_FILE"
+  ]
+}

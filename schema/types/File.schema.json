@@ -1,0 +1,17 @@
+{
+  "$id": "https://jocf.startupstandard.org/jocf/schema/types/File.schema.json",
+  "title": "Type - File",
+  "description": "ファイルの基底スキーマ",
+  "type": "object",
+  "properties": {
+    "filepath": {
+      "description": "JOCFコンテナ内の当該ファイルのパス",
+      "type": "string"
+    },
+    "md5": {
+      "description": "MD5ファイルチェックサム",
+      "$ref": "https://jocf.startupstandard.org/jocf/schema/types/Md5.schema.json"
+    }
+  },
+  "required": ["filepath", "md5"]
+}

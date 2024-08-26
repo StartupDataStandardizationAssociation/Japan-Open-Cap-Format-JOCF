@@ -1,0 +1,16 @@
+{
+    "$id": "https://jocf.startupstandard.org/jocf/main/schema/objects/AcquisitionDistributionAgreement.schema.json",
+    "title": "Object - Acquisition Distribution Agreement",
+    "description": "買収に係る分配に関する契約",
+    "type": "object",
+    "allOf": [
+        {
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/Object.schema.json"
+        }
+    ],
+    "properties": {
+        "object_type" : {
+            "const" : "ACQUISITION_DISTRIBUTION_AGREEMENT"
+        }
+    }
+}
