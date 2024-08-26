@@ -1,7 +1,7 @@
 {
     "$id": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/agreement/StakeholdersAgreementExecution.schema.json",
     "title": "Transaction - Stakeholders Agreement Execution",
-    "description": "株主間同意の締結に関するトランザクション",
+    "description": "株主間同意の成立に関するトランザクション",
     "type": "object",
     "allOf": [
         {
