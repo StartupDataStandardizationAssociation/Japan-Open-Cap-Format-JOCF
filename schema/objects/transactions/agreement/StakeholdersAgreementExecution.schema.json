@@ -1,0 +1,25 @@
+{
+    "$id": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/agreement/StakeholdersAgreementExecution.schema.json",
+    "title": "Transaction - Stakeholders Agreement Execution",
+    "description": "株主間同意の締結に関するトランザクション",
+    "type": "object",
+    "allOf": [
+        {
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/Object.schema.json"
+        },
+        {
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/Transaction.schema.json"
+        },
+        {
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/StakeholdersAgreementTransaction.schema.json"
+        }
+    ],
+    "properties": {
+        "object_type" : {
+            "const" : "STAKEHOLDERS_AGREEMENT_EXECUTION"
+        },
+        "id" : {},
+        "date" : {},
+        "stakeholders_agreement_id" : {}
+    }
+}
