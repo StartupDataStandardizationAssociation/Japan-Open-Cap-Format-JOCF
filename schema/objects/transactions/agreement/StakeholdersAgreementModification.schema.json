@@ -1,7 +1,7 @@
 {
-    "$id": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/agreement/StakeholdersAgreementExecution.schema.json",
-    "title": "Transaction - Stakeholders Agreement Execution",
-    "description": "株主間同意の成立に関するトランザクション",
+    "$id": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/agreement/StakeholdersAgreementModification.schema.json",
+    "title": "Transaction - Stakeholders Agreement Modification",
+    "description": "株主間同意の改定に関するトランザクション",
     "type": "object",
     "allOf": [
         {
@@ -16,7 +16,7 @@
     ],
     "properties": {
         "object_type" : {
-            "const" : "TX_STAKEHOLDERS_AGREEMENT_EXECUTION"
+            "const" : "TX_STAKEHOLDERS_AGREEMENT_MODIFICATION"
         },
         "id" : {},
         "date" : {},
