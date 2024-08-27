@@ -1,0 +1,26 @@
+{
+    "$id": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/agreement/SecurityholdersAgreementModification.schema.json",
+    "title": "Transaction - Securityholders Agreement Modification",
+    "description": "証券保有者間同意の改定に関するトランザクション",
+    "type": "object",
+    "allOf": [
+        {
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/Object.schema.json"
+        },
+        {
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/Transaction.schema.json"
+        },
+        {
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/SecurityholdersAgreementTransaction.schema.json"
+        }
+    ],
+    "properties": {
+        "object_type" : {
+            "const" : "TX_SECURITYHOLDERS_AGREEMENT_MODIFICATION"
+        },
+        "id" : {},
+        "date" : {},
+        "securityholders_agreement_id" : {}
+    },
+    "required": ["securityholders_agreement_id"]
+}

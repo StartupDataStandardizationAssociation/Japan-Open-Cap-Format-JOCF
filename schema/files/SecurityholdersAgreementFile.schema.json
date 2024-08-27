@@ -1,7 +1,7 @@
 {
-    "$id": "https://jocf.startupstandard.org/jocf/main/schema/files/StakeHoldersAgreementFile.schema.json",
-    "title": "JOCF Stakeholders Agreement File",
-    "description": "株主間同意に関するファイル",
+    "$id": "https://jocf.startupstandard.org/jocf/main/schema/files/SecurityHoldersAgreementFile.schema.json",
+    "title": "JOCF Securityholders Agreement File",
+    "description": "証券保有者間同意に関するファイル",
     "type": "object",
     "allOf": [
         {
@@ -11,11 +11,11 @@
     "properties": {
         "items" : {
             "type" : "array",
-            "description": "株主間同意の一覧",
+            "description": "証券保有者間同意の一覧",
             "items": {
                 "oneOf": [
                     {
-                        "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/MasterStakeholdersAgreement.schema.json"
+                        "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/MasterSecurityholdersAgreement.schema.json"
                     },
                     {
                         "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/AcquisitionDistributionAgreement.schema.json"
@@ -24,7 +24,7 @@
             }
         },
         "file_type" : {
-            "const" : "JOCF_STAKEHOLDERS_AGREEMENT_FILE"
+            "const" : "JOCF_SECURITYHOLDERS_AGREEMENT_FILE"
         }
     }
 }

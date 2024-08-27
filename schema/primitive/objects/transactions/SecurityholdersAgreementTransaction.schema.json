@@ -1,0 +1,13 @@
+{
+    "$id": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/SecurityholdersAgreementTransaction.schema.json",
+    "title": "Primitive - Securityholders Agreement Transaction",
+    "description": "証券保有者間同意に影響を与えるすべてのトランザクションオブジェクトによって拡張される抽象トランザクションオブジェクト",
+    "type": "object",
+    "properties": {
+        "securityholders_agreement_id": {
+            "description": "トランザクションの対象である証券保有者間同意の識別子",
+            "type": "string"
+        }
+    },
+    "required": ["securityholders_agreement_id"]
+}

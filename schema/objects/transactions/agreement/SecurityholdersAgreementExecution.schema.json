@@ -1,0 +1,26 @@
+{
+    "$id": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/agreement/SecurityholdersAgreementExecution.schema.json",
+    "title": "Transaction - Securityholders Agreement Execution",
+    "description": "証券保有者間同意の成立に関するトランザクション",
+    "type": "object",
+    "allOf": [
+        {
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/Object.schema.json"
+        },
+        {
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/Transaction.schema.json"
+        },
+        {
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/SecurityholdersAgreementTransaction.schema.json"
+        }
+    ],
+    "properties": {
+        "object_type" : {
+            "const" : "TX_SECURITYHOLDERS_AGREEMENT_EXECUTION"
+        },
+        "id" : {},
+        "date" : {},
+        "securityholders_agreement_id" : {}
+    },
+    "required": ["securityholders_agreement_id"]
+}
