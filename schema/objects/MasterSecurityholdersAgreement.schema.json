@@ -11,6 +11,28 @@
     "properties": {
         "object_type" : {
             "const" : "MASTER_SECURITYHOLDERS_AGREEMENT"
-        }   
+        }, 
+        "parties_and_authority_attributes" : {
+            "type" : "array",
+            "description": "証券保有者間同意における当事者の一覧とその権限属性",
+            "properties": {
+                "security_holder_group_id" : {
+                    "description": "証券保有者グループID",
+                    "type": "string"
+                },
+                "number_of_electable_directors": {
+                    "description": "取締役選任可能人数",
+                    "type": "integer"
+                },
+                "number_of_electable_observers": {
+                    "description": "オブザーバー選任可能人数",
+                    "type": "integer"
+                },
+                "has_information_rights": {
+                    "description": "情報提供権の保有の有無",
+                    "type": "boolean"
+                }
+            }
+        } 
     }
 }

@@ -1,0 +1,30 @@
+{
+    "$id": "https://jocf.startupstandard.org/jocf/main/schema/objects/SecurityHolderGroup.schema.json",
+    "title": "Object - Security Holder Group",
+    "description": "証券保有者グループ",
+    "type": "object",
+    "allOf": [
+        {
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/Object.schema.json"
+        }
+    ],
+    "properties": {
+        "object_type" : {
+            "const" : "SECURITY_HOLDER_GROUP"
+        },
+        "name": {
+            "description": "証券保有者グループの名前",
+            "type": "string"
+        },
+        "security_holder_group_members": {
+            "description": "証券保有者グループに属するメンバー",
+            "type": "array",
+            "properties": {
+                "security_holder_id" : {
+                    "description": "証券保有者のID",
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
