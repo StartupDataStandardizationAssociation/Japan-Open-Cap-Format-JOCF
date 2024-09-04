@@ -40,11 +40,60 @@
                         }
                     }
                 },
+                "matters_requiring_prior_consultation" : {
+                    "description": "事前協議が必要な事項のリスト",
+                    "type": "array",
+                    "properties": {
+                        "matter_requiring_prior_action" : {
+                            "$ref" : "https://jocf.startupstandard.org/jocf/main/schema/enums/MattersRequiringPriorActionType.schema.json" 
+                        }
+                    }
+                },
+                "matters_requiring_prior_notice" : {
+                    "description": "事前通知が必要な事項のリスト",
+                    "type": "array",
+                    "properties": {
+                        "matter_requiring_prior_action" : {
+                            "$ref" : "https://jocf.startupstandard.org/jocf/main/schema/enums/MattersRequiringPriorActionType.schema.json" 
+                        }
+                    }
+                },
                 "has_information_rights": {
                     "description": "情報提供権の保有の有無",
                     "type": "boolean"
                 }
             }
-        } 
+        },
+        "obligation_to_provide_financial_information" : {
+            "description": "財務情報等の提供の義務",
+            "type": "array",
+            "properties": {
+                "financial_information" : {
+                    "$ref" : "https://jocf.startupstandard.org/jocf/main/schema/enums/FinancialInformationType.schema.json"
+                }
+            }
+        },
+        "right_to_access_financial_information" : {
+            "description": "財務情報の閲覧謄写検査請求権",
+            "type": "boolean"
+        },
+        "obligation_to_provide_material_information" : {
+            "description": "発行会社の重要情報提供義務",
+            "type": "array",
+            "properties": {
+                "material_information" : {
+                    "$ref" : "https://jocf.startupstandard.org/jocf/main/schema/enums/MaterialInformationType.schema.json"
+                }
+            }
+        },
+        "obligation_of_managing_securityholder_to_fully_commit" : {
+            "description": "経営株主の経営専念義務",
+            "type": "array",
+            "properties": {
+                "action_of_managing_securityholder_requiring_prior_approval" : {
+                    "$ref" : "https://jocf.startupstandard.org/jocf/main/schema/enums/ActionsOfManagingSecurityholderRequiringPriorApprovalType.schema.json"
+                }
+            }
+        }
     }
 }
