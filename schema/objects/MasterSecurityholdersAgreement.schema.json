@@ -94,6 +94,26 @@
                     "$ref" : "https://jocf.startupstandard.org/jocf/main/schema/enums/ActionsOfManagingSecurityholderRequiringPriorApprovalType.schema.json"
                 }
             }
+        },
+        "preemptive_right" : {
+            "description": "株式等の優先引受権に関する法的文言",
+            "type": "string"
+        },
+        "right_of_first_refusal" : {
+            "description": "株式等の先買権に関する法的文言",
+            "type": "string"
+        },
+        "transfer_restrictions_on_securityholder" : {
+            "description": "証券保有者の譲渡制限に関する法的文言",
+            "type": "string"
+        },
+        "drag_along_right" : {
+            "description": "株式等の売却強制権に関する法的文言",
+            "type": "string"
+        },
+        "obligation_to_make_best_efforts_to_pursue_ipo" : {
+            "description": "株式公開を目指す努力義務に関する法的文言",
+            "type": "string"
         }
     }
 }
