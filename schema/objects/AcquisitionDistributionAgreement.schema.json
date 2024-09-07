@@ -11,6 +11,24 @@
     "properties": {
         "object_type" : {
             "const" : "ACQUISITION_DISTRIBUTION_AGREEMENT"
+        },
+        "securityholders_who_agreed" : {
+            "type" : "array",
+            "description": "分配合意書に合意する証券保有者の一覧",
+            "properties": {
+                "securityholder_id" : {
+                    "type" : "string",
+                    "description": "証券保有者ID"
+                }
+            }
+        },
+        "put_option_on_aquisition" : {
+            "description": "買収時の売却請求権に関する法的文言",
+            "type": "string"
+        },
+        "put_option_on_ipo_failure" : {
+            "description": "IPOが期限までに実施されなかった場合の売却請求権に関する法的文言",
+            "type": "string"
         }
     }
 }
