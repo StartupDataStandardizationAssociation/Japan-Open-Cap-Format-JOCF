@@ -5,13 +5,99 @@
             "object_type": "STOCK_CLASS",
             "name": "普通株式",
             "id": "test-stock-class-1",
-            "class_type": "COMMON"
+            "class_type": "COMMON",
+            "votes_per_share": "1.23",
+            "initial_shares_authorized": "1234.5678"
         },
         {
             "object_type": "STOCK_CLASS",
             "id": "test-stock-class-2",
             "name": "A種優先株式",
-            "class_type": "CLASS"
+            "class_type": "PREFERRED",
+            "votes_per_share": "1.23",
+            "initial_shares_authorized": "1234.5678",
+            "preffered_stock_attributes": {
+                "conversion_triggers": [
+                    {
+                        "trigger_id": "test_elective_conversion_at_will_trigger_id",
+                        "nickname": "任意転換",
+                        "trigger_description": "任意のタイミングで転換可能なことを表現するトリガー",
+                        "type": "ELECTIVE_AT_WILL",
+                        "conversion_ratio": {
+                            "type" : "STOCK_CLASS_CONVERSION_RIGHT",
+                            "conversion_mechanism": {
+                                "type": "RATIO_CONVERSION",
+                                "conversion_price": "123.45",
+                                "ratio": "1.23",
+                                "rounding_type": "CEILING"
+                            },
+                            "converts_to_stock_class_id": "test-stock-class-1"
+                        }
+                    },
+                    {
+                        "type" : "ANTI_DILUTION_PROTECTION",
+                        "trigger_id": "test-anti-dilution-protection-trigger-id",
+                        "nickname": "希薄化防止",
+                        "trigger_description": "ダウンラウンドによる希薄化防止条項のトリガー",
+                        "trigger_condition": "発動条件に関する法的な文言を記載",
+                        "non-triggering_condition": "発動条件を満たした上で、転換を実施しない条件に関する法的な文言を記載",
+                        "anti_dilution_protection_type": "BROAD_BASED_WEIGHTED_AVERAGE",
+                        "incentive_exclusion_ratio": {
+                            "numerator": "1",
+                            "denominator": "10"
+                        },
+                        "conversion_ratio": {
+                            "type" : "STOCK_CLASS_CONVERSION_RIGHT",
+                            "conversion_mechanism": {
+                                "type": "RATIO_CONVERSION",
+                                "conversion_price": "0",
+                                "ratio": "1",
+                                "rounding_type": "CEILING"
+                            },
+                            "converts_to_future_round": true
+                        }
+                    },
+                    {
+                        "type": "AUTOMATIC_ON_CONDITION",
+                        "trigger_id": "test-automatic-on-condition-trigger-id",
+                        "nickname": "自動転換",
+                        "trigger_description": "条件により自動的に発動するトリガー e.g. 上場審査の開始など",
+                        "trigger_condition": "発動条件に関する法的な文言を記載",
+                        "conversion_right": {
+                            "type" : "STOCK_CLASS_CONVERSION_RIGHT",
+                            "conversion_mechanism": {
+                                "type": "RATIO_CONVERSION",
+                                "conversion_price": "0",
+                                "ratio": "1",
+                                "rounding_type": "CEILING"
+                            },
+                            "converts_to_stock_class_id": "test-stock-class-1"
+                        }
+                    }
+                ],
+                "dividend_attributes": {
+                    "dividend_rate": "0.123",
+                    "participation_category": "NON_PARTICIPATING",
+                    "cumulative_category": "NON_CUMULATIVE",
+                    "seniority": 1
+                },
+                "liquidation_preference_attributes": {
+                    "liquidation_preference_multiple": "1.23",
+                    "participation_category": "FULL_PARTICIPATING",
+                    "cumulative_category": "FULL_CUMULATIVE",
+                    "seniority": "1.23"
+                },
+                "votes_per_share_at_class_meeting": "1.23",
+                "redemption_right_attributes": {
+                    "redemption_trigger": "償還請求権が行使可能となる条件を記載する",
+                    "redemption_formula" : "償還額を決定する計算式を記載する"
+                },
+                "mandatory_conversion_attributes": {
+                    "mandatory_conversion_trigger": "強制転換条項が行使可能となる条件を記述する",
+                    "mandatory_conversion_formula": "強制転換額を決定する計算式を記述する"
+                },
+                "has_transfer_restrictions" : true
+            }
         }
     ]
 }
