@@ -12,6 +12,15 @@
         "object_type" : {
             "const" : "MASTER_SECURITYHOLDERS_AGREEMENT"
         }, 
+        "securityholders_who_agreed" : {
+            "type" : "array",
+            "description": "証券保有者間基本契約に合意する証券保有者の一覧",
+            "properties": {
+                "securityholder" : {
+                    "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/SecurityHolder.schema.json"
+                }
+            }
+        },
         "parties_and_authority_attributes" : {
             "type" : "array",
             "description": "証券保有者間同意における当事者の一覧とその権限属性",
@@ -19,9 +28,8 @@
                 "securityholder_group" : {
                     "$ref" : "https://jocf.startupstandard.org/jocf/main/schema/objects/SecurityholderGroup.schema.json"
                 },
-                "securityholder_id" : {
-                    "description": "証券保有者間同意の当事者である証券保有者ID",
-                    "type": "string"
+                "securityholder" : {
+                    "$ref" : "https://jocf.startupstandard.org/jocf/main/schema/objects/Securityholder.schema.json"
                 },
                 "number_of_electable_directors": {
                     "description": "取締役選任可能人数",

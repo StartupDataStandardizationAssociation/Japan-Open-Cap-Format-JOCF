@@ -16,9 +16,8 @@
             "type" : "array",
             "description": "分配合意書に合意する証券保有者の一覧",
             "properties": {
-                "securityholder_id" : {
-                    "type" : "string",
-                    "description": "証券保有者ID"
+                "securityholder" : {
+                    "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/SecurityHolder.schema.json"
                 }
             }
         },

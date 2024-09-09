@@ -16,13 +16,12 @@
             "description": "証券保有者グループの名前",
             "type": "string"
         },
-        "security_holder_group_members": {
+        "securityholder_group_members": {
             "description": "証券保有者グループに属するメンバー",
             "type": "array",
             "properties": {
-                "security_holder_id" : {
-                    "description": "証券保有者のID",
-                    "type": "string"
+                "securityholder" : {
+                    "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/SecurityHolder.schema.json"
                 }
             }
         }
