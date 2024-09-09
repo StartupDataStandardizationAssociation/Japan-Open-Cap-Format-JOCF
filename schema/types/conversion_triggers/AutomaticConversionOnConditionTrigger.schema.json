@@ -9,29 +9,29 @@
     }
   ],
   "properties": {
+    "type": {
+      "const": "AUTOMATIC_ON_CONDITION"
+    },
     "trigger_condition": {
       "description": "変換が行われるためにどの条件が満たされなければならないかを説明する法的な文言",
-      "type": "string"
-    },
-    "trigger_id": {},
-    "nickname": {
-      "description": "トリガーのニックネーム",
       "type": "string"
     },
     "trigger_description": {
       "description": "トリガーの説明",
       "type": "string"
     },
-    "type": {
-      "const": "AUTOMATIC_ON_CONDITION"
+    "nickname": {
+      "description": "トリガーのニックネーム",
+      "type": "string"
     },
+    "trigger_id": {},
     "conversion_right": {}
   },
   "additionalProperties": false,
   "required": [
+    "type",
     "trigger_id",
     "trigger_condition",
-    "type",
     "conversion_right"
   ]
 }
