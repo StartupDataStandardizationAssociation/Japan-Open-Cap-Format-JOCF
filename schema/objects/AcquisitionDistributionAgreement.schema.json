@@ -28,6 +28,8 @@
         "put_option_on_ipo_failure" : {
             "description": "IPOが期限までに実施されなかった場合の売却請求権に関する法的文言",
             "type": "string"
-        }
-    }
+        },
+        "id" : {}
+    },
+    "required": ["id", "object_type"]
 }

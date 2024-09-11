@@ -70,7 +70,8 @@
                     "description": "情報提供権の保有の有無",
                     "type": "boolean"
                 }
-            }
+            },
+            "required": []
         },
         "obligation_to_provide_financial_information" : {
             "description": "財務情報等の提供の義務",
@@ -122,6 +123,8 @@
         "obligation_to_make_best_efforts_to_pursue_ipo" : {
             "description": "株式公開を目指す努力義務に関する法的文言",
             "type": "string"
-        }
-    }
+        },
+        "id" : {}
+    },
+    "required": ["object_type", "id"]
 }

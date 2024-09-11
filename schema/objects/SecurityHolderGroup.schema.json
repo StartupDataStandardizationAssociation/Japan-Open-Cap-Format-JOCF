@@ -10,7 +10,7 @@
     ],
     "properties": {
         "object_type" : {
-            "const" : "SECURITY_HOLDER_GROUP"
+            "const" : "SECURITYHOLDER_GROUP"
         },
         "name": {
             "description": "証券保有者グループの名前",

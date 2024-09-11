@@ -26,5 +26,6 @@
         "file_type" : {
             "const" : "JOCF_SECURITYHOLDERS_AGREEMENT_FILE"
         }
-    }
+    },
+    "required": ["items", "file_type"]
 }
