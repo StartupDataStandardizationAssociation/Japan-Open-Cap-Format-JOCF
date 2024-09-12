@@ -9,8 +9,8 @@
         }
     ],
     "properties": {
-        "items" : {
-            "type" : "array",
+        "items": {
+            "type": "array",
             "description": "証券保有者間同意の一覧",
             "items": {
                 "oneOf": [
@@ -23,9 +23,12 @@
                 ]
             }
         },
-        "file_type" : {
-            "const" : "JOCF_SECURITYHOLDERS_AGREEMENT_FILE"
+        "file_type": {
+            "const": "JOCF_SECURITYHOLDERS_AGREEMENT_FILE"
         }
     },
-    "required": ["items", "file_type"]
+    "required": [
+        "items",
+        "file_type"
+    ]
 }

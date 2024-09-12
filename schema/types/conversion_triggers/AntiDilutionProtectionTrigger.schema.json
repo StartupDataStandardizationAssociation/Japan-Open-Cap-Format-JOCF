@@ -12,6 +12,10 @@
     "type": {
       "const": "ANTI_DILUTION_PROTECTION"
     },
+    "nickname": {
+      "description": "トリガーのニックネーム",
+      "type": "string"
+    },
     "trigger_condition": {
       "description": "希薄化防止が発動可能となる条件を説明する法的な文言",
       "type": "string"
@@ -34,12 +38,12 @@
       "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Ratio.schema.json"
     },
     "trigger_id": {},
-    "nickname": {},
     "trigger_description": {},
     "conversion_right": {}
   },
   "additionalProperties": false,
-  "required": [ "type",
+  "required": [
+    "type",
     "trigger_id",
     "anti_dilution_protection_type",
     "conversion_right"

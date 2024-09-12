@@ -1,7 +1,13 @@
 {
+    "$id": "https://jocf.startupstandard.org/jocf/main/schema/objects/StockClass.schema.json",
     "title": "株式種類",
     "description": "",
     "type": "object",
+    "allOf": [
+        {
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/Object.schema.json"
+        }
+    ],
     "properties": {
         "object_type": {
             "const": "STOCK_CLASS"
@@ -12,6 +18,10 @@
         },
         "id": {
             "description": "株式種類のID",
+            "type": "string"
+        },
+        "description": {
+            "description": "株式種類の説明",
             "type": "string"
         },
         "class_type": {
