@@ -22,10 +22,18 @@
     "comments": {},
     "date": {},
     "stock_class_id": {},
+    "adjusted_trigger_id" : {
+      "description": "調整対象のトリガーの識別子",
+      "type": "string"
+    },
+    "initial_trigger_id" : {
+      "description": "調整の起因となったトリガーの識別子",
+      "type": "string"
+    },
     "new_ratio_conversion_mechanism": {
       "description": "元の転換価額から新しい転換価額への変更に基づく新しい転換メカニズム",
       "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_mechanisms/RatioConversionMechanism.schema.json"
     }
   },
-  "required": ["new_ratio_conversion_mechanism"]
+  "required": ["object_type", "id", "date", "stock_class_id", "new_ratio_conversion_mechanism"]
 }

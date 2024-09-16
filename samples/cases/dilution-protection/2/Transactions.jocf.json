@@ -1,0 +1,23 @@
+{
+    "file_type": "JOCF_TRANSACTIONS_FILE",
+    "items" : [
+        {
+            "object_type": "TX_STOCK_CLASS_CONVERSION_RATIO_ADJUSTMENT",
+            "id": "test-stock-class-A-conversion-ratio-adjustment-1",
+            "comments": "希薄化防止条項の発動により、優先株 A の普通株への任意の転換比率が 1.5 から 1.8 に変更された。",
+            "date": "2021-01-01",
+            "stock_class_id": "test-stock-class-A",
+            "adjusted_trigger_id": "test-elective-at-will-trigger-1",
+            "initial_trigger_id": "test-anti-dilution-protection-trigger-1",
+            "conversion_mechanism": {
+                "type": "RATIO_CONVERSION",
+                "conversion_price": {
+                    "amount": "100",
+                    "currency": "JPY"
+                },
+                "ratio": "1.8",
+                "rounding_type": "FLOOR"
+            }
+        }    
+    ]
+}

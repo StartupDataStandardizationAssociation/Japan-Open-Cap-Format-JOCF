@@ -5,7 +5,7 @@
   "type": "object",
   "properties": {
     "type": {
-      "description": "",
+      "description": "転換トリガーの種別",
       "$ref": "https://jocf.startupstandard.org/jocf/main/schema/enums/ConversionTriggerType.schema.json"
     },
     "trigger_id": {
