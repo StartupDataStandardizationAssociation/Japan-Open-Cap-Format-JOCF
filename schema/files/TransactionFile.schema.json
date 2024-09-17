@@ -1,4 +1,5 @@
 {
+    "$id": "https://jocf.startupstandard.org/jocf/main/schema/files/TransactionFile.schema.json",
     "title": "トランザクション",
     "description": "",
     "type": "object",
@@ -8,16 +9,19 @@
             "description": "JOCFトランザクションオブジェクトのリスト",
             "items": {
                 "oneOf": [
-                    { "$ref": "../objects/transactions/issuance/StockIssuance.schema.json"},
-                    { "$ref": "../objects/transactions/issuance/StockOptionIssuance.schema.json"},
-                    { "$ref": "../objects/transactions/issuance/ConvertibleIssuance.schema.json"},
-                    { "$ref": "../objects/transactions/conversion/StockConversion.schema.json"},
-                    { "$ref": "../objects/transactions/conversion/ConvertibleConversion.schema.json"},
-                    { "$ref": "../objects/transactions/exercise/StockOptionExercise.schema.json"},
-                    { "$ref": "../objects/transactions/cancellation/StockOptionCancellation.schema.json"},
-                    { "$ref": "../objects/transactions/transfer/StockTransfer.schema.json"},
-                    { "$ref": "../objects/transactions/split/StockSplit.schema.json"},
-                    { "$ref": "../objects/transactions/merger/StockMerger.schema.json"}
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema//objects/transactions/issuance/StockIssuance.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema//objects/transactions/issuance/StockOptionIssuance.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema//objects/transactions/issuance/ConvertibleIssuance.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema//objects/transactions/conversion/StockConversion.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema//objects/transactions/conversion/ConvertibleConversion.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema//objects/transactions/exercise/StockOptionExercise.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema//objects/transactions/cancellation/StockOptionCancellation.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema//objects/transactions/transfer/StockTransfer.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema//objects/transactions/split/StockSplit.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema//objects/transactions/merger/StockMerger.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/agreement/SecurityholdersAgreementExecution.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/agreement/SecurityholdersAgreementModification.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/agreement/SecurityholdersAgreementTermination.schema.json"}
                 ]
             }
         },

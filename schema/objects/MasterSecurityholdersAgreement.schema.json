@@ -15,11 +15,11 @@
         "securityholders_who_agreed" : {
             "type" : "array",
             "description": "証券保有者間基本契約に合意する証券保有者の一覧",
-            "properties": {
-                "securityholder" : {
+            "oneOf": [
+                {
                     "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/SecurityHolder.schema.json"
                 }
-            }
+            ]
         },
         "parties_and_authority_attributes" : {
             "type" : "array",

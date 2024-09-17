@@ -15,12 +15,21 @@
         }
     ],
     "properties": {
-        "object_type" : {
-            "const" : "TX_SECURITYHOLDERS_AGREEMENT_EXECUTION"
+        "object_type": {
+            "const": "TX_SECURITYHOLDERS_AGREEMENT_EXECUTION"
         },
-        "id" : {},
-        "date" : {},
-        "securityholders_agreement_id" : {}
+        "id": {},
+        "date": {},
+        "securityholders_agreement": {},
+        "description" : {
+            "description": "証券保有者間同意の成立に関するトランザクションの説明",
+            "type": "string"
+        }
     },
-    "required": ["securityholders_agreement_id"]
+    "required": [
+        "object_type",
+        "id",
+        "date",
+        "securityholders_agreement"
+    ]
 }
