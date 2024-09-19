@@ -15,12 +15,21 @@
         }
     ],
     "properties": {
-        "object_type" : {
-            "const" : "TX_SECURITYHOLDERS_AGREEMENT_TERMINATION"
+        "object_type": {
+            "const": "TX_SECURITYHOLDERS_AGREEMENT_TERMINATION"
         },
-        "id" : {},
-        "date" : {},
-        "securityholders_agreement_id" : {}
+        "reason_text": {
+            "description": "証券保有者間同意の終了の理由",
+            "type": "string"
+        },
+        "id": {},
+        "date": {},
+        "securityholders_agreement_id": {}
     },
-    "required": ["securityholders_agreement_id"]
+    "required": [
+        "object_type",
+        "id",
+        "date",
+        "securityholders_agreement_id"
+    ]
 }

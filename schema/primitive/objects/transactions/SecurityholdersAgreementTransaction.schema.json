@@ -14,9 +14,11 @@
                     "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/AcquisitionDistributionAgreement.schema.json"
                 }
             ]
+        },
+        "securityholders_agreement_id": {
+            "description": "トランザクションの対象である証券保有者間同意の識別子",
+            "type": "string"
         }
     },
-    "required": [
-        "securityholders_agreement"
-    ]
+    "required": []
 }

@@ -9,8 +9,8 @@
         }
     ],
     "properties": {
-        "object_type" : {
-            "const" : "SECURITYHOLDER_GROUP"
+        "object_type": {
+            "const": "SECURITYHOLDER_GROUP"
         },
         "name": {
             "description": "証券保有者グループの名前",
@@ -19,11 +19,17 @@
         "securityholder_group_members": {
             "description": "証券保有者グループに属するメンバー",
             "type": "array",
-            "properties": {
-                "securityholder" : {
+            "oneOf": [
+                {
                     "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/SecurityHolder.schema.json"
                 }
-            }
-        }
-    }
+            ]
+        },
+        "id": {}
+    },
+    "required": [
+        "object_type",
+        "id",
+        "securityholder_group_members"
+    ]
 }

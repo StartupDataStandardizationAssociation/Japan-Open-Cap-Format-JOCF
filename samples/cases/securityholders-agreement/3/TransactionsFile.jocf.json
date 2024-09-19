@@ -1,0 +1,12 @@
+{
+    "file_type": "JOCF_TRANSACTIONS_FILE",
+    "items" : [
+        {
+            "object_type": "JOCF_SECURITYHOLDERS_AGREEMENT_TERMINATION",
+            "reason_text" : "上場申請のため",
+            "id": "test-securityholders-agreement-termination-1",
+            "date": "2023-01-01",
+            "securityholders_agreement_id": "test-securityholders-agreement-1"
+        }
+    ]
+}
