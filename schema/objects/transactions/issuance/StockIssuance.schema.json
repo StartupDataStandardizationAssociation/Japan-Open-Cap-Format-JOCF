@@ -14,18 +14,22 @@
       "description": "この株式発行で発行する株式種類のID",
       "type": "string"
     },
+    "securityholder_id": {
+      "description": "発行する株式を受け取る証券保有者のID",
+      "type": "string"
+    },
     "share_price": {
       "description": "1株の価格"
     },
     "quantity": {
-      "description": "発行株式数"
+      "description": "引受株式数"
     },
     "description": {
       "description": "説明",
       "type": "string"
     },
     "date": {
-      "description": "日時",
+      "description": "契約締結日",
       "type": "string",
       "format": "date"
     },
@@ -115,7 +119,9 @@
   },
   "additionalProperties": false,
   "required": [
+    "object_type",
     "id",
+    "securityholder_id",
     "stock_class_id",
     "share_price",
     "quantity",
