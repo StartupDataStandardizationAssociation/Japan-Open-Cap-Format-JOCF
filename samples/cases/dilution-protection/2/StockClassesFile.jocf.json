@@ -35,10 +35,7 @@
                         },
                         "trigger_condition": "希薄化防止が発動可能となる条件を説明する文言や式を記載する",
                         "non_triggering_condition": "希薄化防止が発動可能となる条件を満たした上で、希薄化防止による転換を実施しない条件を説明する法的な文言や式を記載する",
-                        "incentive_exclusion_ratio": {
-                            "numerator": "1",
-                            "denominator": "10"
-                        }
+                        "incentive_exclusion_ratio": "0.1"
                     },
                     {
                         "type" : "ELECTIVE_AT_WILL",

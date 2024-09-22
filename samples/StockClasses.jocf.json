@@ -42,10 +42,7 @@
                         "trigger_condition": "発動条件に関する法的な文言を記載",
                         "non-triggering_condition": "発動条件を満たした上で、転換を実施しない条件に関する法的な文言を記載",
                         "anti_dilution_protection_type": "BROAD_BASED_WEIGHTED_AVERAGE",
-                        "incentive_exclusion_ratio": {
-                            "numerator": "1",
-                            "denominator": "10"
-                        },
+                        "incentive_exclusion_ratio": "0.1",
                         "conversion_ratio": {
                             "type" : "STOCK_CLASS_CONVERSION_RIGHT",
                             "conversion_mechanism": {

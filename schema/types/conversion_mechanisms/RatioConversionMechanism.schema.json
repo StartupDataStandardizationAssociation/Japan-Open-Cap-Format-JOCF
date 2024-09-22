@@ -7,6 +7,10 @@
       "type": {
         "const": "RATIO_CONVERSION"
       },
+      "description": {
+        "description": "転換メカニズムの説明",
+        "type": "string"
+      },
       "conversion_price": {
         "description": "株式の1株当たりの転換価格",
         "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Monetary.schema.json"

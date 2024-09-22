@@ -32,11 +32,15 @@
             "description": "一株あたりの議決権(株主総会)",
             "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
         },
+        "votes_per_share_at_class_meeting": {
+            "description": "一株あたりの議決権(種類株主総会)",
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
+        },
         "initial_shares_authorized": {
             "description": "株式発行時点での当該株式クラスの発行可能株式数",
             "oneOf": [
                 {
-                    "$ref" : "https://jocf.startupstandard.org/jocf/main/schema/types/AuthorizedShares.schema.json"
+                    "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/AuthorizedShares.schema.json"
                 },
                 {
                     "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
@@ -117,13 +121,9 @@
                         "liquidation_preference_multiple"
                     ]
                 },
-                "votes_per_share_at_class_meeting": {
-                    "description": "一株あたりの議決権(種類株主総会)",
-                    "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
-                },
-                "redemption_right_attributes" : {
+                "redemption_right_attributes": {
                     "description": "償還請求権に関する項目",
-                    "type": "object", 
+                    "type": "object",
                     "properties": {
                         "redemption_trigger": {
                             "description": "償還請求権が行使可能となる条件",
@@ -154,7 +154,9 @@
                     "type": "boolean"
                 }
             },
-            "required": ["conversion_triggers"]
+            "required": [
+                "conversion_triggers"
+            ]
         }
     },
     "additionalProperties": false,
