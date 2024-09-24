@@ -12,6 +12,10 @@
         "object_type" : {
             "const" : "ACQUISITION_DISTRIBUTION_AGREEMENT"
         },
+        "description" : {
+            "description": "買収に係る分配に関する契約の説明",
+            "type": "string"
+        },
         "securityholders_who_agreed" : {
             "type" : "array",
             "description": "分配合意書に合意する証券保有者の一覧",
