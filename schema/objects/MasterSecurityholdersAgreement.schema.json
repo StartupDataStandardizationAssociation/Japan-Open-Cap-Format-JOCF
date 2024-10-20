@@ -6,30 +6,33 @@
     "allOf": [
         {
             "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/Object.schema.json"
-        }   
+        }
     ],
     "properties": {
-        "object_type" : {
-            "const" : "MASTER_SECURITYHOLDERS_AGREEMENT"
-        }, 
-        "securityholders_who_agreed" : {
-            "type" : "array",
+        "object_type": {
+            "const": "MASTER_SECURITYHOLDERS_AGREEMENT"
+        },
+        "securityholders_who_agreed": {
+            "type": "array",
             "description": "証券保有者間基本契約に合意する証券保有者の一覧",
             "oneOf": [
                 {
                     "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/SecurityHolder.schema.json"
+                },
+                {
+                    "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/SecurityholderGroup.schema.json"
                 }
             ]
         },
-        "parties_and_authority_attributes" : {
-            "type" : "array",
+        "parties_and_authority_attributes": {
+            "type": "array",
             "description": "証券保有者間同意における当事者の一覧とその権限属性",
             "properties": {
-                "securityholder_group" : {
-                    "$ref" : "https://jocf.startupstandard.org/jocf/main/schema/objects/SecurityholderGroup.schema.json"
+                "securityholder_group": {
+                    "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/SecurityholderGroup.schema.json"
                 },
-                "securityholder" : {
-                    "$ref" : "https://jocf.startupstandard.org/jocf/main/schema/objects/Securityholder.schema.json"
+                "securityholder": {
+                    "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/Securityholder.schema.json"
                 },
                 "number_of_electable_directors": {
                     "description": "取締役選任可能人数",
@@ -43,26 +46,26 @@
                     "description": "事前承諾が必要な事項のリスト",
                     "type": "array",
                     "properties": {
-                        "matter_requiring_prior_action" : {
-                            "$ref" : "https://jocf.startupstandard.org/jocf/main/schema/enums/MattersRequiringPriorActionType.schema.json" 
+                        "matter_requiring_prior_action": {
+                            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/enums/MattersRequiringPriorActionType.schema.json"
                         }
                     }
                 },
-                "matters_requiring_prior_consultation" : {
+                "matters_requiring_prior_consultation": {
                     "description": "事前協議が必要な事項のリスト",
                     "type": "array",
                     "properties": {
-                        "matter_requiring_prior_action" : {
-                            "$ref" : "https://jocf.startupstandard.org/jocf/main/schema/enums/MattersRequiringPriorActionType.schema.json" 
+                        "matter_requiring_prior_action": {
+                            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/enums/MattersRequiringPriorActionType.schema.json"
                         }
                     }
                 },
-                "matters_requiring_prior_notice" : {
+                "matters_requiring_prior_notice": {
                     "description": "事前通知が必要な事項のリスト",
                     "type": "array",
                     "properties": {
-                        "matter_requiring_prior_action" : {
-                            "$ref" : "https://jocf.startupstandard.org/jocf/main/schema/enums/MattersRequiringPriorActionType.schema.json" 
+                        "matter_requiring_prior_action": {
+                            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/enums/MattersRequiringPriorActionType.schema.json"
                         }
                     }
                 },
@@ -73,58 +76,61 @@
             },
             "required": []
         },
-        "obligation_to_provide_financial_information" : {
+        "obligation_to_provide_financial_information": {
             "description": "財務情報等の提供の義務",
             "type": "array",
             "properties": {
-                "financial_information" : {
-                    "$ref" : "https://jocf.startupstandard.org/jocf/main/schema/enums/FinancialInformationType.schema.json"
+                "financial_information": {
+                    "$ref": "https://jocf.startupstandard.org/jocf/main/schema/enums/FinancialInformationType.schema.json"
                 }
             }
         },
-        "right_to_access_financial_information" : {
+        "right_to_access_financial_information": {
             "description": "財務情報の閲覧謄写検査請求権",
             "type": "boolean"
         },
-        "obligation_to_provide_material_information" : {
+        "obligation_to_provide_material_information": {
             "description": "発行会社の重要情報提供義務",
             "type": "array",
             "properties": {
-                "material_information" : {
-                    "$ref" : "https://jocf.startupstandard.org/jocf/main/schema/enums/MaterialInformationType.schema.json"
+                "material_information": {
+                    "$ref": "https://jocf.startupstandard.org/jocf/main/schema/enums/MaterialInformationType.schema.json"
                 }
             }
         },
-        "obligation_of_managing_securityholder_to_fully_commit" : {
+        "obligation_of_managing_securityholder_to_fully_commit": {
             "description": "経営株主の経営専念義務",
             "type": "array",
             "properties": {
-                "action_of_managing_securityholder_requiring_prior_approval" : {
-                    "$ref" : "https://jocf.startupstandard.org/jocf/main/schema/enums/ActionsOfManagingSecurityholderRequiringPriorApprovalType.schema.json"
+                "action_of_managing_securityholder_requiring_prior_approval": {
+                    "$ref": "https://jocf.startupstandard.org/jocf/main/schema/enums/ActionsOfManagingSecurityholderRequiringPriorApprovalType.schema.json"
                 }
             }
         },
-        "preemptive_right" : {
+        "preemptive_right": {
             "description": "株式等の優先引受権に関する法的文言",
             "type": "string"
         },
-        "right_of_first_refusal" : {
+        "right_of_first_refusal": {
             "description": "株式等の先買権に関する法的文言",
             "type": "string"
         },
-        "transfer_restrictions_on_securityholder" : {
+        "transfer_restrictions_on_securityholder": {
             "description": "証券保有者の譲渡制限に関する法的文言",
             "type": "string"
         },
-        "drag_along_right" : {
+        "drag_along_right": {
             "description": "株式等の売却強制権に関する法的文言",
             "type": "string"
         },
-        "obligation_to_make_best_efforts_to_pursue_ipo" : {
+        "obligation_to_make_best_efforts_to_pursue_ipo": {
             "description": "株式公開を目指す努力義務に関する法的文言",
             "type": "string"
         },
-        "id" : {}
+        "id": {}
     },
-    "required": ["object_type", "id"]
+    "required": [
+        "object_type",
+        "id"
+    ]
 }
