@@ -37,7 +37,7 @@
             "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
         },
         "initial_shares_authorized": {
-            "description": "株式発行時点での当該株式クラスの発行可能株式数",
+            "description": "株式発行時点での種類株式の発行可能株式数",
             "oneOf": [
                 {
                     "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/AuthorizedShares.schema.json"
