@@ -13,7 +13,7 @@
             "const": "ACQUISITION_DISTRIBUTION_AGREEMENT"
         },
         "description": {
-            "description": "買収に係る分配に関する契約の説明",
+            "description": "買収に係る分配に関する契約の説明。 残余財産の分配の詳細については、StockClassのliquidation_preference_attributesを合わせて参照のこと。",
             "type": "string"
         },
         "securityholders_who_agreed": {
