@@ -1,0 +1,39 @@
+{
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/adjustment/StockClassConversionRatioAdjustment.schema.json",
+  "title": "株式クラスの転換比率の調整トランザクション",
+  "description": "ダウンラウンドなどに起因した希薄化防止条項の発動による、優先株の転換比率の調整の発生を表現するトランザクション",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/Object.schema.json"
+    },
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/Transaction.schema.json"
+    },
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/StockClassTransaction.schema.json"
+    }
+  ],
+  "properties": {
+    "object_type": {
+      "const": "TX_STOCK_CLASS_CONVERSION_RATIO_ADJUSTMENT"
+    },
+    "id": {},
+    "comments": {},
+    "date": {},
+    "stock_class_id": {},
+    "adjusted_trigger_id" : {
+      "description": "調整対象のトリガーの識別子",
+      "type": "string"
+    },
+    "initial_trigger_id" : {
+      "description": "調整の起因となったトリガーの識別子",
+      "type": "string"
+    },
+    "new_ratio_conversion_mechanism": {
+      "description": "元の転換価額から新しい転換価額への変更に基づく新しい転換メカニズム",
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_mechanisms/RatioConversionMechanism.schema.json"
+    }
+  },
+  "required": ["object_type", "id", "date", "stock_class_id", "new_ratio_conversion_mechanism"]
+}

@@ -1,0 +1,63 @@
+{
+    "file_type": "JOCF_SECURITYHOLDERS_AGREEMENT_FILE",
+    "items": [
+        {
+            "object_type": "MASTER_SECURITYHOLDERS_AGREEMENT",
+            "id": "test-securityholders-agreement-1",
+            "securityholders_who_agreed": [
+                {
+                    "object_type": "SECURITY_HOLDER",
+                    "id": "test-seruciry-holder-1",
+                    "name": {
+                        "legal_name": "田中 起業家太郎"
+                    }
+                },
+                {
+                    "object_type": "SECURITY_HOLDER",
+                    "id": "test-seruciry-holder-2",
+                    "name": {
+                        "legal_name": "AngelFund"
+                    }
+                }
+            ],
+            "parties_and_authority_attributes" : [
+                {
+                    "securityholder" : {
+                        "object_type": "SECURITY_HOLDER",
+                        "id": "test-seruciry-holder-1",
+                        "name": {
+                            "legal_name": "田中 起業家太郎"
+                        }
+                    },
+                    "number_of_electable_directors": 3
+                },
+                {
+                    "securityholder" : {
+                        "object_type": "SECURITY_HOLDER",
+                        "id": "test-seruciry-holder-2",
+                        "name": {
+                            "legal_name": "AngelFund"
+                        }
+                    },
+                    "number_of_electable_observers": 1,
+                    "matters_requiring_prior_approval": [
+                        {
+                            "matter_requiring_prior_action" : "MERGER"
+                        }
+                    ],
+                    "matters_requiring_prior_consultation" : [
+                        {
+                            "matter_requiring_prior_action" : "SECURITY_ISSUANCE"
+                        }
+                    ],
+                    "matters_requiring_prior_notice" : [
+                        {
+                            "matter_requiring_prior_action" : "INSOLVENCY_PROCEEDING"
+                        }
+                    ],
+                    "has_information_rights": true
+                }
+            ]
+        }
+    ]
+}

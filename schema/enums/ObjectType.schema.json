@@ -1,0 +1,19 @@
+{
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/enums/ObjectType.schema.json",
+  "title": "Enum - Object Type",
+  "description": "オブジェクトタイプの列挙",
+  "type": "string",
+  "enum": [
+    "SECURITY_HOLDER",
+    "SECURITY_HOLDER_GROUP",
+    "STOCK_CLASS",
+    "TX_ISSUER_AUTHORIZED_SHARES_ADJUSTMENT",
+    "TX_STOCK_CLASS_CONVERSION_RATIO_ADJUSTMENT",
+    "TX_STOCK_CLASS_AUTHORIZED_SHARES_ADJUSTMENT",
+    "MASTER_SECURITYHOLDERS_AGREEMENT",
+    "ACQUISITION_DISTRIBUTION_AGREEMENT",
+    "TX_SECURITYHOLDERS_AGREEMENT_EXECUTION",
+    "TX_SECURITYHOLDERS_AGREEMENT_TERMINATION",
+    "TX_SECURITYHOLDERS_AGREEMENT_MODIFICATION"
+  ]
+}

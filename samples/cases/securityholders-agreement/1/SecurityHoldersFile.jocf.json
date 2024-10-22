@@ -1,0 +1,38 @@
+{
+    "file_type": "JOCF_SECURITY_HOLDERS_FILE",
+    "items": [
+        {
+            "object_type": "SECURITY_HOLDER",
+            "id": "test-seruciry-holder-1",
+            "name": {
+                "legal_name": "田中 起業家太郎",
+                "first_name": "田中",
+                "last_name": "起業家太郎"
+            },
+            "security_holder_type": "INDIVISUAL",
+            "address": "東京都1-1-1",
+            "contact_info": [
+                {
+                    "phone_number": "090-1111-2222",
+                    "email": "tanaka.kigyoka@example.com"
+                }
+            ]
+        },
+        {
+            "object_type": "SECURITY_HOLDER",
+            "id": "test-seruciry-holder-2",
+            "name": {
+                "legal_name": "AngelFund"
+            },
+            "security_holder_type": "INSTITUTION",
+            "address": "東京都1-2-3",
+            "primary_contact": [
+                {
+                    "name": "鈴木 一郎",
+                    "phone_number": "050-1234-5678",
+                    "email": "suzuki@angel-fund.com"
+                }
+            ]
+        }
+    ]
+}

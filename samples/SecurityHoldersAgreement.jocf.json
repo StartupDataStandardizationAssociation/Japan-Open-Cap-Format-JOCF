@@ -1,0 +1,145 @@
+{
+    "file_type": "JOCF_SECURITYHOLDERS_AGREEMENT_FILE",
+    "items": [
+        {
+            "object_type": "MASTER_SECURITYHOLDERS_AGREEMENT",
+            "id" : "test-master-securityholders-agreement-1",
+            "securityholders_who_agreed": [
+                {
+                    "securityholder": {
+                        "object_type": "SECURITY_HOLDER",
+                        "name": "創業者 A",
+                        "id": "test-securityholder-A"
+                    }
+                },
+                {
+                    "securityholder": {
+                        "object_type": "SECURITY_HOLDER",
+                        "name": "創業者B",
+                        "id": "test-securityholder-B"
+                    }
+                },
+                {
+                    "securityholder": {
+                        "object_type": "SECURITY_HOLDER",
+                        "name": "投資家 X",
+                        "id": "test-securityholder-1"
+                    }
+                }
+            ],
+            "parties_and_authority_attributes": [
+                {
+                    "securityholder_group": {
+                        "object_type": "SECURITYHOLDER_GROUP",
+                        "name": "経営株主",
+                        "securityholder_group_members": [
+                            {
+                                "securityholder": {
+                                    "object_type": "SECURITY_HOLDER",
+                                    "name": "創業者 A",
+                                    "id": "test-securityholder-A"
+                                }
+                            },
+                            {
+                                "securityholder": {
+                                    "object_type": "SECURITY_HOLDER",
+                                    "name": "創業者B",
+                                    "id": "test-securityholder-B"
+                                }
+                            }
+                        ]
+                    },
+                    "number_of_electable_directors": 2,
+                    "number_of_electable_observers": 0
+                },
+                {
+                    "securityholder": { 
+                        "object_type": "SECURITY_HOLDER",
+                        "name": "投資家 X",
+                        "id": "test-securityholder-1"
+                     },
+                    "number_of_electable_directors": 0,
+                    "number_of_electable_observers": 1,
+                    "matters_requiring_prior_approval": [
+                        {
+                            "matter_requiring_prior_action": "AMENDMENT_TO_THE_ARTICLES_OF_INCORPORATION"
+                        },
+                        {
+                            "matter_requiring_prior_action": "SECURITY_ISSUANCE"
+                        }
+                    ],
+                    "matters_requiring_prior_consultation": [
+                        {
+                            "matter_requiring_prior_action": "DETERMINATION_OF_IPO_RELATED_MATTERS"
+                        },
+                        {
+                            "matter_requiring_prior_action": "MODIFICATION_OF_IPO_RELATED_MATTERS"
+                        }
+                    ],
+                    "matters_requiring_prior_notice": [
+                        {
+                            "matter_requiring_prior_action": "DISSOLUTION"
+                        }
+                    ],
+                    "has_information_rights": true
+                }
+            ],
+            "obligation_to_provide_financial_information" : [
+                {
+                    "financial_information" : "QUARTERLY_FINANCIAL_STATEMENTS"
+                }
+            ],
+            "right_to_access_financial_information" : true,
+            "obligation_to_provide_material_information" : [
+                {
+                    "material_information" : "RESIGNATION_OR_DISMISSAL_OF_DIRECTORS_OR_KEY_EMPLOYEES"
+                }
+            ],
+            "obligation_of_managing_securityholder_to_fully_commit" : [
+                {
+                    "action_of_managing_securityholder_requiring_prior_approval" : "RESIGNATION_OF_DIRECTOR_OF_ISSUER"
+                },
+                {
+                    "action_of_managing_securityholder_requiring_prior_approval" : "HOLDING_FULL_TIME_EXECUTIVE_OR_EMPLOYEE_POSITION_IN_OTHER_BUSINESS_ENTITIES"
+                },
+                {
+                    "action_of_managing_securityholder_requiring_prior_approval" : "SUPPORT_OF_COMPETING_BUSINESS"
+                }
+            ],
+            "preemptive_right" : "株式等の優先引受権に関する法的文言を記載する",
+            "right_of_first_refusal" : "株式等の先買権に関する法的文言を記載する",
+            "transfer_restrictions_on_securityholder" : "証券保有者に対する譲渡制限に関する法的文言を記載する",
+            "drag_along_right" : "株式等の売却強制権に関する法的文言を記載する",
+            "obligation_to_make_best_efforts_to_pursue_ipo" : "株式公開を目指す努力義務に関する法的文言を記載する"
+        },
+        {
+            "object_type": "ACQUISITION_DISTRIBUTION_AGREEMENT",
+            "id" : "test-acquisition-distribution-agreement-1",
+            "securityholders_who_agreed": [
+                {
+                    "securityholder": {
+                        "object_type": "SECURITY_HOLDER",
+                        "name": "創業者 A",
+                        "id": "test-securityholder-A"
+                    }
+                },
+                {
+                    "securityholder": {
+                        "object_type": "SECURITY_HOLDER",
+                        "name": "創業者B",
+                        "id": "test-securityholder-B"
+                    }
+                },
+                {
+                    "securityholder": {
+                        "object_type": "SECURITY_HOLDER",
+                        "name": "投資家 X",
+                        "id": "test-securityholder-1"
+                    }
+                }
+            ],
+            "put_option_on_aquisition": "買収時の売却請求権に関する法的文言を記載する",
+            "put_option_on_ipo_failure": "IPOが期限までに実施されなかった場合の売却請求権に関する法的文言を記載する"
+        }
+    ]
+}

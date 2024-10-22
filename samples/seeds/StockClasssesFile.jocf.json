@@ -1,0 +1,117 @@
+{
+    "file_type": "JOCF_STOCK_CLASSES_FILE",
+    "items": [
+        {
+            "object_type": "STOCK_CLASS",
+            "id": "test-stock-class-common",
+            "name": "普通株式",
+            "description": "任意転換の対象となる普通株",
+            "class_type": "COMMON",
+            "votes_per_share": "1",
+            "vote_per_share_at_class_meeting": "1",
+            "initial_shares_authorized": "1000000"
+        },
+        {
+            "object_type": "STOCK_CLASS",
+            "id": "test-stock-class-A",
+            "name": "A種優先株",
+            "description": "普通株への任意転換および希薄化防止条項を持つ優先株",
+            "class_type": "PREFERRED",
+            "votes_per_share": "1",
+            "vote_per_share_at_class_meeting": "1",
+            "initial_shares_authorized": "1000000",
+            "preffered_stock_attributes": {
+                "conversion_triggers": [
+                    {
+                        "type": "ELECTIVE_AT_WILL",
+                        "nickname": "普通株への任意転換請求権",
+                        "trigger_description": "「SEEDs 種類株式の内容 - II 種類株式の内容 - 3条 普通株式を対価とする取得請求権(転換請求権) - (1)項および(2)項①」を表現するもの",
+                        "trigger_id": "test-elective-at-will-trigger-1",
+                        "conversion_right": {
+                            "type": "STOCK_CLASS_CONVERSION_RIGHT",
+                            "conversion_mechanism": {
+                                "type": "RATIO_CONVERSION",
+                                "description": "普通株への転換比率=1, 払込金額=250, 当初の転換価額=250(3条(2)項②(a)より)",
+                                "conversion_price": {
+                                    "amount": "250",
+                                    "currency": "JPY"
+                                },
+                                "ratio": "1",
+                                "rounding_type": "FLOOR"
+                            },
+                            "converts_to_stock_class_id": "test-stock-class-common"
+                        }
+                    },
+                    {
+                        "type": "ANTI_DILUTION_PROTECTION",
+                        "nickname": "ダウンラウンドに関する希薄化防止条項",
+                        "trigger_description": "「SEEDs 種類株式の内容 - II 種類株式の内容 - 3条 普通株式を対価とする取得請求権(転換請求権) - (2)項②(b)および③」を表現するもの",
+                        "trigger_id": "test-anti-dilution-protection-trigger-down-round",
+                        "trigger_condition": "調整後転換価額 = 調整前転換価額 * (既発行株式数 + (新規発行株式数 * 1株当たりの払込金額・発行価額) / 調整前転換価額) / (既発行株式数 + 新規発行株式数)",
+                        "non_triggering_condition": "各種類の優先株式の転換価額の調整について、当該優先株式の発行済株式数の3分の2を有する優先株主が､調整を不要とすることにつき書面により同意した場合には、当該優先株式の転換価額の調整は行わない。",
+                        "anti_dilution_protection_type": "BROAD_BASED_WEIGHTED_AVERAGE",
+                        "incentive_exclusion_ratio": "0.1",
+                        "conversion_right": {
+                            "type": "STOCK_CLASS_CONVERSION_RIGHT",
+                            "conversion_mechanism": {
+                                "type": "RATIO_CONVERSION",
+                                "description": "転換価額が調整された同数のA種優先株への転換(払込不要)",
+                                "conversion_price": {
+                                    "amount": "0",
+                                    "currency": "JPY"
+                                },
+                                "ratio": "1",
+                                "rounding_type": "FLOOR"
+                            },
+                            "converts_to_future_round": true
+                        }
+                    },
+                    {
+                        "type": "ANTI_DILUTION_PROTECTION",
+                        "nickname": "分割・併合・無償割り当てに関する希薄化防止条項",
+                        "trigger_description": "「SEEDs 種類株式の内容 - II 種類株式の内容 - 3条 普通株式を対価とする取得請求権(転換請求権) - (2)項②(c)および③」を表現するもの",
+                        "trigger_id": "test-anti-dilution-protection-trigger-split-merger",
+                        "trigger_condition": "調整後転換価額 = 調整前転換価額 * (既発行株式数 + (新規発行株式数 * 1株当たりの払込金額・発行価額) / 調整前転換価額) / (既発行株式数 + 新規発行株式数)",
+                        "non_triggering_condition": "各種類の優先株式の転換価額の調整について、当該優先株式の発行済株式数の3分の2を有する優先株主が､調整を不要とすることにつき書面により同意した場合には、当該優先株式の転換価額の調整は行わない。",
+                        "anti_dilution_protection_type": "BROAD_BASED_WEIGHTED_AVERAGE",
+                        "conversion_right": {
+                            "type": "STOCK_CLASS_CONVERSION_RIGHT",
+                            "conversion_mechanism": {
+                                "type": "RATIO_CONVERSION",
+                                "description": "転換価額が調整された同数のA種優先株への転換(払込不要)",
+                                "conversion_price": {
+                                    "amount": "0",
+                                    "currency": "JPY"
+                                },
+                                "ratio": "1",
+                                "rounding_type": "FLOOR"
+                            },
+                            "converts_to_future_round": true
+                        }
+                    }
+                ],
+                "dividend_attributes": {
+                    "dividend_rate": "0.08",
+                    "participation_category": "FULL_PARTICIPATING",
+                    "cumulative_category": "NON_CUMULATIVE",
+                    "seniority": "3"
+                },
+                "liquidation_preference_attributes": {
+                    "liquidation_preference_multiple": "1.0",
+                    "participation_category": "FULL_PARTICIPATING",
+                    "cumulative_category": "NON_CUMULATIVE",
+                    "seniority": "3"
+                },
+                "redemption_right_attributes": {
+                    "redemption_trigger": "当会社が、事業譲渡又は会社分割により、当会社の全部又は実質的に全部の事業を第三者に移転させた場合における、かかる移転の効力発生日から30日間をいう。(「SEEDs 種類株式の内容 - III 定義語等 - 「償還請求期間」」)",
+                    "redemption_formula": "【分割等対価額が優先償還総額以下の場合】 償還金額 = (分割等対価額 - 優先償還総額) / 優先株式の発行済株式数, 【分割等対価額が優先償還総額を上回る場合】 償還金額 = 転換比率 * (分割等対価額 - 優先償還総額) / (発行済の普通株式数 + 発行済優先株式数 * 転換比率)"
+                },
+                "mandatory_conversion_attributes": {
+                    "mandatory_convertion_trigger": "(1)当会社が当会社の普通株式の上場のため金融商品取引所(日本国外におけるものも含む。)に対し当該上場の申請を行う旨の機関決定を行った場合で、かつ、当該上場に関する主幹事証券会社から優先株式を転換するべき旨の要請を受けた場合には、当会社は取締役会決議により定める日をもって優先株式の全てを当会社の普通株式に転換することができるものとする。(2)優先株式の発行済株式数の3分の2を有する優先株主が当会社による優先株式の全ての転換に同意した場合には、当会社は取締役会決議により定める日をもって優先株式の全てを当会社の普通株式に転換することができるものとする(「SEEDs 種類株式の内容 - II 種類株式の内容 - 5条 普通株式を対価とする取得条項(強制転換)」)",
+                    "mandatory_conversion_formula" : "前記「金銭を対価とする取得請求権(償還請求権)」の定めを準用する。(redemption_formula参照)"
+                },
+                "has_transfer_restrictions" : true
+            }
+        }
+    ]
+}

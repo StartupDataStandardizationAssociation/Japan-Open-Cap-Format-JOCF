@@ -1,11 +1,18 @@
 {
+    "$id": "https://jocf.startupstandard.org/jocf/main/schema/files/StockClassesFile.schema.json",
+    "title": "JOCF Stock Classes File",
+    "description": "株式種類に関するファイル",
     "type": "object",
     "properties": {
         "items": {
             "type": "array",
             "description": "株式種類のリスト",
             "items": {
-                "$ref": "../objects/StockClass.schema.json"
+                "oneOf": [
+                    {
+                        "$ref": "../objects/StockClass.schema.json"
+                    }
+                ]
             }
         },
         "file_type": {
@@ -13,5 +20,8 @@
         }
     },
     "additionalProperties": false,
-    "required": ["items", "file_type"]
+    "required": [
+        "items",
+        "file_type"
+    ]
 }

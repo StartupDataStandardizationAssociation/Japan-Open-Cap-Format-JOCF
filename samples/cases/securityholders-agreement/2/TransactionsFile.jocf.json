@@ -1,0 +1,90 @@
+{
+    "file_type": "JOCF_TRANSACTIONS_FILE",
+    "items": [
+        {
+            "object_type": "JOCF_SECURITYHOLDERS_AGREEMENT_MODIFICATION",
+            "reason_text": "証券保有者構成の変更に伴う、証券保有者間基本契約の合意者の追加と、権限の改定",
+            "id": "test-securityholders-agreement-modification-1",
+            "date": "2022-01-01",
+            "securityholders_agreement": {
+                "object_type": "MASTER_SECURITYHOLDERS_AGREEMENT",
+                "id": "test-securityholders-agreement-1",
+                "securityholders_who_agreed": [
+                    {
+                        "object_type": "SECURITY_HOLDER",
+                        "id": "test-seruciry-holder-1",
+                        "name": {
+                            "legal_name": "田中 起業家太郎"
+                        }
+                    },
+                    {
+                        "object_type": "SECURITY_HOLDER",
+                        "id": "test-seruciry-holder-2",
+                        "name": {
+                            "legal_name": "AngelFund"
+                        }
+                    },
+                    {
+                        "object_type": "SECURITY_HOLDER",
+                        "id": "test-seruciry-holder-3",
+                        "name": {
+                            "legal_name": "XXベンチャーキャピタル"
+                        }
+                    }
+                ],
+                "parties_and_authority_attributes": [
+                    {
+                        "securityholder": {
+                            "object_type": "SECURITY_HOLDER",
+                            "id": "test-seruciry-holder-1",
+                            "name": {
+                                "legal_name": "田中 起業家太郎"
+                            }
+                        },
+                        "number_of_electable_directors": 3
+                    },
+                    {
+                        "securityholder_group": {
+                            "object_type": "SECURITYHOLDER_GROUP",
+                            "id": "test-securityholder-group-1",
+                            "name": "投資家株主(AngelFund and XXベンチャーキャピタル)",
+                            "securityholder_group_members" : [
+                                {
+                                    "object_type": "SECURITY_HOLDER",
+                                    "id": "test-seruciry-holder-2",
+                                    "name": {
+                                        "legal_name": "AngelFund"
+                                    }
+                                },
+                                {
+                                    "object_type": "SECURITY_HOLDER",
+                                    "id": "test-seruciry-holder-3",
+                                    "name": {
+                                        "legal_name": "XXベンチャーキャピタル"
+                                    }
+                                }
+                            ]
+                        },
+                        "number_of_electable_observers": 1,
+                        "matters_requiring_prior_approval": [
+                            {
+                                "matter_requiring_prior_action": "MERGER"
+                            }
+                        ],
+                        "matters_requiring_prior_consultation": [
+                            {
+                                "matter_requiring_prior_action": "SECURITY_ISSUANCE"
+                            }
+                        ],
+                        "matters_requiring_prior_notice": [
+                            {
+                                "matter_requiring_prior_action": "INSOLVENCY_PROCEEDING"
+                            }
+                        ],
+                        "has_information_rights": true
+                    }
+                ]
+            }
+        }
+    ]
+}

@@ -1,7 +1,13 @@
 {
+    "$id": "https://jocf.startupstandard.org/jocf/main/schema/objects/SecurityHolder.schema.json",
     "title": "証券保有者",
     "description": "",
     "type": "object",
+    "allOf": [
+        {
+            "$ref": "../primitives/objects/Object.schema.json"
+        }
+    ],
     "properties": {
         "object_type": {
             "const": "SECURITY_HOLDER"

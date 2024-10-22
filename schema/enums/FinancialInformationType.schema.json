@@ -1,0 +1,12 @@
+{
+    "$id": "https://jocf.startupstandard.org/jocf/main/schema/enums/FinancialInformationType.schema.json",
+    "title": "Enum - Financial Information Type",
+    "description": "財務情報等の種別",
+    "type": "string",
+    "enum": [
+        "ANNUAL_BUDGET",
+        "ANNUAL_BUSINESS_PLAN",
+        "ANNUAL_FINANCIAL_STATEMENTS",
+        "QUARTERLY_FINANCIAL_STATEMENTS"
+    ]
+}

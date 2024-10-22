@@ -1,0 +1,30 @@
+{
+    "$id": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_mechanisms/RatioConversionMechanism.schema.json",
+    "title": "Conversion Mechanism - Ratio",
+    "description": "比率による転換メカニズムを設定します（例えば、優先株から普通株式への転換を記述するために使用されます)",
+    "type": "object",
+    "properties": {
+      "type": {
+        "const": "RATIO_CONVERSION"
+      },
+      "description": {
+        "description": "転換メカニズムの説明",
+        "type": "string"
+      },
+      "conversion_price": {
+        "description": "株式の1株当たりの転換価格",
+        "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Monetary.schema.json"
+      },
+      "ratio": {
+        "description": "転換比率",
+        "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Ratio.schema.json"
+      },
+      "rounding_type": {
+        "description": "転換時の丸め方",
+        "$ref": "https://jocf.startupstandard.org/jocf/main/schema/enums/RoundingType.schema.json"
+      }
+    },
+    "additionalProperties": false,
+    "required": ["ratio", "conversion_price", "rounding_type", "type"]
+  }
+  

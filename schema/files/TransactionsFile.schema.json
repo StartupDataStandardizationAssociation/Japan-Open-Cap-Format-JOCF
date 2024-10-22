@@ -1,0 +1,34 @@
+{
+    "$id": "https://jocf.startupstandard.org/jocf/main/schema/files/TransactionFile.schema.json",
+    "title": "トランザクション",
+    "description": "",
+    "type": "object",
+    "properties": {
+        "items": {
+            "type": "array",
+            "description": "JOCFトランザクションオブジェクトのリスト",
+            "items": {
+                "oneOf": [
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema//objects/transactions/issuance/StockIssuance.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema//objects/transactions/issuance/StockOptionIssuance.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema//objects/transactions/issuance/ConvertibleIssuance.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema//objects/transactions/conversion/StockConversion.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema//objects/transactions/conversion/ConvertibleConversion.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema//objects/transactions/exercise/StockOptionExercise.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema//objects/transactions/cancellation/StockOptionCancellation.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema//objects/transactions/transfer/StockTransfer.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema//objects/transactions/split/StockSplit.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema//objects/transactions/merger/StockMerger.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/agreement/SecurityholdersAgreementExecution.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/agreement/SecurityholdersAgreementModification.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/agreement/SecurityholdersAgreementTermination.schema.json"}
+                ]
+            }
+        },
+        "file_type": {
+            "const": "JOCF_TRANSACTIONS_FILE"
+        }
+    },
+    "additionalProperties": false,
+    "required": ["items", "file_type"]
+}

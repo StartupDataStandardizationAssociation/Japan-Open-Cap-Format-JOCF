@@ -1,37 +1,130 @@
 {
-    "title": "株式発行トランザクション",
-    "description": "株式発行トランザクション",
-    "type": "object",
-    "properties": {
-      "object_type": {
-        "const": "TX_STOCK_ISSUANCE"
-      },
-      "id": {
-        "description": "この株式発行トランザクションのID",
-        "type": "string"
-      },
-      "stock_class_id": {
-        "description": "この株式発行で発行する株式種類のID",
-        "type": "string"
-      },
-      "share_price": {
-        "description": "1株の価格",
-        "$ref": "../../../types/Monetary.schema.json"
-      },
-      "quantity": {
-        "description": "発行株式数",
-        "$ref": "../../../types/Numeric.schema.json"
-      },
-      "description": {
-        "description": "説明",
-        "type": "string"
-      },
-      "date": {
-        "description": "日時",
-        "type": "string",
-        "format": "date"
-      }
+  "title": "株式発行トランザクション",
+  "description": "株式発行トランザクション",
+  "type": "object",
+  "properties": {
+    "object_type": {
+      "const": "TX_STOCK_ISSUANCE"
     },
-    "additionalProperties": false,
-    "required": ["id", "stock_class_id", "share_price", "quantity", "date"]
-  }
+    "id": {
+      "description": "この株式発行トランザクションのID",
+      "type": "string"
+    },
+    "stock_class_id": {
+      "description": "この株式発行で発行する株式種類のID",
+      "type": "string"
+    },
+    "securityholder_id": {
+      "description": "発行する株式を受け取る証券保有者のID",
+      "type": "string"
+    },
+    "share_price": {
+      "description": "1株の価格"
+    },
+    "quantity": {
+      "description": "引受株式数"
+    },
+    "description": {
+      "description": "説明",
+      "type": "string"
+    },
+    "date": {
+      "description": "契約締結日",
+      "type": "string",
+      "format": "date"
+    },
+    "payment_due_date": {
+      "description": "払込期日",
+      "type": "string",
+      "format": "date"
+    },
+    "series_name": {
+      "description": "シリーズ名",
+      "type": "string"
+    },
+    "representations_and_warranties_by_issuing_company": {
+      "description": "発行会社による表明および保証",
+      "type": "object",
+      "properties": {
+        "incorporation_and_existence": {
+          "description": "設立および存続等に関する表明および保証",
+          "type": "string"
+        },
+        "authorization": {
+          "description": "授権に関する表明および保証",
+          "type": "string"
+        },
+        "validity_and_enforceability": {
+          "description": "本契約の有効性および執行可能性に関する表明および保証",
+          "type": "string"
+        },
+        "absence_of_violations": {
+          "description": "違反の不存在に関する表明および保証",
+          "type": "string"
+        },
+        "absence_of_bankruptcy_proceedings": {
+          "description": "倒産手続きの不存在に関する表明および保証",
+          "type": "string"
+        },
+        "complete_and_accurate_capitalization": {
+          "description": "発行会社の株式等に関する表明および保証",
+          "type": "string"
+        },
+        "compliance_with_laws": {
+          "description": "法令遵守に関する表明および保証",
+          "type": "string"
+        },
+        "absence_of_antisocial_forces": {
+          "description": "反社会的勢力に対する表明および保証",
+          "type": "string"
+        },
+        "absence_of_litigation": {
+          "description": "訴訟の不存在に関する表明および保証",
+          "type": "string"
+        },
+        "compliance_with_taxes_and_duties": {
+          "description": "公租公課への適切な対応に関する表明および保証",
+          "type": "string"
+        }
+      },
+      "required": []
+    },
+    "representations_and_warranties_by_investor": {
+      "description": "投資家による表明および保証",
+      "type": "object",
+      "properties": {
+        "incorporation_and_existence": {
+          "description": "設立および存続等に関する表明および保証",
+          "type": "string"
+        },
+        "authorization": {
+          "description": "授権に関する表明および保証",
+          "type": "string"
+        },
+        "validity_and_enforceability": {
+          "description": "本契約の有効性および執行可能性に関する表明および保証",
+          "type": "string"
+        },
+        "absence_of_violations": {
+          "description": "違反の不存在に関する表明および保証",
+          "type": "string"
+        },
+        "absence_of_antisocial_forces": {
+          "description": "反社会的勢力に対する表明および保証",
+          "type": "string"
+        }
+      },
+      "required": []
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "object_type",
+    "id",
+    "securityholder_id",
+    "stock_class_id",
+    "share_price",
+    "quantity",
+    "date"
+  ]
+}

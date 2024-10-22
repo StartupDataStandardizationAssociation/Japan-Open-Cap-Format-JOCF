@@ -1,0 +1,31 @@
+{
+  "title": "Type - Elective Conversion At Will",
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_triggers/ElectiveConversionAtWillTrigger.schema.json",
+  "description": "投資家の意思で実行されるトリガー",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/types/conversion_triggers/ConversionTrigger.schema.json"
+    }
+  ],
+  "properties": {
+    "type": {
+      "const": "ELECTIVE_AT_WILL"
+    },
+    "nickname": {
+      "description": "トリガーのニックネーム",
+      "type": "string"
+    },
+    "trigger_description": {
+      "description": "トリガーの説明",
+      "type": "string"
+    },
+    "trigger_id": {},
+    "conversion_right": {}
+  },
+  "required": [
+    "trigger_id",
+    "type",
+    "conversion_right"
+  ]
+}

@@ -1,0 +1,62 @@
+{
+    "file_type": "JOCF_STOCK_CLASSES_FILE",
+    "items": [
+        {
+            "object_type": "STOCK_CLASS",
+            "id": "test-stock-class-B",
+            "name": "普通株 B",
+            "description": "任意転換の対象となる普通株",
+            "class_type": "COMMON"
+        },
+        {
+            "object_type": "STOCK_CLASS",
+            "id": "test-stock-class-A",
+            "name": "優先株 A",
+            "description": "普通株への任意転換および希薄化防止条項を持つ優先株",
+            "preffered_stock_attributes": {
+                "conversion_triggers": [
+                    {
+                        "type": "ANTI_DILUTION_PROTECTION",
+                        "nickname" : "希薄化防止条項に関するトリガー(発動時点=未来のラウンドで確定する優先株への、自動的な無償転換として表現)",
+                        "trigger_id": "test-anti-dilution-protection-trigger-1",
+                        "anti_dilution_protection_type": "NARROW_BASED_WEIGHTED_AVERAGE",                        
+                        "conversion_right": {
+                            "type": "STOCK_CLASS_CONVERSION_RIGHT",
+                            "conversion_mechanism": {
+                                "type": "RATIO_CONVERSION",
+                                "conversion_price": {
+                                    "amount" : "0",
+                                    "currency": "JPY"
+                                },
+                                "ratio": "1",
+                                "rounding_type": "FLOOR"
+                            },
+                            "converts_to_future_round": true
+                        },
+                        "trigger_condition": "希薄化防止が発動可能となる条件を説明する文言や式を記載する",
+                        "non_triggering_condition": "希薄化防止が発動可能となる条件を満たした上で、希薄化防止による転換を実施しない条件を説明する法的な文言や式を記載する",
+                        "incentive_exclusion_ratio": "0.1"
+                    },
+                    {
+                        "type" : "ELECTIVE_AT_WILL",
+                        "nickname" : "普通株への任意のタイミングでの転換に関するトリガー(希薄化防止条項の発動により、転換比率が1.5 -> 1.8に更新された)",
+                        "trigger_id": "test-elective-at-will-trigger-1",
+                        "conversion_right": {
+                            "type": "STOCK_CLASS_CONVERSION_RIGHT",
+                            "conversion_mechanism": {
+                                "type": "RATIO_CONVERSION",
+                                "conversion_price": {
+                                    "amount" : "100",
+                                    "currency": "JPY"
+                                },
+                                "ratio": "1.8",
+                                "rounding_type": "FLOOR"
+                            },
+                            "converts_to_stock_class_id": "test-stock-class-B"
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

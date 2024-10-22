@@ -1,0 +1,37 @@
+{
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_triggers/AutomaticConversionOnConditionTrigger.schema.json",
+  "title": "Type - Automatic Conversion on Condition Trigger",
+  "description": "条件により自動的に発動するトリガー",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/types/conversion_triggers/ConversionTrigger.schema.json"
+    }
+  ],
+  "properties": {
+    "type": {
+      "const": "AUTOMATIC_ON_CONDITION"
+    },
+    "trigger_condition": {
+      "description": "変換が行われるためにどの条件が満たされなければならないかを説明する法的な文言",
+      "type": "string"
+    },
+    "trigger_description": {
+      "description": "トリガーの説明",
+      "type": "string"
+    },
+    "nickname": {
+      "description": "トリガーのニックネーム",
+      "type": "string"
+    },
+    "trigger_id": {},
+    "conversion_right": {}
+  },
+  "additionalProperties": false,
+  "required": [
+    "type",
+    "trigger_id",
+    "trigger_condition",
+    "conversion_right"
+  ]
+}
