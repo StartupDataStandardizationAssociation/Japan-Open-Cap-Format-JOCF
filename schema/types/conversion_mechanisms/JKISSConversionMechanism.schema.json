@@ -23,10 +23,6 @@
             "description": "転換時の丸め方",
             "$ref": "https://jocf.startupstandard.org/jocf/main/schema/enums/RoundingType.schema.json"
         },
-        "exercise_price" : {
-            "description": "行使時の払込価格",
-            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Monetary.schema.json"
-        },
         "post_money_valuation_cap" : {
             "description": "ポストキャップ",
             "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Monetary.schema.json"

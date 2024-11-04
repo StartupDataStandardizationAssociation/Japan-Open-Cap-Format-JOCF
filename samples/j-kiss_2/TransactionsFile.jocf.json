@@ -39,10 +39,6 @@
                                 "amount": "100000000"
                             },
                             "rounding_type" : "FLOOR",
-                            "exercise_price" : {
-                                "currency": "JPY",
-                                "amount": "1"
-                            },
                             "post_money_valuation_cap" : {
                                 "currency": "JPY",
                                 "amount": "50000000"
