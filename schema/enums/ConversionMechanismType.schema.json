@@ -5,6 +5,6 @@
     "type": "string",
     "enum": [
       "RATIO_CONVERSION",
-      "JKISS_CONVERSION"
+      "J-KISS_CONVERSION"
     ]
   }

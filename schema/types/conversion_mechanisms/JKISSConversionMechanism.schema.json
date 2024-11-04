@@ -5,7 +5,7 @@
     "type": "object",
     "properties": {
         "type": {
-            "const": "JKISS_CONVERSION"
+            "const": "J-KISS_CONVERSION"
         },
         "description": {
             "description": "転換メカニズムの説明",
