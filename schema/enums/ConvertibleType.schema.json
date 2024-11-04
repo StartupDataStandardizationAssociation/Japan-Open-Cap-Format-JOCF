@@ -8,5 +8,8 @@
     "J-KISS_2",
     "SAFE",
     "OTHER"
+  ],
+  "comments" : [
+    "J-KISS_1, J-KISS_2はそれぞれ J-KISS 1.x系, J-KISS 2.x系を指す。 https://coralcap.co/2022/04/j-kiss-2/"
   ]
 }
