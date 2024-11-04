@@ -17,7 +17,7 @@
                 "amount": "5000000"
             },
             "quantity": "5",
-            "convertible_type": "J-KISS_1",
+            "convertible_type": "J-KISS_2",
             "seniority": 1,
             "seniority_clause": "第5.14条（順位）引受新株予約権に基づき本会社が負担する債務は、本契約締結日に存在し、又は将来発行される他の本シリーズ新株予約権に基づき本会社が負担する債務及び転換社債その他の本会社が一般債権者に対して負担する債務と同順位とする。",
             "conversion_triggers": [
