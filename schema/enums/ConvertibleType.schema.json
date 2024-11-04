@@ -1,6 +1,12 @@
 {
-    "title": "コンバーティブルエクイティの種類",
-    "description": "コンバーティブルエクイティ種類のEnum",
-    "type": "string",
-    "enum": ["J-KISS_1", "J-KISS_2", "SAFE", "OTHER"]
-  }
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/enums/ConvertibleType.schema.json",
+  "title": "コンバーティブルエクイティの種類",
+  "description": "コンバーティブルエクイティ種類のEnum",
+  "type": "string",
+  "enum": [
+    "J-KISS_1",
+    "J-KISS_2",
+    "SAFE",
+    "OTHER"
+  ]
+}
