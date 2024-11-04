@@ -1,0 +1,10 @@
+{
+    "$id": "https://jocf.startupstandard.org/jocf/main/schema/enums/ConversionMechanismType.schema.json",
+    "title": "Enum - 転換メカニズム",
+    "description": "転換メカニズムの種別",
+    "type": "string",
+    "enum": [
+      "RATIO_CONVERSION",
+      "JKISS_CONVERSION"
+    ]
+  }
