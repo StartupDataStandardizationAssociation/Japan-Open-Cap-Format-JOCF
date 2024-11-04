@@ -52,6 +52,7 @@
                     }
                 }
             ],
+            "public_template_integrity_clause" : "[なお、本契約（別紙1「発行要項」を含む。）は、空白又は括弧書きの箇所を除き、https://coralcap.co/j-kiss/で公開されているものの一つから変更されていない。]",
             "participation_cap_multiple": {
                 "numerator": "2",
                 "denominator": "1"

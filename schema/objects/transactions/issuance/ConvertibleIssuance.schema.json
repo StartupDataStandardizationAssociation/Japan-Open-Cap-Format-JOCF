@@ -62,6 +62,10 @@
       "description": "コンバーティブルエクイティ発行シリーズ名",
       "type": "string"
     },
+    "public_template_integrity_clause" : {
+      "description": "本契約が公開されたテンプレートの保全に関する条項",
+      "type": "string"
+    },
     "participation_cap_multiple": {
       "description": "参加上限額倍率",
       "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Ratio.schema.json"
