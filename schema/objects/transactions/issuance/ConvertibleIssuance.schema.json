@@ -92,10 +92,6 @@
             "preemptive_rights": {
               "description": "当該投資家種類が持つ優先引受権",
               "type": "string"
-            },
-            "additional_rights": {
-              "description": "その他の権利",
-              "type": "string"
             }
           },
           "required": [
@@ -113,28 +109,12 @@
       "description": "投資家による発行会社に対する投資家自身に関する事項の表明および保証",
       "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/InvestorSelfRepresentationsAndWarranties.schema.json"
     },
-    "most_favored_nation_clause": {
-      "description": "最恵待遇条項",
-      "type": "string"
+    "has_most_favored_nation_clause": {
+      "description": "最恵待遇条項の有無",
+      "type": "boolean"
     },
     "transfer_restrictions_on_securityholder": {
       "description": "証券保有者の譲渡制限に関する法的文言",
-      "type": "string"
-    },
-    "governing_law": {
-      "description": "準拠法",
-      "type": "string"
-    },
-    "exclusive_jurisdiction": {
-      "description": "専属的合意管轄裁判所",
-      "type": "string"
-    },
-    "obligation_of_investor_to_execute_securityholders_agreement": {
-      "description": "投資家の株主間契約を含む証券保有者間合意/契約への同意/締結義務",
-      "type": "string"
-    },
-    "anti_dilution_protection_condition": {
-      "title": "コンバーティブルエクイティに関する希薄化防止条項",
       "type": "string"
     },
     "obligation_of_investor_to_cooperate_on_amendment": {
