@@ -130,19 +130,27 @@
       "type": "string",
       "format": "date"
     },
+    "issuance_date": {
+      "description": "割当日",
+      "type": "string",
+      "format": "date"
+    },
     "mandatory_redemption_attributes": {
       "description": "発行体の強制償還義務に関する項目",
       "type": "object",
       "properties": {
-        "mandatory_redemption_trigger": {
-          "description": "強制償還条件。強制償還条項が発動する条件を記述する法的な文言",
-          "type": "string"
+        "has_mandatory_redemption_trigger": {
+          "description": "強制償還条件。強制償還条項が発動する条件の有無",
+          "type": "boolean"
         },
         "mandatory_redemption_multiple": {
           "description": "強制償還倍率。発行体は、コンバーティブルエクイティ1個ごとに、発行価額に対して当該倍率をかけた金額を支払う。",
           "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Ratio.schema.json"
         }
-      }
+      },
+      "required": [
+        "has_mandatory_redemption_trigger"
+      ]
     },
     "id": {},
     "comments": {},

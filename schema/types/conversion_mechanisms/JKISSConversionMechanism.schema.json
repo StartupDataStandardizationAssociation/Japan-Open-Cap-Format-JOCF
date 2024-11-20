@@ -11,11 +11,11 @@
             "description": "転換メカニズムの説明",
             "type": "string"
         },
-        "conversion_price_multiplier" : {
-            "description": "本コンバーティブルエクイティの転換価格算出のために、転換価額決定対象の転換価額に対して適用する係数",
+        "conversion_price_discount" : {
+            "description": "本コンバーティブルエクイティの転換価格算出のために、転換価額決定対象の転換価額に対して適用するディスカウント。 J-KISS上の係数が0.8なら、本パラメータは0.2が設定される。",
             "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Percentage.schema.json"
         },
-        "minimum_equity_financing_threshold" : {
+        "minimum_equity_next_financing_threshold" : {
             "description": "転換価額決定の対象となる株式資金調達の最低調達額",
             "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Monetary.schema.json"
         },
@@ -23,22 +23,16 @@
             "description": "転換時の丸め方",
             "$ref": "https://jocf.startupstandard.org/jocf/main/schema/enums/RoundingType.schema.json"
         },
-        "post_money_valuation_cap" : {
-            "description": "ポストキャップ",
+        "money_valuation_cap" : {
+            "description": "プレキャップまたはポストキャップ。J-KISS 1.xではプレキャップ、J-KISS 2.xではポストキャップとなる。",
             "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Monetary.schema.json"
-        },
-        "liquidity_capitalization" : {
-            "description": "J-KISSの払込期間開始時点での完全希釈化後株式数",
-            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
         }
     },
     "required": [
         "type",
-        "conversion_price_multiplier",
-        "minimum_equity_financing_threshold",
+        "conversion_price_discount",
+        "minimum_equity_next_financing_threshold",
         "rounding_type",
-        "exercise_price",
-        "post_money_valuation_cap",
-        "liquidity_capitalization"
+        "money_valuation_cap"
     ]
 }
