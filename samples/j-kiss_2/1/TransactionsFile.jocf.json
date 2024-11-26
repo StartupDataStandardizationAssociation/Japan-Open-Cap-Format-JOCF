@@ -7,6 +7,7 @@
             "description": "投資家Xに対して、J-KISS型新株予約権を発行する",
             "date": "2021-01-01",
             "securityholder_id": "test-securityholder-investor-x",
+            "security_id" : "test-security-jkiss-1",
             "series_name": "第[1]回J-KISS型新株予約権",
             "investment_amount_per_quantity": {
                 "currency": "JPY",

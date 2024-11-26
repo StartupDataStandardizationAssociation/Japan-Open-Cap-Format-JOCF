@@ -12,6 +12,9 @@
     },
     {
       "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/issuance/Issuance.schema.json"
+    },
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/SecurityTransaction.schema.json"
     }
   ],
   "properties": {
@@ -155,7 +158,8 @@
     "id": {},
     "comments": {},
     "date": {},
-    "securityholder_id": {}
+    "securityholder_id": {},
+    "security_id": {}
   },
   "additionalProperties": false,
   "required": [
@@ -165,6 +169,7 @@
     "convertible_type",
     "investment_amount",
     "date",
-    "seniority"
+    "seniority",
+    "security_id"
   ]
 }
