@@ -12,6 +12,9 @@
     },
     {
       "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/issuance/Issuance.schema.json"
+    },
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/SecurityTransaction.schema.json"
     }
   ],
   "properties": {
@@ -31,10 +34,12 @@
       "type": "string"
     },
     "share_price": {
-      "description": "1株の価格"
+      "description": "1株の価格",
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Monetary.schema.json"
     },
     "quantity": {
-      "description": "引受株式数"
+      "description": "引受株式数",
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
     },
     "description": {
       "description": "説明",
@@ -61,7 +66,8 @@
     "representations_and_warranties_by_investor": {
       "description": "投資家による表明および保証",
       "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/types/IssuerRepresentationsAndWarranties.schema.json"
-    }
+    },
+    "security_id" : {}
   },
   "additionalProperties": false,
   "required": [
@@ -71,6 +77,7 @@
     "stock_class_id",
     "share_price",
     "quantity",
-    "date"
+    "date",
+    "security_id"
   ]
 }
