@@ -1,0 +1,31 @@
+{
+    "file_type": "JOCF_TRANSACTIONS_FILE",
+    "items": [
+        {
+            "object_type" : "TX_CONVERTIBLE_CONVERSION",
+            "reason_text" : "(6) 株式を対価とする本新株予約権の取得条項に起因する全量の転換",
+            "quantity_converted" : "3",
+            "trigger_id" : "test-automatic-on-condition-trigger-1",
+            "id" : "test-convertible-conversion-1",
+            "security_id" : "test-security-jkiss-1",
+            "date" : "2025-01-01",
+            "resulting_security_ids" : [
+                "test-security-stock-1"
+            ]
+        },
+        {
+            "object_type" : "TX_STOCK_ISSUANCE",
+            "id" : "test-stock-issuance-1",
+            "description" : "J-KISS型新株予約権の転換に起因して、投資家Xに普通株Aを発行",
+            "security_id" : "test-security-stock-1",
+            "stock_class_id" : "test-stock-class-A",
+            "security_holder_id" : "test-securityholder-investor-x",
+            "share_price" : {
+                "currency" : "JPY",
+                "amount" : "1000"
+            },
+            "quantity" : "1234",
+            "date" : "2025-01-01"
+        }
+    ]
+}

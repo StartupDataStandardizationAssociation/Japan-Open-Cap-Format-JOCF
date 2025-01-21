@@ -1,37 +1,56 @@
 {
-    "title": "コンバーティブルエクイティ転換トランザクション",
-    "description": "コンバーティブルエクイティ転換トランザクション",
-    "type": "object",
-    "properties": {
-      "object_type": {
-        "const": "TX_CONVERTIBLE_CONVERSION"
-      },
-      "id": {
-        "description": "このコンバーティブルエクイティ転換トランザクションのID",
-        "type": "string"
-      },
-      "quantity_converted": {
-        "description": "転換されたコンバーティブルエクイティ個数",
-        "$ref": "../../../types/Numeric.schema.json"
-      },
-      "stock_quantity": {
-        "description": "転換後の株式数",
-        "$ref": "../../../types/Numeric.schema.json"
-      },
-      "stock_class_id": {
-        "description": "転換後の株式種類のID",
-        "type": "string"
-      },
-      "description": {
-        "description": "説明",
-        "type": "string"
-      },
-      "date": {
-        "description": "発生日時",
-        "type": "string",
-        "format": "date"
-      }
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/conversion/ConvertibleConversion.schema.json",
+  "title": "コンバーティブルエクイティ転換トランザクション",
+  "description": "コンバーティブルエクイティ転換トランザクション",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/Object.schema.json"
     },
-    "additionalProperties": false,
-    "required": ["id", "quantity_converted", "stock_quantity", "stock_class_id_converted", "date"]
-  }
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/Transaction.schema.json"
+    },
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/conversion/Conversion.schema.json"
+    },
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/SecurityTransaction.schema.json"
+    }
+  ],
+  "properties": {
+    "object_type": {
+      "const": "TX_CONVERTIBLE_CONVERSION"
+    },
+    "reason_text" : {
+      "description": "転換権の行使の理由",
+      "type": "string"
+    },
+    "quantity_converted": {
+      "description": "転換権が行使されたコンバーティブルエクイティの個数",
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
+    },
+    "balance_security_id" : {
+      "description": "部分的な転換の場合に、転換せずに残る転換権の証券ID",
+      "type": "string"
+    },
+    "trigger_id" : {
+      "description": "転換権の行使のトリガーとなったトリガーのID",
+      "type": "string"
+    },
+    "id": {},
+    "comments": {},
+    "security_id": {},
+    "date": {},
+    "resulting_security_ids": {}
+  },
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "object_type",
+    "date",
+    "security_id", 
+    "resulting_security_ids",
+    "trigger_id",
+    "reason_text"
+  ]
+}

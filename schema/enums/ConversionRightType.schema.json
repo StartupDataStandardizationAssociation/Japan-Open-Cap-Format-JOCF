@@ -1,0 +1,10 @@
+{
+    "$id": "https://jocf.startupstandard.org/jocf/main/schema/enums/ConversionRightType.schema.json",
+    "title": "Enum - Conversion Right Type",
+    "description": "転換権の種類",
+    "type": "string",
+    "enum": [
+      "STOCK_CLASS_CONVERSION_RIGHT",
+      "CONVERTIBLE_CONVERSION_RIGHT"
+    ]
+  }
