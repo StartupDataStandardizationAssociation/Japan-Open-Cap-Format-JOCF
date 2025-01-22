@@ -1,0 +1,7 @@
+{
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/types/Percentage.schema.json",
+  "title": "Type - Percentage",
+  "description": "0から1までの小数点以下10桁までのパーセンテージ",
+  "type": "string",
+  "pattern": "^0?(\\.[0-9]{1,10})?$|^1(\\.0{1,10})?$"
+}

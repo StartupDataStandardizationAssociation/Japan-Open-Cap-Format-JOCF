@@ -17,9 +17,16 @@
       "oneOf": [
         {
           "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_rights/StockClassConversionRight.schema.json"
+        },
+        {
+          "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_rights/ConvertibleConversionRight.schema.json"
         }
       ]
     }
   },
-  "required": ["type", "trigger_id", "conversion_right"]
+  "required": [
+    "type",
+    "trigger_id",
+    "conversion_right"
+  ]
 }

@@ -1,0 +1,12 @@
+{
+    "file_type": "JOCF_STOCK_CLASSES_FILE",
+    "items": [
+        {
+            "object_type": "STOCK_CLASS",
+            "id": "test-stock-class-A",
+            "name": "普通株 A",
+            "description": "新株予約権の転換の対象となった普通株",
+            "class_type": "COMMON"
+        }
+    ]
+}

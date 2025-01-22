@@ -1,0 +1,17 @@
+{
+    "file_type" : "JOCF_SECURITY_HOLDERS_FILE",
+    "items" : [
+        {
+            "object_type" : "SECURITY_HOLDER",
+            "id" : "test-securityholder-investor-x",
+            "name" : "投資家 X",
+            "address" : {
+                "postal_code" : "100-0001",
+                "address1" : "東京都千代田区千代田1-1-1",
+                "address2" : "千代田ビル1F"
+            },
+            "phone_number" : "03-1234-5678",
+            "email" : "test@investor-x.co.jp"
+        }
+    ]
+}

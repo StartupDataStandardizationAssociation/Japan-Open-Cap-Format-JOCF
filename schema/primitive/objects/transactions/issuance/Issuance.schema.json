@@ -1,0 +1,15 @@
+{
+    "$id": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/issuance/Issuance.schema.json",
+    "title": "Primitive - 証券発行トランザクション",
+    "description": "発行トランザクションの基底クラス",
+    "type": "object",
+    "properties": {
+        "securityholder_id": {
+            "description": "発行する株式を受け取る証券保有者のID",
+            "type": "string"
+        }
+    },
+    "required": [
+        "securityholder_id"
+    ]
+}
