@@ -3,6 +3,20 @@
     "title": "株式転換トランザクション",
     "description": "株式転換トランザクション",
     "type": "object",
+    "allOf": [
+        {
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitive/objects/Object.schema.json"
+        },
+        {
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitive/objects/transactions/Transaction.schema.json"
+        },
+        {
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitive/objects/transactions/conversion/Conversion.schema.json"
+        },
+        {
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitive/objects/transactions/SecurityTransaction.schema.json"
+        }
+    ],
     "properties": {
         "object_type": {
             "const": "TX_CONVERTIBLE_CONVERSION"
@@ -23,27 +37,23 @@
             "description": "転換後の株式種類のID",
             "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
         },
-        "id": {
-            "description": "この株式転換トランザクションのID",
-            "type": "string"
-        },
-        "description": {
-            "description": "説明",
-            "type": "string"
-        },
-        "date": {
-            "description": "発生日時",
-            "type": "string",
-            "format": "date"
-        }
+        "id": {},
+        "description": {},
+        "date": {},
+        "security_id": {},
+        "resulting_security_ids": {},
+        "comments": {}
     },
     "additionalProperties": false,
     "required": [
+        "id",
+        "object_type",
+        "resulting_security_ids",
+        "security_id",
         "quantity_converted",
         "stock_class_id_converted",
         "quantity",
         "stock_class_id",
-        "id",
         "date"
     ]
 }

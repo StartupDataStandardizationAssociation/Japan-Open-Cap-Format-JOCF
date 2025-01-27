@@ -1,184 +1,188 @@
 {
-    "file_type": "JOCF_TRANSACTIONS_FILE",
-    "items": [
-      {
-        "object_type": "TX_STOCK_ISSUANCE",
-        "id": "test-initial-stock-issuance",
-        "stock_class_id": "test-stock-class-common",
-        "share_price": {
-          "ammount": "100",
-          "cuurency_code": "JPY"
-        },
-        "quantity": "1000",
-        "description": "創業時株式発行",
-        "date": "2012-01-20",
-        "security_id" : "test-security-stock-1"
+  "file_type": "JOCF_TRANSACTIONS_FILE",
+  "items": [
+    {
+      "object_type": "TX_STOCK_ISSUANCE",
+      "id": "test-initial-stock-issuance",
+      "stock_class_id": "test-stock-class-common",
+      "share_price": {
+        "ammount": "100",
+        "cuurency_code": "JPY"
       },
-      {
-        "object_type": "TX_STOCK_TRANSFER",
-        "id": "test-stock-transfer",
-        "stock_class_id": "test-stock-class-common",
-        "quantity": "250",
-        "description": "株式譲渡",
-        "date": "2013-11-18"
+      "quantity": "1000",
+      "description": "創業時株式発行",
+      "date": "2012-01-20",
+      "security_id" : "test-security-stock-1"
+    },
+    {
+      "object_type": "TX_STOCK_TRANSFER",
+      "id": "test-stock-transfer",
+      "stock_class_id": "test-stock-class-common",
+      "quantity": "250",
+      "description": "株式譲渡",
+      "date": "2013-11-18"
+    },
+    {
+      "object_type": "TX_CONVERTIBLE_ISSUANCE",
+      "id": "test-convertible-issuance",
+      "investment_amount": {
+        "ammount": "10000000",
+        "cuurency_code": "JPY"
       },
-      {
-        "object_type": "TX_CONVERTIBLE_ISSUANCE",
-        "id": "test-convertible-issuance",
-        "investment_amount": {
-          "ammount": "10000000",
-          "cuurency_code": "JPY"
-        },
-        "convertible_type": "J-KISS_2",
-        "description": "シードラウンド",
-        "date": "2014-01-24"
+      "convertible_type": "J-KISS_2",
+      "description": "シードラウンド",
+      "date": "2014-01-24"
+    },
+    {
+      "object_type": "TX_STOCK_ISSUANCE",
+      "id": "test-stock-issuance-preseries-a",
+      "stock_class_id": "test-stock-class-preseries-a",
+      "share_price": {
+        "ammount": "400",
+        "cuurency_code": "JPY"
       },
-      {
-        "object_type": "TX_STOCK_ISSUANCE",
-        "id": "test-stock-issuance-preseries-a",
-        "stock_class_id": "test-stock-class-preseries-a",
-        "share_price": {
-          "ammount": "400",
-          "cuurency_code": "JPY"
-        },
-        "quantity": "200",
-        "description": "プレシリーズA",
-        "date": "2014-10-07",
-        "security_id" : "test-security-stock-2"
+      "quantity": "200",
+      "description": "プレシリーズA",
+      "date": "2014-10-07",
+      "security_id" : "test-security-stock-2"
+    },
+    {
+      "object_type": "TX_CONVERTIBLE_CONVERSION",
+      "id": "test-convertible-conversion",
+      "quantity_converted": "5",
+      "stock_quantity": "200",
+      "stock_class_id": "test-stock-class-preseries-a",
+      "description": "新株予約権型CE転換",
+      "date": "2014-10-07",
+      "security_id": "test-security-id",
+      "resulting_security_ids": [
+        "test-resulting-security-id"
+      ]
+    },
+    {
+      "object_type": "TX_STOCK_OPTOIN_ISSUANCE",
+      "id": "test-stock-option-issuance",
+      "unit_price": {
+        "ammount": "20000",
+        "cuurency_code": "JPY"
       },
-      {
-        "object_type": "TX_CONVERTIBLE_CONVERSION",
-        "id": "test-convertible-conversion",
-        "quantity_converted": "5",
-        "stock_quantity": "200",
-        "stock_class_id": "test-stock-class-preseries-a",
-        "description": "新株予約権型CE転換",
-        "date": "2014-10-07"
+      "share_per_unit": "1",
+      "quantity": "20",
+      "description": "第一回SO発行",
+      "date": "2015-03-14"
+    },
+    {
+      "object_type": "TX_STOCK_ISSUANCE",
+      "id": "test-stock-issuance-series-a",
+      "stock_class_id": "test-stock-class-series-a",
+      "share_price": {
+        "ammount": "2000",
+        "cuurency_code": "JPY"
       },
-      {
-        "object_type": "TX_STOCK_OPTOIN_ISSUANCE",
-        "id": "test-stock-option-issuance",
-        "unit_price": {
-          "ammount": "20000",
-          "cuurency_code": "JPY"
-        },
-        "share_per_unit": "1",
-        "quantity": "20",
-        "description": "第一回SO発行",
-        "date": "2015-03-14"
+      "quantity": "400",
+      "description": "シリーズA",
+      "date": "2015-03-25",
+      "security_id" : "test-security-stock-3"
+    },
+    {
+      "object_type": "TX_STOCK_SPLIT",
+      "id": "test-stock-split",
+      "stock_class_id": "test-stock-class-common",
+      "split_ratio": {
+        "numerator": "100",
+        "denominator": "1"
       },
-      {
-        "object_type": "TX_STOCK_ISSUANCE",
-        "id": "test-stock-issuance-series-a",
-        "stock_class_id": "test-stock-class-series-a",
-        "share_price": {
-          "ammount": "2000",
-          "cuurency_code": "JPY"
-        },
-        "quantity": "400",
-        "description": "シリーズA",
-        "date": "2015-03-25",
-        "security_id" : "test-security-stock-3"
+      "description": "株式100分割",
+      "date": "2016-11-14"
+    },
+    {
+      "object_type": "TX_STOCK_SPLIT",
+      "id": "test-stock-split",
+      "stock_class_id": "test-stock-class-preseries-a",
+      "split_ratio": {
+        "numerator": "100",
+        "denominator": "1"
       },
-      {
-        "object_type": "TX_STOCK_SPLIT",
-        "id": "test-stock-split",
-        "stock_class_id": "test-stock-class-common",
-        "split_ratio": {
-          "numerator": "100",
-          "denominator": "1"
-        },
-        "description": "株式100分割",
-        "date": "2016-11-14"
+      "description": "株式100分割",
+      "date": "2016-11-14"
+    },
+    {
+      "object_type": "TX_STOCK_SPLIT",
+      "id": "test-stock-split",
+      "stock_class_id": "test-stock-class-series-a",
+      "split_ratio": {
+        "numerator": "100",
+        "denominator": "1"
       },
-      {
-        "object_type": "TX_STOCK_SPLIT",
-        "id": "test-stock-split",
-        "stock_class_id": "test-stock-class-preseries-a",
-        "split_ratio": {
-          "numerator": "100",
-          "denominator": "1"
-        },
-        "description": "株式100分割",
-        "date": "2016-11-14"
+      "description": "株式100分割",
+      "date": "2016-11-14"
+    },
+    {
+      "object_type": "TX_STOCK_MERGER",
+      "id": "test-stock-merger",
+      "stock_class_id": "test-stock-class-common",
+      "merger_ratio": {
+        "numerator": "10",
+        "denominator": "1"
       },
-      {
-        "object_type": "TX_STOCK_SPLIT",
-        "id": "test-stock-split",
-        "stock_class_id": "test-stock-class-series-a",
-        "split_ratio": {
-          "numerator": "100",
-          "denominator": "1"
-        },
-        "description": "株式100分割",
-        "date": "2016-11-14"
+      "description": "10株を1株に併合",
+      "date": "2017-02-06"
+    },
+    {
+      "object_type": "TX_STOCK_MERGER",
+      "id": "test-stock-merger",
+      "stock_class_id": "test-stock-class-preseries-a",
+      "merger_ratio": {
+        "numerator": "10",
+        "denominator": "1"
       },
-      {
-        "object_type": "TX_STOCK_MERGER",
-        "id": "test-stock-merger",
-        "stock_class_id": "test-stock-class-common",
-        "merger_ratio": {
-          "numerator": "10",
-          "denominator": "1"
-        },
-        "description": "10株を1株に併合",
-        "date": "2017-02-06"
+      "description": "10株を1株に併合",
+      "date": "2017-02-06"
+    },
+    {
+      "object_type": "TX_STOCK_MERGER",
+      "id": "test-stock-merger",
+      "stock_class_id": "test-stock-class-series-a",
+      "merger_ratio": {
+        "numerator": "10",
+        "denominator": "1"
       },
-      {
-        "object_type": "TX_STOCK_MERGER",
-        "id": "test-stock-merger",
-        "stock_class_id": "test-stock-class-preseries-a",
-        "merger_ratio": {
-          "numerator": "10",
-          "denominator": "1"
-        },
-        "description": "10株を1株に併合",
-        "date": "2017-02-06"
-      },
-      {
-        "object_type": "TX_STOCK_MERGER",
-        "id": "test-stock-merger",
-        "stock_class_id": "test-stock-class-series-a",
-        "merger_ratio": {
-          "numerator": "10",
-          "denominator": "1"
-        },
-        "description": "10株を1株に併合",
-        "date": "2017-02-06"
-      },
-      {
-        "object_type": "TX_STOCK_OPTOIN_EXERCISE",
-        "id": "test-stock-option-exercise",
-        "quantity": "10",
-        "description": "第一回SOの行使",
-        "date": "2019-06-10"
-      },
-      {
-        "object_type": "TX_STOCK_OPTOIN_CANCELLATION",
-        "id": "test-stock-option-cancellation",
-        "quantity": "10",
-        "description": "第一回SOの消却",
-        "date": "2019-08-02"
-      },
-      {
-        "object_type": "TX_STOCK_CONVERSION",
-        "id": "test-stock-conversion-preseries-a",
-        "quantity_converted": "4000",
-        "stock_class_id_converted": "test-stock-class-preseries-a",
-        "quantity": "8000",
-        "stock_class_id": "test-stock-class-common",
-        "description": "A種種類株式転換",
-        "date": "2020-06-20"
-      },
-      {
-        "object_type": "TX_STOCK_CONVERSION",
-        "id": "test-stock-option-series-a",
-        "quantity_converted": "4000",
-        "stock_class_id_converted": "test-stock-class-series-a",
-        "quantity": "12000",
-        "stock_class_id": "test-stock-class-common",
-        "description": "優先株転換",
-        "date": "2020-06-20"
-      }
-    ]
-  }
+      "description": "10株を1株に併合",
+      "date": "2017-02-06"
+    },
+    {
+      "object_type": "TX_STOCK_OPTOIN_EXERCISE",
+      "id": "test-stock-option-exercise",
+      "quantity": "10",
+      "description": "第一回SOの行使",
+      "date": "2019-06-10"
+    },
+    {
+      "object_type": "TX_STOCK_OPTOIN_CANCELLATION",
+      "id": "test-stock-option-cancellation",
+      "quantity": "10",
+      "description": "第一回SOの消却",
+      "date": "2019-08-02"
+    },
+    {
+      "object_type": "TX_STOCK_CONVERSION",
+      "id": "test-stock-conversion-preseries-a",
+      "quantity_converted": "4000",
+      "stock_class_id_converted": "test-stock-class-preseries-a",
+      "quantity": "8000",
+      "stock_class_id": "test-stock-class-common",
+      "description": "A種種類株式転換",
+      "date": "2020-06-20"
+    },
+    {
+      "object_type": "TX_STOCK_CONVERSION",
+      "id": "test-stock-option-series-a",
+      "quantity_converted": "4000",
+      "stock_class_id_converted": "test-stock-class-series-a",
+      "quantity": "12000",
+      "stock_class_id": "test-stock-class-common",
+      "description": "優先株転換",
+      "date": "2020-06-20"
+    }
+  ]
+}
