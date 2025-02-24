@@ -1,0 +1,45 @@
+{
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/transfer/ConvertibleTransfer.schema.json",
+  "title": "Object - Convertible Transfer Transaction",
+  "description": "コンバーティブルエクイティの所有権移転や売買を表現するトランザクション",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/Object.schema.json"
+    },
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/Transaction.schema.json"
+    },
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/SecurityTransaction.schema.json"
+    },
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/transfer/Transfer.schema.json"
+    }
+  ],
+  "properties": {
+    "object_type": {
+      "const": "TX_CONVERTIBLE_TRANSFER"
+    },
+    "amount": {
+      "description": "移転の対象となる金額",
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Monetary.schema.json"
+    },
+    "id": {},
+    "comments": {},
+    "security_id": {},
+    "date": {},
+    "consideration_text": {},
+    "balance_security_id": {},
+    "resulting_security_ids": {}
+  },
+  "additionalProperties": false,
+  "required": [
+    "object_type",
+    "id",
+    "security_id",
+    "date",
+    "resulting_security_ids",
+    "amount"
+  ]
+}
