@@ -1,33 +1,46 @@
 {
-    "title": "株式異動トランザクション",
-    "description": "株式異動トランザクション",
-    "type": "object",
-    "properties": {
-      "object_type": {
-        "const": "TX_STOCK_TRANSFER"
-      },
-      "id": {
-        "description": "この株式異動トランザクションのID",
-        "type": "string"
-      },
-      "stock_class_id": {
-        "description": "この株式異動で異動された株式種類のID",
-        "type": "string"
-      },
-      "quantity": {
-        "description": "この株式異動で異動された株式数",
-        "$ref": "../../../types/Numeric.schema.json"
-      },
-      "description": {
-        "description": "説明",
-        "type": "string"
-      },
-      "date": {
-        "description": "発生日時",
-        "type": "string",
-        "format": "date"
-      }
+  "id": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/transfer/StockTransfer.schema.json",
+  "title": "株式異動トランザクション",
+  "description": "株式の所有権移転や売買を表現するトランザクション",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/Object.schema.json"
     },
-    "additionalProperties": false,
-    "required": ["id", "stock_class_id", "quantity", "date"]
-  }
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/Transaction.schema.json"
+    },
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/SecurityTransaction.schema.json"
+    },
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/transfer/Transfer.schema.json"
+    }
+  ],
+  "properties": {
+    "object_type": {
+      "const": "TX_STOCK_TRANSFER"
+    },
+    "quantity": {
+      "description": "この株式異動で異動された株式数",
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/types/Numeric.schema.json"
+    },
+    "id": {},
+    "comments": {},
+    "security_id": {},
+    "description": {},
+    "date": {},
+    "consideration_text": {},
+    "balance_security_id": {},
+    "resulting_security_ids": {}
+  },
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "object_type",
+    "security_id",
+    "quantity",
+    "resulting_security_ids",
+    "date"
+  ]
+}

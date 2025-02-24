@@ -17,10 +17,13 @@
     {
       "object_type": "TX_STOCK_TRANSFER",
       "id": "test-stock-transfer",
-      "stock_class_id": "test-stock-class-common",
+      "security_id": "test-security-stock-1",
       "quantity": "250",
       "description": "株式譲渡",
-      "date": "2013-11-18"
+      "date": "2013-11-18",
+      "resulting_security_ids" : [
+        "test-security-stock-2"
+      ]
     },
     {
       "object_type": "TX_CONVERTIBLE_ISSUANCE",
