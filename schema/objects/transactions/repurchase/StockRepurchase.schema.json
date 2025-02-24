@@ -1,0 +1,35 @@
+{
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/repurchase/StockRepurchase.schema.json",
+  "title": "Object - Stock Repurchase Transaction",
+  "description": "自社株買いを表現するトランザクション",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/Object.schema.json"
+    },
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/Transaction.schema.json"
+    },
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/SecurityTransaction.schema.json"
+    },
+    {
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/repurchase/Repurchase.schema.json"
+    }
+  ],
+  "properties": {
+    "object_type": {
+      "const": "TX_STOCK_REPURCHASE"
+    },
+    "id": {},
+    "comments": {},
+    "security_id": {},
+    "date": {},
+    "price": {},
+    "quantity": {},
+    "consideration_text": {},
+    "balance_security_id": {}
+  },
+  "additionalProperties": false,
+  "required": []
+}
