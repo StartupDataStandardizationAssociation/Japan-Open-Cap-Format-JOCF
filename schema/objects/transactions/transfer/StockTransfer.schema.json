@@ -23,7 +23,7 @@
     },
     "quantity": {
       "description": "この株式異動で異動された株式数",
-      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/types/Numeric.schema.json"
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
     },
     "id": {},
     "comments": {},

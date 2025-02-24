@@ -24,7 +24,7 @@
     "stock_class_id": {},
     "new_shares_authorized": {
       "description": "新しい発行可能株式数",
-      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/types/Numeric.schema.json"
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
     },
     "board_approval_date": {
       "description": "取締役会承認日付",

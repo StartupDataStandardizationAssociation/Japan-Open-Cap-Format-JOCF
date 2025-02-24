@@ -31,7 +31,7 @@
     },
     "quantity": {
       "description": "発行されるコンバーティブルエクイティの個数",
-      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/types/Numeric.schema.json"
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
     },
     "convertible_type": {
       "description": "発行されたコンバーティブルエクイティの種類",

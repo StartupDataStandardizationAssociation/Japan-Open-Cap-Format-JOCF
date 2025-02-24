@@ -39,7 +39,7 @@
     },
     "quantity": {
       "description": "引受株式数",
-      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/types/Numeric.schema.json"
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
     },
     "description": {
       "description": "説明",

@@ -27,7 +27,7 @@
     },
     "quantity_converted": {
       "description": "転換権が行使されたコンバーティブルエクイティの個数",
-      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/types/Numeric.schema.json"
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
     },
     "balance_security_id" : {
       "description": "部分的な転換の場合に、転換せずに残る転換権の証券ID",
