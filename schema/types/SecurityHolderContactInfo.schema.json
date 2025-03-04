@@ -1,18 +1,30 @@
 {
-    "title": "Type - 連絡先",
-    "description": "個人の連絡先",
-    "type": "object",
-    "properties": {
-      "phone_number": {
-        "description": "電話番号",
-        "type": "string"
-      },
-      "email": {
-        "description": "メールアドレス",
-        "type": "string",
-        "format": "email"
-      }
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/types/SecurityHolderContactInfo.schema.json",
+  "title": "Type - 連絡先",
+  "description": "個人投資家の連絡先",
+  "type": "object",
+  "properties": {
+    "phone_numbers": {
+      "description": "電話番号",
+      "type": "array",
+      "items": [
+        {
+          "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Phone.schema.json"
+        }
+      ]
     },
-    "additionalProperties": false,
-    "required": ["email"]
-  }
+    "emails": {
+      "description": "メールアドレス",
+      "type": "array",
+      "items": [
+        {
+          "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Email.schema.json"
+        }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "email"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/enums/EmailType.schema.json",
+  "title": "Enum - Email Type",
+  "description": "Eメールアドレスの種類",
+  "type": "string",
+  "enum": [
+    "PERSONAL",
+    "BUSINESS",
+    "OTHER"
+  ]
+}

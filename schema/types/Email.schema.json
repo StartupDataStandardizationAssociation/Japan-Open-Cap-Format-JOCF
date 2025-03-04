@@ -1,0 +1,22 @@
+{
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/types/Email.schema.json",
+  "title": "Type - Email",
+  "description": "Eメールアドレスとその種類",
+  "type": "object",
+  "properties": {
+    "email_type": {
+      "description": "Eメールアドレスの種類(e.g. 個人用、ビジネス用)",
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/enums/EmailType.schema.json"
+    },
+    "email_address": {
+      "description": "Eメールアドレス",
+      "type": "string",
+      "format": "email"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "email_type",
+    "email_address"
+  ]
+}

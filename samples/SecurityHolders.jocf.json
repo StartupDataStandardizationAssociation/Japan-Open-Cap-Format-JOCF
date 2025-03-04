@@ -9,12 +9,22 @@
                 "first_name": "田中",
                 "last_name": "起業家太郎"
             },
-            "security_holder_type": "INDIVISUAL",
+            "security_holder_type": "INDIVIDUAL",
             "address": "東京都1-1-1",
             "contact_info": [
                 {
-                    "phone_number": "090-1111-2222",
-                    "email": "tanaka.kigyoka@example.com"
+                    "phone_numbers": [
+                        {
+                            "phone_number": "050-1234-5678",
+                            "phone_type": "MOBILE"
+                        }
+                    ],
+                    "emails": [
+                        {
+                            "email_address": "tanaka.kigyoka@example.com",
+                            "email_type": "BUSINESS"
+                        }
+                    ]
                 }
             ]
         },
@@ -29,8 +39,18 @@
             "primary_contact": [
                 {
                     "name": "鈴木 一郎",
-                    "phone_number": "050-1234-5678",
-                    "email": "suzuki@angel-fund.com"
+                    "phone_numbers": [
+                        {
+                            "phone_number": "050-1234-5678",
+                            "phone_type": "MOBILE"
+                        }
+                    ],
+                    "emails": [
+                        {
+                            "email_address": "suzuki@angel-fund.com",
+                            "email_type": "BUSINESS"
+                        }
+                    ]
                 }
             ]
         }

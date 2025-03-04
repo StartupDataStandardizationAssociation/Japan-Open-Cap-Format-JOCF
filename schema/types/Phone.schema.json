@@ -1,0 +1,21 @@
+{
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/types/Phone.schema.json",
+  "title": "Type - Phone",
+  "description": "電話番号",
+  "type": "object",
+  "properties": {
+    "phone_type": {
+      "description": "電話番号の種類（携帯電話、自宅、業務用など）",
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/enums/PhoneType.schema.json"
+    },
+    "phone_number": {
+      "description": "電話番号",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "phone_type",
+    "phone_number"
+  ]
+}
