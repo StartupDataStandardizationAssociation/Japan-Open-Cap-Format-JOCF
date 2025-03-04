@@ -1,0 +1,59 @@
+{
+    "file_type": "JOCF_TRANSACTIONS_FILE",
+    "items" :[
+        {
+            "object_type": "TX_STOCK_ISSUANCE",
+            "id": "test-initial-stock-issuance-1",
+            "stock_class_id": "test-stock-class-common",
+            "security_holder_id": "test-securityholder-investor-a",
+            "share_price": {
+                "ammount": "100",
+                "cuurency_code": "JPY"
+            },
+            "quantity": "1000",
+            "description": "創業時株式発行",
+            "date": "2012-01-20",
+            "security_id" : "test-security-stock-a-1"
+        },
+        {
+            "object_type": "TX_STOCK_TRANSFER",
+            "id": "test-stock-transfer",
+            "security_id": "test-security-stock-a-1",
+            "quantity": "250",
+            "description": "一部株式譲渡(創業者 A -> 株式会社 X)",
+            "date": "2013-11-18",
+            "balance_security_id" : "test-security-stock-a-2",
+            "resulting_security_ids" : [
+                "test-security-stock-x-1"
+            ]
+        },
+        {
+            "object_type": "TX_STOCK_ISSUANCE",
+            "id": "test-initial-stock-issuance-2",
+            "stock_class_id": "test-stock-class-common",
+            "security_holder_id": "test-securityholder-investor-a",
+            "share_price": {
+                "ammount": "10000",
+                "cuurency_code": "JPY"
+            },
+            "quantity": "750",
+            "description": "一部株式譲渡後の創業者Aの残高",
+            "date": "2013-11-18",
+            "security_id" : "test-security-stock-a-2"
+        },
+        {
+            "object_type": "TX_STOCK_ISSUANCE",
+            "id": "test-initial-stock-issuance-3",
+            "stock_class_id": "test-stock-class-common",
+            "security_holder_id": "test-securityholder-investor-x",
+            "share_price": {
+                "ammount": "10000",
+                "cuurency_code": "JPY"
+            },
+            "quantity": "250",
+            "description": "株式譲渡を受けた株式会社Xの残高",
+            "date": "2013-11-18",
+            "security_id" : "test-security-stock-x-1"
+        }
+    ]
+}
