@@ -1,28 +1,33 @@
 {
-    "title": "ストックオプション行使トランザクション",
-    "description": "ストックオプション行使トランザクション",
-    "type": "object",
-    "properties": {
-      "object_type": {
-        "const": "TX_STOCK_OPTION_EXERCISE"
-      },
-      "id": {
-        "description": "このストックオプション行使トランザクションのID",
-        "type": "string"
-      },
-      "quantity": {
-        "description": "行使個数",
-        "$ref": "../../../types/Numeric.schema.json"
-      },   
-      "description": {
-        "description": "説明",
-        "type": "string"
-      }, 
-      "date": {
-        "description": "発生日時",
-        "type": "string"
-      }
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/exercise/StockOptionExercise.schema.json",
+  "title": "ストックオプション行使トランザクション",
+  "description": "ストックオプション行使トランザクション",
+  "type": "object",
+  "properties": {
+    "object_type": {
+      "const": "TX_STOCK_OPTION_EXERCISE"
     },
-    "additionalProperties": false,
-    "required": ["id", "quantity", "date"]
-  }
+    "id": {
+      "description": "このストックオプション行使トランザクションのID",
+      "type": "string"
+    },
+    "quantity": {
+      "description": "行使個数",
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
+    },
+    "description": {
+      "description": "説明",
+      "type": "string"
+    },
+    "date": {
+      "description": "発生日時",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "quantity",
+    "date"
+  ]
+}

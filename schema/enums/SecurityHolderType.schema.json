@@ -1,6 +1,10 @@
 {
-    "title": "証券保有者種類 - Enum",
-    "description": "証券保有者種類のEnum",
-    "type": "string",
-    "enum": ["INDIVIDUAL", "INSTITUTION"]
-  }
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/enums/CumulativeCategory.schema.json",
+  "title": "証券保有者種類 - Enum",
+  "description": "証券保有者種類のEnum",
+  "type": "string",
+  "enum": [
+    "INDIVIDUAL",
+    "INSTITUTION"
+  ]
+}

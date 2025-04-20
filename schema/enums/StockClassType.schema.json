@@ -1,6 +1,10 @@
 {
-    "title": "株式種類 - Enum",
-    "description": "株式種類のEnum",
-    "type": "string",
-    "enum": ["COMMON", "PREFERRED"]
-  }
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/enums/CumulativeCategory.schema.json",
+  "title": "株式種類 - Enum",
+  "description": "株式種類のEnum",
+  "type": "string",
+  "enum": [
+    "COMMON",
+    "PREFERRED"
+  ]
+}
