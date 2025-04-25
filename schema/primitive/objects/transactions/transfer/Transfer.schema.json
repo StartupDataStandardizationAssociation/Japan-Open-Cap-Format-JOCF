@@ -1,0 +1,28 @@
+{
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/transfer/Transfer.schema.json",
+  "title": "Primitive - Security Transfer Transaction",
+  "description": "証券の所有権移転や売買を表現するトランザクションの基底クラス",
+  "type": "object",
+  "properties": {
+    "consideration_text": {
+      "description": "証券の移転と共に発生する考慮事項",
+      "type": "string"
+    },
+    "balance_security_id": {
+      "description": "部分的な移転の場合に、移転後の残りの残高を示すID",
+      "type": "string"
+    },
+    "resulting_security_ids": {
+      "description": "移転により新しく発生した残高のID一覧",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "resulting_security_ids"
+  ]
+}

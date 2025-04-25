@@ -1,0 +1,47 @@
+{
+    "file_type": "JOCF_SECURITY_HOLDERS_FILE",
+    "items": [
+        {
+            "object_type": "SECURITY_HOLDER",
+            "id": "test-securityholder-investor-a",
+            "name": "創業者 A(移転元)",
+            "contact_info": [
+                {
+                    "phone_numbers": [
+                        {
+                            "phone_number": "03-1234-5678",
+                            "phone_type": "BUSINESS"
+                        }
+                    ],
+                    "emails": [
+                        {
+                            "email_address": "aaaa@startupstandard.org",
+                            "email_type": "BUSINESS"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "object_type": "SECURITY_HOLDER",
+            "id": "test-securityholder-investor-x",
+            "name": "株式会社 X(移転先)",
+            "contact_info": [
+                {
+                    "phone_numbers": [
+                        {
+                            "phone_number": "03-1234-5678",
+                            "phone_type": "BUSINESS"
+                        }
+                    ],
+                    "emails": [
+                        {
+                            "email_address": "xyz@x.org",
+                            "email_type": "BUSINESS"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

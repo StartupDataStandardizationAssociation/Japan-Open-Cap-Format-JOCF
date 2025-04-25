@@ -1,0 +1,28 @@
+{
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/repurchase/Repurchase.schema.json",
+  "title": "Primitive - Security Repurchase Transaction",
+  "description": "証券の買い戻し(e.g. 自社株買い)トランザクションの基底クラス",
+  "type": "object",
+  "properties": {
+    "price": {
+      "description": "証券1単位当たりの買い戻し価格",
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Monetary.schema.json"
+    },
+    "quantity": {
+      "description": "買い戻し数量",
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
+    },
+    "consideration_text": {
+      "description": "証券の買戻しに伴って発生する考慮事項",
+      "type": "string"
+    },
+    "balance_security_id": {
+      "description": "部分的な買い戻しの場合に、買い戻し後の残りの残高を示すID",
+      "type": "string"
+    }
+  },
+  "required": [
+    "price",
+    "quantity"
+  ]
+}

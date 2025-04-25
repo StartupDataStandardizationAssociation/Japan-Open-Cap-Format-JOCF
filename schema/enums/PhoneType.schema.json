@@ -1,0 +1,12 @@
+{
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/enums/PhoneType.schema.json",
+  "title": "Enum - Phone Type",
+  "description": "電話番号の種別(自宅、携帯、業務用、その他)",
+  "type": "string",
+  "enum": [
+    "HOME",
+    "MOBILE",
+    "BUSINESS",
+    "OTHER"
+  ]
+}

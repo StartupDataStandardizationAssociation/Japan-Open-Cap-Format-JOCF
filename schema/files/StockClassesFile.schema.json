@@ -10,7 +10,7 @@
             "items": {
                 "oneOf": [
                     {
-                        "$ref": "../objects/StockClass.schema.json"
+                        "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/StockClass.schema.json"
                     }
                 ]
             }
@@ -23,5 +23,6 @@
     "required": [
         "items",
         "file_type"
-    ]
+    ],
+    "additionalItems": false
 }

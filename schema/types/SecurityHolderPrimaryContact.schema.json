@@ -1,22 +1,33 @@
 {
-    "title": "Type - 主要連絡先",
-    "description": "組織（ファンドなど）の連絡先",
-    "type": "object",
-    "properties": {
-      "name": {
-        "description": "担当者名",
-        "$ref": "./Name.schema.json"
-      },
-      "phone_number": {
-        "description": "担当者の電話番号",
-        "type": "string"
-      },
-      "email": {
-        "description": "担当者のメールアドレス",
-        "type": "string",
-        "format": "email"
-      }
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/types/SecurityHolderPrimaryContact.schema.json",
+  "title": "Type - 主要連絡先",
+  "description": "法人の投資家の連絡先",
+  "type": "object",
+  "properties": {
+    "name": {
+      "description": "担当者名",
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Name.schema.json"
     },
-    "additionalProperties": false,
-    "required": ["name", "email"]
-  }
+    "phone_numbers": {
+      "description": "担当者の電話番号",
+      "type": "array",
+      "items": [
+        {
+          "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Phone.schema.json"
+        }
+      ]
+    },
+    "emails": {
+      "description": "担当者のメールアドレス",
+      "type": "array",
+      "items": {
+        "$ref" : "https://jocf.startupstandard.org/jocf/main/schema/types/Email.schema.json"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "name",
+    "email"
+  ]
+}

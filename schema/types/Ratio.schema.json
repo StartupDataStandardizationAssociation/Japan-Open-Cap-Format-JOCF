@@ -1,18 +1,21 @@
 {
   "$id": "https://jocf.startupstandard.org/jocf/main/schema/types/Ratio.schema.json",
   "title": "比率",
-    "description": "比率",
-    "type": "object",
-    "properties": {
-      "numerator": {
-        "description": "比率の分子",
-        "$ref": "./Numeric.schema.json"
-      },
-      "denominator": {
-        "description": "比率の分母",
-        "$ref": "./Numeric.schema.json"
-      }
+  "description": "比率",
+  "type": "object",
+  "properties": {
+    "numerator": {
+      "description": "比率の分子",
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
     },
-    "additionalProperties": false,
-    "required": ["numerator", "denominator"]
-  }
+    "denominator": {
+      "description": "比率の分母",
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "numerator",
+    "denominator"
+  ]
+}
