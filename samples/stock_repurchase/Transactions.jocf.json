@@ -1,0 +1,52 @@
+{
+    "filetype": "JOCF_TRANSACTIONS_FILE",
+    "items": [
+        {
+            "object_type": "TX_STOCK_ISSUANCE",
+            "id": "test-initial-stock-issuance-1",
+            "stock_class_id": "test-stock-class-common",
+            "security_holder_id": "test-securityholder-investor-x",
+            "share_price": {
+                "amount": "1000",
+                "currency_code": "JPY"
+            },
+            "quantity": "1000",
+            "description": "株式会社Xに対して株式を発行",
+            "date": "2012-01-20",
+            "security_id": "test-security-of-x-1"
+        },
+        {
+            "object_type": "TX_STOCK_REPURCHASE",
+            "id": "test-stock-repurchase-1",
+            "security_id": "test-security-of-x-1",
+            "price": {
+                "amount": "10000",
+                "currency_code": "JPY"
+            },
+            "quantity": "100",
+            "description": "株式会社Xが保有する株式の一部を、発行会社が買取り",
+            "date": "2013-11-18",
+            "consideration_text": "JSONスキーマで表現されない事項を記載する項目",
+            "balance_security_id": "test-security-of-x-2",
+            "comments" : [
+                "security_idで指定される残高(保有者は株式会社X)から、発行会社が自社株買いを行なう。",
+                "残高の一部に対する自社株買いの場合は、残った残高はbalance_security_idで指定される。",
+                "残高の全部に対する自社株買いの場合は、balance_security_idは指定しない。"
+            ]
+        },
+        {
+            "object_type": "TX_STOCK_ISSUANCE",
+            "id": "test-stock-issuance-after-repurchase",
+            "stock_class_id": "test-stock-class-common",
+            "security_holder_id": "test-securityholder-investor-x",
+            "share_price": {
+                "amount": "1000",
+                "currency_code": "JPY"
+            },
+            "quantity": "900",
+            "description": "自社株買いの後に残った、株式会社Xの残高",
+            "date": "2013-11-18",
+            "security_id": "test-security-of-x-2"
+        }
+    ]
+}
