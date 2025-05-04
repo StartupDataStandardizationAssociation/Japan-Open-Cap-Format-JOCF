@@ -4,6 +4,7 @@ repo_url: https://github.com/StartupDataStandardizationAssociation/Japan-Open-Ca
 edit_uri: edit/main/docs # ドキュメントフォルダへの絶対パスの一部(絶対パス=repo_url+edit_uri)
 site_author: Japan Open Cap Table Coalition
 site_description: JOCFが提供する公式ドキュメントです。
+site_dir: site
 theme:
   name: material
   logo: "./images/startupstandard_logo.png" # FIXME: 一旦スタートアップデータ標準化協会のロゴを利用、本来はJOCFのロゴであるべき
