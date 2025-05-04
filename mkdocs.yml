@@ -1,0 +1,37 @@
+site_name: Japan Open Cap Table Format(JOCF) ドキュメント
+repo_url: https://github.com/StartupDataStandardizationAssociation/Japan-Open-Cap-Format-JOCF
+# site_url: https://tbd.github.io/Open-Cap-Format-OCF/
+edit_uri: edit/main/docs # ドキュメントフォルダへの絶対パスの一部(絶対パス=repo_url+edit_uri)
+site_author: Japan Open Cap Table Coalition
+site_description: JOCFが提供する公式ドキュメントです。
+theme:
+  name: material
+  logo: "./images/startupstandard_logo.png" # FIXME: 一旦スタートアップデータ標準化協会のロゴを利用、本来はJOCFのロゴであるべき
+  # favicon: "./images/favicon.png"  # FIXME: 正しいファビコンを設定すること
+  extra:
+    homepage: https://www.startupstandard.org/
+  features:
+    - navigation.instant
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.top
+    - toc.integrate
+# FIXME: とりあえずスタートアップデータ標準化協会のメインカラーで設定
+extra_css:
+  - "./stylesheets/extra.css"
+markdown_extensions:
+  - toc:
+      permalink: "#"
+  - attr_list
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+plugins:
+  - search:
+      lang: ja # 検索言語は日本語
+      separator: '[\s\-\.]+' # スペース, ハイフン、ドットを区切り文字として使用
+  - awesome-nav:
+      filename: ".nav.yml" # ナビゲーションの設定ファイル
+
