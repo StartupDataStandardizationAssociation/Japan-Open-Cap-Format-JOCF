@@ -1,7 +1,7 @@
 {
     "$id": "https://jocf.startupstandard.org/jocf/main/schema/files/TransactionFile.schema.json",
     "title": "トランザクション",
-    "description": "",
+    "description": "発生したトランザクションを記録するファイル",
     "type": "object",
     "properties": {
         "items": {
