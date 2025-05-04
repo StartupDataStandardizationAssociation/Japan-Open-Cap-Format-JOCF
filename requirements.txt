@@ -1,0 +1,4 @@
+mkdocs>=1.6.1
+mkdocs-material>=9.6.12
+pymdown-extensions>=10.15
+mkdocs-awesome-nav>=3.1.1
