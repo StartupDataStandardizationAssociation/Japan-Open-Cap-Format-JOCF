@@ -1,8 +1,10 @@
 {
+    "$id": "https://jocf.startupstandard.org/jocf/main/schema/files/SecurityHoldersFile.schema.json",
+    "title": "JOCF 証券保有者ファイル",
     "type": "object",
     "allOf": [
         {
-            "$ref": "https://jocf.startupstandard.org/jocf/schema/types/File.schema.json"
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/File.schema.json"
         }
     ],
     "properties": {

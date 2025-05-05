@@ -1,9 +1,12 @@
 # トランザクション
 
-ID = `https://jocf.startupstandard.org/jocf/main/schema/files/TransactionFile.schema.json`
+ID = `https://jocf.startupstandard.org/jocf/main/schema/files/TransactionsFile.schema.json`
 
 ## Description
 発生したトランザクションを記録するファイル
+
+## Composed from
+- [File](../types/File.schema.json)
 
 ## Properties
 

@@ -1,5 +1,5 @@
 {
-  "$id": "https://jocf.startupstandard.org/jocf/schema/types/File.schema.json",
+  "$id": "https://jocf.startupstandard.org/jocf/main/schema/types/File.schema.json",
   "title": "Type - File",
   "description": "ファイルの基底スキーマ",
   "type": "object",
