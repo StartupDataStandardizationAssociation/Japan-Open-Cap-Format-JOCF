@@ -5,6 +5,10 @@ import json
 import os.path
 import sys
 from typing import Dict, Any
+import schema_config
+
+SCHEMA_ROOT_RELATIVE_PATH = "../"
+MD_ROOT_RELATIVE_PATH = "docs/schema_markdown/"
 
 def validate_json_schema(schema: Dict[str, Any]) -> bool:
     """
@@ -12,6 +16,16 @@ def validate_json_schema(schema: Dict[str, Any]) -> bool:
     """
     required_fields = ['title', 'properties']
     return all(field in schema for field in required_fields)
+
+def extract_ref_relative_path(ref_path: str) -> str:
+    """
+    $refパスからベースURLを除去して相対パスを取得する
+    例: "https://jocf.startupstandard.org/jocf/main/schema/objects/StockClass.schema.json"
+    → "objects/StockClass.schema.json"
+    """
+    if ref_path.startswith(schema_config.SCHEMA_BASE_URL):
+        return f"{SCHEMA_ROOT_RELATIVE_PATH}{ref_path[len(schema_config.SCHEMA_BASE_URL + '/'):]}"
+    return ref_path
 
 def extract_ref_name(ref_path: str) -> str:
     """
@@ -21,8 +35,8 @@ def extract_ref_name(ref_path: str) -> str:
     """
     # パスの最後のファイル名を取得
     filename = ref_path.split('/')[-1]
-    # .schema.jsonを除去
-    return filename.replace('.schema.json', '')
+    # 設定された拡張子を除去
+    return filename.replace(schema_config.SCHEMA_FILE_EXTENSION, '')
 
 def get_property_type(prop: Dict[str, Any]) -> str:
     """
@@ -30,15 +44,21 @@ def get_property_type(prop: Dict[str, Any]) -> str:
     """
     if 'type' in prop:
         if prop['type'] == 'array' and 'items' in prop:
+            # array型の場合
             items = prop['items']
             if 'oneOf' in items:
                 # oneOfの場合は$refの値を列挙
                 refs = []
                 for item in items['oneOf']:
                     if '$ref' in item:
-                        refs.append(extract_ref_name(item['$ref']))
-                return "array of:\n" + "\n".join([f"- {ref}" for ref in refs])
+                        ref_file_name = extract_ref_name(item['$ref'])
+                        ref_relative_path = extract_ref_relative_path(item['$ref'])
+                        # ref_file_nameとref_relative_pathをMarkdown形式で追加
+                        refs.append(f"[{ref_file_name}]({ref_relative_path})")
+                return f"one of: <br> - {'<br> - '.join(refs)}"
+            # それ以外の型の場合はitemsの型を取得
             return f"array of {get_property_type(items)}"
+        # それ以外の型の場合
         return prop['type']
     elif 'const' in prop:
         return f"const ({prop['const']})"
@@ -60,6 +80,11 @@ def generate_markdown(schema: Dict[str, Any]) -> str:
     # Schema Name
     md_lines.append(f"# {schema.get('title', 'Untitled Schema')}")
     md_lines.append("")
+    
+    # Schema ID
+    if '$id' in schema:
+        md_lines.append(f"ID = `{schema['$id']}`")
+        md_lines.append("")
     
     # Description
     description = schema.get('description')
@@ -85,29 +110,44 @@ def generate_markdown(schema: Dict[str, Any]) -> str:
         md_lines.append("|-------------|------|----------|")
         
         for prop_name, prop_data in schema['properties'].items():
+            # プロパティの型情報を取得
             prop_type = get_property_type(prop_data)
             required = is_required_property(prop_name, schema)
             
-            # 型情報に改行が含まれる場合（oneOfのリストなど）は、
-            # 最初の行をテーブルセルに、残りを後続の行に配置
-            type_lines = prop_type.split('\n')
-            md_lines.append(f"| {prop_name} | {type_lines[0]} | {required} |")
-            
-            # 型情報の残りの行を出力
-            if len(type_lines) > 1:
-                for type_line in type_lines[1:]:
-                    md_lines.append(f"|  | {type_line} |  |")
-            
-            # プロパティの説明があれば追加
+            # 型情報と説明を同じセルに表示
             if 'description' in prop_data:
-                md_lines.append(f"|  | {prop_data['description']} |  |")
+                prop_type = f"{prop_data['description']} <br> {prop_type}"
+            md_lines.append(f"| {prop_name} | {prop_type} | {required} |")
     
     return "\n".join(md_lines)
 
+def generate_output_path(schema_id: str) -> str:
+    """
+    スキーマIDから出力先のMarkdownファイルパスを生成する
+    例: "https://jocf.startupstandard.org/jocf/main/schema/files/StockClassesFile.schema.json"
+    → "docs/schema_markdown/files/StockClassesFile.md"
+    """
+    if not schema_id:
+        raise ValueError("スキーマIDが指定されていません")
+        
+    # スキーマIDからベースURLを除去して相対パスを取得
+    relative_path = schema_id[len(schema_config.SCHEMA_BASE_URL + '/'):]
+    
+    # .schema.jsonを.mdに置換
+    md_path = relative_path.replace(schema_config.SCHEMA_FILE_EXTENSION, '.md')
+    
+    # 最終的な出力パスを生成
+    return os.path.join(MD_ROOT_RELATIVE_PATH, md_path)
+
 def main():
-    parser = argparse.ArgumentParser(description='Convert JSON Schema to Markdown documentation')
-    parser.add_argument('input_file_path', help='Path to input JSON schema file')
-    parser.add_argument('output_file_path', help='Path to output Markdown file')
+    parser = argparse.ArgumentParser(
+        description='Convert JSON Schema to Markdown documentation',
+        epilog='出力パスはスキーマの$idから自動的に生成されます'
+    )
+    parser.add_argument('input_file_path', help='JSONスキーマファイルへのパス')
+    
+    if len(sys.argv) > 2:
+        parser.error('出力パスは指定不要です。スキーマの$idから自動的に生成されます。')
     
     args = parser.parse_args()
     
@@ -132,14 +172,21 @@ def main():
     # Markdownの生成
     markdown_content = generate_markdown(schema)
     
+    # スキーマIDから出力パスを生成
+    try:
+        output_path = generate_output_path(schema['$id'])
+    except (KeyError, ValueError) as e:
+        print(f"エラー: 出力パスの生成に失敗しました: {e}", file=sys.stderr)
+        sys.exit(1)
+    
     # 出力ディレクトリの作成（必要な場合）
-    output_dir = os.path.dirname(args.output_file_path)
+    output_dir = os.path.dirname(output_path)
     if output_dir and not os.path.exists(output_dir):
         os.makedirs(output_dir)
     
     # Markdownファイルの出力
     try:
-        with open(args.output_file_path, 'w', encoding='utf-8') as f:
+        with open(output_path, 'w', encoding='utf-8') as f:
             f.write(markdown_content)
     except IOError as e:
         print(f"エラー: Markdownファイルの書き込みに失敗しました: {e}", file=sys.stderr)
