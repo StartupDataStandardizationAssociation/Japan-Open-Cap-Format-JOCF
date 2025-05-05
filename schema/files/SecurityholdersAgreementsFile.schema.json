@@ -5,7 +5,7 @@
     "type": "object",
     "allOf": [
         {
-            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/files/File.schema.json"
+            "$ref": "https://jocf.startupstandard.org/jocf/schema/types/File.schema.json"
         }
     ],
     "properties": {

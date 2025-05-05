@@ -3,6 +3,11 @@
     "title": "トランザクション",
     "description": "発生したトランザクションを記録するファイル",
     "type": "object",
+    "allOf": [
+        {
+            "$ref": "https://jocf.startupstandard.org/jocf/schema/types/File.schema.json"
+        }
+    ],
     "properties": {
         "items": {
             "type": "array",
