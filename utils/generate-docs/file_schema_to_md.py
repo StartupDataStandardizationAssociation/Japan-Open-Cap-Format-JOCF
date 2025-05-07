@@ -6,9 +6,7 @@ import os.path
 import sys
 from typing import Dict, Any
 import schema_config
-
-SCHEMA_ROOT_RELATIVE_PATH = "../"
-MD_ROOT_RELATIVE_PATH = "docs/schema_markdown/"
+from schema_id_util import extract_ref_relative_path, extract_file_name_wo_extension
 
 def validate_json_schema(schema: Dict[str, Any]) -> bool:
     """
@@ -16,27 +14,6 @@ def validate_json_schema(schema: Dict[str, Any]) -> bool:
     """
     required_fields = ['title', 'properties']
     return all(field in schema for field in required_fields)
-
-def extract_ref_relative_path(ref_path: str) -> str:
-    """
-    $refパスからベースURLを除去して相対パスを取得する
-    例: "https://jocf.startupstandard.org/jocf/main/schema/objects/StockClass.schema.json"
-    → "objects/StockClass.schema.json"
-    """
-    if ref_path.startswith(schema_config.SCHEMA_BASE_URL):
-        return f"{SCHEMA_ROOT_RELATIVE_PATH}{ref_path[len(schema_config.SCHEMA_BASE_URL + '/'):]}"
-    return ref_path
-
-def extract_ref_name(ref_path: str) -> str:
-    """
-    $refパスから最後のファイル名部分を抽出する
-    例: "https://jocf.startupstandard.org/jocf/main/schema/objects/StockClass.schema.json"
-    → "StockClass"
-    """
-    # パスの最後のファイル名を取得
-    filename = ref_path.split('/')[-1]
-    # 設定された拡張子を除去
-    return filename.replace(schema_config.SCHEMA_FILE_EXTENSION, '')
 
 def get_property_type(prop: Dict[str, Any]) -> str:
     """
@@ -51,14 +28,14 @@ def get_property_type(prop: Dict[str, Any]) -> str:
                 refs = []
                 for item in items['oneOf']:
                     if '$ref' in item:
-                        ref_file_name = extract_ref_name(item['$ref'])
+                        ref_file_name = extract_file_name_wo_extension(item['$ref'])
                         ref_relative_path = extract_ref_relative_path(item['$ref'])
                         # ref_file_nameとref_relative_pathをMarkdown形式で追加
                         refs.append(f"[{ref_file_name}]({ref_relative_path})")
                 return f"one of: <br> - {'<br> - '.join(refs)}"
             # 単純な$refの場合
             if '$ref' in items:
-                ref_file_name = extract_ref_name(items['$ref'])
+                ref_file_name = extract_file_name_wo_extension(items['$ref'])
                 ref_relative_path = extract_ref_relative_path(items['$ref'])
                 return f"array of [{ref_file_name}]({ref_relative_path})"
             # それ以外の型の場合はitemsの型を取得
@@ -68,7 +45,7 @@ def get_property_type(prop: Dict[str, Any]) -> str:
     elif 'const' in prop:
         return f"const ({prop['const']})"
     elif '$ref' in prop:
-        ref_file_name = extract_ref_name(prop['$ref'])
+        ref_file_name = extract_file_name_wo_extension(prop['$ref'])
         ref_relative_path = extract_ref_relative_path(prop['$ref'])
         return f"[{ref_file_name}]({ref_relative_path})"
     return 'unknown'
@@ -107,7 +84,7 @@ def generate_markdown(schema: Dict[str, Any]) -> str:
         md_lines.append("## Composed from")
         for item in schema['allOf']:
             if isinstance(item, dict) and '$ref' in item:
-                ref_name = extract_ref_name(item['$ref'])
+                ref_name = extract_file_name_wo_extension(item['$ref'])
                 ref_relative_path = extract_ref_relative_path(item['$ref'])
                 md_lines.append(f"- [{ref_name}]({ref_relative_path})")
         md_lines.append("")
@@ -147,28 +124,23 @@ def generate_output_path(schema_id: str) -> str:
     md_path = relative_path.replace(schema_config.SCHEMA_FILE_EXTENSION, '.md')
     
     # 最終的な出力パスを生成
-    return os.path.join(MD_ROOT_RELATIVE_PATH, md_path)
+    return os.path.join(schema_config.MD_ROOT_RELATIVE_PATH, md_path)
 
-def main():
-    parser = argparse.ArgumentParser(
-        description='Convert JSON Schema to Markdown documentation',
-        epilog='出力パスはスキーマの$idから自動的に生成されます'
-    )
-    parser.add_argument('input_file_path', help='JSONスキーマファイルへのパス')
-    
-    if len(sys.argv) > 2:
-        parser.error('出力パスは指定不要です。スキーマの$idから自動的に生成されます。')
-    
-    args = parser.parse_args()
-    
+def generate(input_file_path: str) -> None:
+    """
+    JSONスキーマファイルからMarkdownドキュメントを生成する
+
+    Args:
+        input_file_path: JSONスキーマファイルへのパス
+    """
     # 入力ファイルの存在確認
-    if not os.path.exists(args.input_file_path):
-        print(f"エラー: 入力ファイル '{args.input_file_path}' が存在しません", file=sys.stderr)
+    if not os.path.exists(input_file_path):
+        print(f"エラー: 入力ファイル '{input_file_path}' が存在しません", file=sys.stderr)
         sys.exit(1)
     
     # JSONスキーマの読み込み
     try:
-        with open(args.input_file_path, 'r', encoding='utf-8') as f:
+        with open(input_file_path, 'r', encoding='utf-8') as f:
             schema = json.load(f)
     except json.JSONDecodeError as e:
         print(f"エラー: JSONの解析に失敗しました: {e}", file=sys.stderr)
@@ -201,6 +173,19 @@ def main():
     except IOError as e:
         print(f"エラー: Markdownファイルの書き込みに失敗しました: {e}", file=sys.stderr)
         sys.exit(1)
+
+def main():
+    parser = argparse.ArgumentParser(
+        description='Convert JSON Schema to Markdown documentation',
+        epilog='出力パスはスキーマの$idから自動的に生成されます'
+    )
+    parser.add_argument('input_file_path', help='JSONスキーマファイルへのパス')
+    
+    if len(sys.argv) > 2:
+        parser.error('出力パスは指定不要です。スキーマの$idから自動的に生成されます。')
+    
+    args = parser.parse_args()
+    generate(args.input_file_path)
 
 if __name__ == "__main__":
     main()
