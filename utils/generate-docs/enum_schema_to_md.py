@@ -6,7 +6,6 @@ import os.path
 import sys
 from typing import Dict, Any
 import schema_config
-from property_util import get_property_type
 
 def validate_json_schema(schema: Dict[str, Any]) -> bool:
     """
