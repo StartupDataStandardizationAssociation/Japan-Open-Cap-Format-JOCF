@@ -29,7 +29,7 @@ def get_property_type(prop: Dict[str, Any], input_file_relative_path_to_root:str
                 md_relative_path = convert_extension_from_schema_path_to_md(ref_relative_path)
                 return f"array of [{ref_file_name}]({input_file_relative_path_to_root}{md_relative_path})"
             # それ以外の型の場合はitemsの型を取得
-            return f"array of {get_property_type(items)}"
+            return f"array of {get_property_type(items, input_file_relative_path_to_root)}"
         # それ以外の型の場合
         return prop['type']
     elif 'const' in prop:
