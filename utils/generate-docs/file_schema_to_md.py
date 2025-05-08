@@ -7,7 +7,7 @@ import sys
 from typing import Dict, Any
 import schema_config
 from property_util import get_property_type
-from schema_id_util import extract_ref_relative_path, extract_file_name_wo_extension
+from schema_id_util import extract_ref_relative_path, extract_file_name_wo_extension, convert_extension_from_schema_path_to_md
 
 def validate_json_schema(schema: Dict[str, Any]) -> bool:
     """
@@ -52,7 +52,8 @@ def generate_markdown(schema: Dict[str, Any]) -> str:
             if isinstance(item, dict) and '$ref' in item:
                 ref_name = extract_file_name_wo_extension(item['$ref'])
                 ref_relative_path = extract_ref_relative_path(item['$ref'])
-                md_lines.append(f"- [{ref_name}]({ref_relative_path})")
+                md_relative_path = convert_extension_from_schema_path_to_md(ref_relative_path)
+                md_lines.append(f"- [{ref_name}]({md_relative_path})")
         md_lines.append("")
     
     # Properties
