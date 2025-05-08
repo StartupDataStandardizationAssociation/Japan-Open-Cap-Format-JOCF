@@ -11,7 +11,7 @@ def validate_json_schema(schema: Dict[str, Any]) -> bool:
     """
     JSONスキーマの基本的な妥当性をチェックする
     """
-    required_fields = ['title', 'enum']
+    required_fields = ['title', 'enum', '$id']
     return all(field in schema for field in required_fields)
 
 def generate_markdown(schema: Dict[str, Any]) -> str:

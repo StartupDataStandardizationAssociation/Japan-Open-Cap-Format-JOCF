@@ -13,7 +13,7 @@ def validate_json_schema(schema: Dict[str, Any]) -> bool:
     """
     JSONスキーマの基本的な妥当性をチェックする
     """
-    required_fields = ['title', 'properties']
+    required_fields = ['title', 'properties', '$id']
     return all(field in schema for field in required_fields)
 
 def is_required_property(prop_name: str, schema: Dict[str, Any]) -> str:
