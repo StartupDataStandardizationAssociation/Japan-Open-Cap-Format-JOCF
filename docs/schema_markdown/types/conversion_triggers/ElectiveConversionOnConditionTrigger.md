@@ -6,7 +6,7 @@ ID = `https://jocf.startupstandard.org/jocf/main/schema/types/conversion_trigger
 特定の条件を満たした場合に転換するかどうかを選択可能なトリガー
 
 ## Composed from
-- [ConversionTrigger](../../../../primitives/types/conversion_triggers/ConversionTrigger.md)
+- [ConversionTrigger](../../../primitives/types/conversion_triggers/ConversionTrigger.md)
 
 ## Properties
 

@@ -9,5 +9,5 @@ Eメールアドレスとその種類
 
 | PropertyName | Type | Required | Description |
 |-------------|------|----------|-------------|
-| email_type | [EmailType](../../enums/EmailType.md) | Yes | Eメールアドレスの種類(e.g. 個人用、ビジネス用) |
+| email_type | [EmailType](../enums/EmailType.md) | Yes | Eメールアドレスの種類(e.g. 個人用、ビジネス用) |
 | email_address | string | Yes | Eメールアドレス |

@@ -9,5 +9,5 @@ ID = `https://jocf.startupstandard.org/jocf/main/schema/types/Ratio.schema.json`
 
 | PropertyName | Type | Required | Description |
 |-------------|------|----------|-------------|
-| numerator | [Numeric](../../types/Numeric.md) | Yes | 比率の分子 |
-| denominator | [Numeric](../../types/Numeric.md) | Yes | 比率の分母 |
+| numerator | [Numeric](../types/Numeric.md) | Yes | 比率の分子 |
+| denominator | [Numeric](../types/Numeric.md) | Yes | 比率の分母 |

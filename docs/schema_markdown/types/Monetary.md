@@ -9,5 +9,5 @@ ID = `https://jocf.startupstandard.org/jocf/main/schema/types/Monetary.schema.js
 
 | PropertyName | Type | Required | Description |
 |-------------|------|----------|-------------|
-| amount | [Numeric](../../types/Numeric.md) | Yes | 総額 |
-| currency | [CurrencyCode](../../types/CurrencyCode.md) | Yes | ISO 4217 国別通貨コード |
+| amount | [Numeric](../types/Numeric.md) | Yes | 総額 |
+| currency | [CurrencyCode](../types/CurrencyCode.md) | Yes | ISO 4217 国別通貨コード |

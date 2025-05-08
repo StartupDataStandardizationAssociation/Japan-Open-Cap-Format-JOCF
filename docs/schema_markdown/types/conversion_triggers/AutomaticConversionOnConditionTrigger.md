@@ -6,7 +6,7 @@ ID = `https://jocf.startupstandard.org/jocf/main/schema/types/conversion_trigger
 条件により自動的に発動するトリガー
 
 ## Composed from
-- [ConversionTrigger](../../../../primitives/types/conversion_triggers/ConversionTrigger.md)
+- [ConversionTrigger](../../../primitives/types/conversion_triggers/ConversionTrigger.md)
 
 ## Properties
 
