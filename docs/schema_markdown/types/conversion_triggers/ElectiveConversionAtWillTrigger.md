@@ -6,7 +6,7 @@ ID = `https://jocf.startupstandard.org/jocf/main/schema/types/conversion_trigger
 投資家の意思で実行されるトリガー
 
 ## Composed from
-- [ConversionTrigger](../../../primitives/types/conversion_triggers/ConversionTrigger.md)
+- [ConversionTrigger](../../primitives/types/conversion_triggers/ConversionTrigger.md)
 
 ## Properties
 

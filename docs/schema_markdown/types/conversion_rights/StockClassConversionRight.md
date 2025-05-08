@@ -6,7 +6,7 @@ ID = `https://jocf.startupstandard.org/jocf/main/schema/types/conversion_rights/
 ある株式クラスから別の株式クラスへの転換を表現するもの
 
 ## Composed from
-- [ConversionRight](../../../primitives/types/conversion_rights/ConversionRight.md)
+- [ConversionRight](../../primitives/types/conversion_rights/ConversionRight.md)
 
 ## Properties
 

@@ -7,7 +7,7 @@ import sys
 from typing import Dict, Any
 import schema_config
 from property_util import get_property_type
-from schema_id_util import extract_ref_relative_path, extract_file_name_wo_extension, convert_extension_from_schema_path_to_md
+from schema_id_util import extract_ref_relative_path, extract_file_name_wo_extension, convert_extension_from_schema_path_to_md, extract_ref_relative_path_to_root
 
 def validate_json_schema(schema: Dict[str, Any]) -> bool:
     """
@@ -37,7 +37,10 @@ def generate_markdown(schema: Dict[str, Any]) -> str:
     if '$id' in schema:
         md_lines.append(f"ID = `{schema['$id']}`")
         md_lines.append("")
-    
+
+    # インプットファイルの$idから、ルートディレクトリへの相対パスを取得
+    input_file_relative_path_to_root = extract_ref_relative_path_to_root(schema['$id'])
+
     # Description
     description = schema.get('description')
     if description:
@@ -53,7 +56,7 @@ def generate_markdown(schema: Dict[str, Any]) -> str:
                 ref_name = extract_file_name_wo_extension(item['$ref'])
                 ref_relative_path = extract_ref_relative_path(item['$ref'])
                 md_relative_path = convert_extension_from_schema_path_to_md(ref_relative_path)
-                md_lines.append(f"- [{ref_name}]({md_relative_path})")
+                md_lines.append(f"- [{ref_name}]({input_file_relative_path_to_root}{md_relative_path})")
         md_lines.append("")
     
     # Properties
@@ -65,7 +68,7 @@ def generate_markdown(schema: Dict[str, Any]) -> str:
         
         for prop_name, prop_data in schema['properties'].items():
             # プロパティの型情報を取得
-            prop_type = get_property_type(prop_data)
+            prop_type = get_property_type(prop_data, input_file_relative_path_to_root)
             required = is_required_property(prop_name, schema)
             
             # 型情報と説明を同じセルに表示

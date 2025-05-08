@@ -3,7 +3,7 @@
 from typing import Dict, Any
 from schema_id_util import extract_ref_relative_path, extract_file_name_wo_extension, convert_extension_from_schema_path_to_md
 
-def get_property_type(prop: Dict[str, Any]) -> str:
+def get_property_type(prop: Dict[str, Any], input_file_relative_path_to_root:str) -> str:
     """
     プロパティの型情報を取得する
     """
@@ -20,14 +20,14 @@ def get_property_type(prop: Dict[str, Any]) -> str:
                         ref_relative_path = extract_ref_relative_path(item['$ref'])
                         # ref_file_nameとref_relative_pathをMarkdown形式で追加（拡張子を.mdに変換）
                         md_relative_path = convert_extension_from_schema_path_to_md(ref_relative_path)
-                        refs.append(f"[{ref_file_name}]({md_relative_path})")
+                        refs.append(f"[{ref_file_name}]({input_file_relative_path_to_root}{md_relative_path})")
                 return f"one of: <br> - {'<br> - '.join(refs)}"
             # 単純な$refの場合
             if '$ref' in items:
                 ref_file_name = extract_file_name_wo_extension(items['$ref'])
                 ref_relative_path = extract_ref_relative_path(items['$ref'])
                 md_relative_path = convert_extension_from_schema_path_to_md(ref_relative_path)
-                return f"array of [{ref_file_name}]({md_relative_path})"
+                return f"array of [{ref_file_name}]({input_file_relative_path_to_root}{md_relative_path})"
             # それ以外の型の場合はitemsの型を取得
             return f"array of {get_property_type(items)}"
         # それ以外の型の場合
@@ -38,5 +38,5 @@ def get_property_type(prop: Dict[str, Any]) -> str:
         ref_file_name = extract_file_name_wo_extension(prop['$ref'])
         ref_relative_path = extract_ref_relative_path(prop['$ref'])
         md_relative_path = convert_extension_from_schema_path_to_md(ref_relative_path)
-        return f"[{ref_file_name}]({md_relative_path})"
+        return f"[{ref_file_name}]({input_file_relative_path_to_root}{md_relative_path})"
     return 'unknown'

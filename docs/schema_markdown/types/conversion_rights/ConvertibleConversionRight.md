@@ -6,7 +6,7 @@ ID = `https://jocf.startupstandard.org/jocf/main/schema/types/conversion_rights/
 コンバーティブルエクイティの株式クラスへの転換権を表現するクラス
 
 ## Composed from
-- [ConversionRight](../../../primitives/types/conversion_rights/ConversionRight.md)
+- [ConversionRight](../../primitives/types/conversion_rights/ConversionRight.md)
 
 ## Properties
 
