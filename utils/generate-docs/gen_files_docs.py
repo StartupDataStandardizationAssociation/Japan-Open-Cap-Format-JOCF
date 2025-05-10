@@ -2,7 +2,7 @@
 
 import os
 import glob
-from file_schema_to_md import generate
+from schema_to_md.file_schema_to_md import generate
 
 def main():
     # schema/files/配下の全ての.schema.jsonファイルを取得

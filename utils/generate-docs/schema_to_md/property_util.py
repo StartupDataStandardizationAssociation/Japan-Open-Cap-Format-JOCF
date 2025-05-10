@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from typing import Dict, Any
-from schema_id_util import extract_ref_relative_path, extract_file_name_wo_extension, convert_extension_from_schema_path_to_md
+from schema_to_md.schema_id_util import extract_ref_relative_path, extract_file_name_wo_extension, convert_extension_from_schema_path_to_md
 
 def get_property_type(prop: Dict[str, Any], input_file_relative_path_to_root:str) -> str:
     """

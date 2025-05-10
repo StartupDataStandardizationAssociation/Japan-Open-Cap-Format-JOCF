@@ -2,7 +2,7 @@
 
 import os
 import glob
-from enum_schema_to_md import generate
+from schema_to_md.enum_schema_to_md import generate
 
 def main():
     # schema/enums/配下の全ての.schema.jsonファイルを再帰的に取得

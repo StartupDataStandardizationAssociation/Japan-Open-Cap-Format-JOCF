@@ -6,8 +6,8 @@ import os.path
 import sys
 from typing import Dict, Any
 import schema_config
-from property_util import get_property_type
-from schema_id_util import extract_ref_relative_path, extract_file_name_wo_extension, convert_extension_from_schema_path_to_md, extract_ref_relative_path_to_root
+from schema_to_md.property_util import get_property_type
+from schema_to_md.schema_id_util import extract_ref_relative_path, extract_file_name_wo_extension, convert_extension_from_schema_path_to_md, extract_ref_relative_path_to_root
 
 def validate_json_schema(schema: Dict[str, Any]) -> bool:
     """

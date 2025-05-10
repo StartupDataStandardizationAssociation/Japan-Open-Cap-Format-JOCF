@@ -2,7 +2,7 @@
 
 import os
 import glob
-from types_schema_to_md import generate
+from schema_to_md.types_schema_to_md import generate
 
 def main():
     # schema/types/配下の全ての.schema.jsonファイルを取得（サブディレクトリ含む）

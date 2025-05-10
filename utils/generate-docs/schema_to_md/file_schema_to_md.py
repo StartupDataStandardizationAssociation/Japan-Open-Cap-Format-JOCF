@@ -6,14 +6,14 @@ import os.path
 import sys
 from typing import Dict, Any
 import schema_config
-from property_util import get_property_type
-from schema_id_util import extract_ref_relative_path, extract_file_name_wo_extension, convert_extension_from_schema_path_to_md, extract_ref_relative_path_to_root
+from schema_to_md.property_util import get_property_type
+from schema_to_md.schema_id_util import extract_ref_relative_path, extract_file_name_wo_extension, convert_extension_from_schema_path_to_md, extract_ref_relative_path_to_root
 
 def validate_json_schema(schema: Dict[str, Any]) -> bool:
     """
     JSONスキーマの基本的な妥当性をチェックする
     """
-    required_fields = ['title', '$id']
+    required_fields = ['title', 'properties', '$id']
     return all(field in schema for field in required_fields)
 
 def is_required_property(prop_name: str, schema: Dict[str, Any]) -> str:
@@ -40,33 +40,12 @@ def generate_markdown(schema: Dict[str, Any]) -> str:
 
     # インプットファイルの$idから、ルートディレクトリへの相対パスを取得
     input_file_relative_path_to_root = extract_ref_relative_path_to_root(schema['$id'])
-    print(f"Debug - Schema ID: {schema['$id']}")
-    print(f"Debug - Relative path to root: {input_file_relative_path_to_root}")
 
     # Description
     description = schema.get('description')
     if description:
         md_lines.append("## Description")
         md_lines.append(description)
-        md_lines.append("")
-    
-    # Type Information for Primitive Types
-    if 'type' in schema and not 'properties' in schema:
-        md_lines.append("## Type")
-        type_info = [f"**Type**: {schema['type']}"]
-        
-        if 'pattern' in schema:
-            type_info.append(f"**Pattern**: `{schema['pattern']}`")
-        if 'format' in schema:
-            type_info.append(f"**Format**: {schema['format']}")
-        if 'minimum' in schema:
-            type_info.append(f"**Minimum**: {schema['minimum']}")
-        if 'maximum' in schema:
-            type_info.append(f"**Maximum**: {schema['maximum']}")
-        if 'enum' in schema:
-            type_info.append(f"**Allowed Values**: {', '.join(map(str, schema['enum']))}")
-        
-        md_lines.extend(type_info)
         md_lines.append("")
     
     # Composed from (allOf)
@@ -80,20 +59,22 @@ def generate_markdown(schema: Dict[str, Any]) -> str:
                 md_lines.append(f"- [{ref_name}]({input_file_relative_path_to_root}{md_relative_path})")
         md_lines.append("")
     
-    # Properties (for object types)
+    # Properties
     if 'properties' in schema:
         md_lines.append("## Properties")
         md_lines.append("")
-        md_lines.append("| PropertyName | Type | Required | Description |")
-        md_lines.append("|-------------|------|----------|-------------|")
+        md_lines.append("| PropertyName | Type | Required |")
+        md_lines.append("|-------------|------|----------|")
         
         for prop_name, prop_data in schema['properties'].items():
             # プロパティの型情報を取得
             prop_type = get_property_type(prop_data, input_file_relative_path_to_root)
             required = is_required_property(prop_name, schema)
-            description = prop_data.get('description', '')
             
-            md_lines.append(f"| {prop_name} | {prop_type} | {required} | {description} |")
+            # 型情報と説明を同じセルに表示
+            if 'description' in prop_data:
+                prop_type = f"{prop_data['description']} <br> {prop_type}"
+            md_lines.append(f"| {prop_name} | {prop_type} | {required} |")
     
     return "\n".join(md_lines)
 
@@ -137,7 +118,7 @@ def generate(input_file_path: str) -> None:
     
     # スキーマの妥当性チェック
     if not validate_json_schema(schema):
-        print("エラー: 無効なJSONスキーマです。必須フィールド(title)が不足しています", file=sys.stderr)
+        print("エラー: 無効なJSONスキーマです。必須フィールド(title, properties)が不足しています", file=sys.stderr)
         sys.exit(1)
     
     # Markdownの生成
