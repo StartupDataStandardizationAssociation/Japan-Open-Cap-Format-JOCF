@@ -42,8 +42,8 @@ def get_property_type(prop: Dict[str, Any], input_file_relative_path_to_root:str
         if prop['type'] == 'array' and 'items' in prop:
             # array型の場合
             items = prop['items']
+            # itemsの中身がoneOfの場合は、$refの値を列挙
             if 'oneOf' in items:
-                # oneOfの場合は$refの値を列挙
                 refs = []
                 for item in items['oneOf']:
                     if '$ref' in item:
@@ -53,14 +53,15 @@ def get_property_type(prop: Dict[str, Any], input_file_relative_path_to_root:str
                         md_relative_path = convert_extension_from_schema_path_to_md(ref_relative_path)
                         refs.append(f"[{ref_file_name}]({input_file_relative_path_to_root}{md_relative_path})")
                 return f"one of: <br> - {'<br> - '.join(refs)}"
-            # 単純な$refの場合
+            # itemsの中身が単純な$refの場合は、$refのファイル情報を設定
             if '$ref' in items:
                 ref_file_name = extract_file_name_wo_extension(items['$ref'])
                 ref_relative_path = extract_ref_relative_path(items['$ref'])
                 md_relative_path = convert_extension_from_schema_path_to_md(ref_relative_path)
                 return f"array of [{ref_file_name}]({input_file_relative_path_to_root}{md_relative_path})"
-            # それ以外の型の場合はitemsの型を取得
-            return f"array of {get_property_type(items, input_file_relative_path_to_root)}"
+            # それ以外の場合はtypeの値を設定
+            items_type = get_property_type(items, input_file_relative_path_to_root)
+            return f"array of {items_type}"
         # それ以外の型の場合
         return prop['type']
     elif 'oneOf' in prop:

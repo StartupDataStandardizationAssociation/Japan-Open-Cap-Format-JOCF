@@ -30,6 +30,9 @@ python3 utils/generate-docs/gen_types_docs.py
 echo "4. プリミティブ型のドキュメントを生成中..."
 python3 utils/generate-docs/gen_primitive_docs.py
 
+echo "5. オブジェクト型のドキュメントを生成中..."
+python3 utils/generate-docs/gen_objects_docs.py
+
 echo "ドキュメント生成が完了しました"
 
 # 仮想環境を非アクティブ化
