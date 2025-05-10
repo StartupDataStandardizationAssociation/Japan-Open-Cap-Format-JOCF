@@ -26,7 +26,7 @@
         },
         "class_type": {
             "description": "株式種類のタイプ（例. 普通、もしくは優先）",
-            "$ref": "../enums/StockClassType.schema.json"
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/enums/StockClassType.schema.json"
         },
         "votes_per_share": {
             "description": "一株あたりの議決権(株主総会)",

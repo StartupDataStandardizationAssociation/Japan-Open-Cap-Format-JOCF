@@ -1,3 +1,4 @@
+import os.path
 import schema_config
 
 # スキーマの$idからベースURLを除去して、ルートディレクトリへの相対パスを取得する
@@ -53,3 +54,22 @@ def convert_extension_from_schema_path_to_md(schema_path: str) -> str:
     例: objects/StockClass.schema.json → objects/StockClass.md
     """
     return schema_path.replace(schema_config.SCHEMA_FILE_EXTENSION, '.md')
+
+
+def generate_output_path(schema_id: str) -> str:
+    """
+    スキーマIDから出力先のMarkdownファイルパスを生成する
+    例: "https://jocf.startupstandard.org/jocf/main/schema/files/StockClassesFile.schema.json"
+    → "docs/schema_markdown/files/StockClassesFile.md"
+    """
+    if not schema_id:
+        raise ValueError("スキーマIDが指定されていません")
+        
+    # スキーマIDからベースURLを除去して相対パスを取得
+    relative_path = schema_id[len(schema_config.SCHEMA_BASE_URL + '/'):]
+    
+    # .schema.jsonを.mdに置換
+    md_path = relative_path.replace(schema_config.SCHEMA_FILE_EXTENSION, '.md')
+    
+    # 最終的な出力パスを生成
+    return os.path.join(schema_config.MD_ROOT_RELATIVE_PATH, md_path)

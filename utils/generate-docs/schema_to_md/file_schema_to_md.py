@@ -5,9 +5,14 @@ import json
 import os.path
 import sys
 from typing import Dict, Any
-import schema_config
 from schema_to_md.property_util import get_property_type, get_property_description
-from schema_to_md.schema_id_util import extract_ref_relative_path, extract_file_name_wo_extension, convert_extension_from_schema_path_to_md, extract_ref_relative_path_to_root
+from schema_to_md.schema_id_util import (
+    extract_ref_relative_path,
+    extract_file_name_wo_extension,
+    convert_extension_from_schema_path_to_md,
+    extract_ref_relative_path_to_root,
+    generate_output_path
+)
 
 def validate_json_schema(schema: Dict[str, Any]) -> bool:
     """
@@ -74,24 +79,6 @@ def generate_markdown(schema: Dict[str, Any]) -> str:
             md_lines.append(f"| {prop_name} | {prop_type} | {required} | {description} |")
     
     return "\n".join(md_lines)
-
-def generate_output_path(schema_id: str) -> str:
-    """
-    スキーマIDから出力先のMarkdownファイルパスを生成する
-    例: "https://jocf.startupstandard.org/jocf/main/schema/files/StockClassesFile.schema.json"
-    → "docs/schema_markdown/files/StockClassesFile.md"
-    """
-    if not schema_id:
-        raise ValueError("スキーマIDが指定されていません")
-        
-    # スキーマIDからベースURLを除去して相対パスを取得
-    relative_path = schema_id[len(schema_config.SCHEMA_BASE_URL + '/'):]
-    
-    # .schema.jsonを.mdに置換
-    md_path = relative_path.replace(schema_config.SCHEMA_FILE_EXTENSION, '.md')
-    
-    # 最終的な出力パスを生成
-    return os.path.join(schema_config.MD_ROOT_RELATIVE_PATH, md_path)
 
 def generate(input_file_path: str) -> None:
     """
