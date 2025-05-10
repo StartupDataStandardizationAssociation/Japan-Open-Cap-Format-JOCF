@@ -3,14 +3,42 @@
 # エラーが発生したら即座に終了
 set -e
 
+# ヘルプメッセージの表示
+show_help() {
+    cat << EOF
+使用方法: $(basename "$0") [仮想環境名] [オプション]
+
+仮想環境名を指定してドキュメントを生成します。
+仮想環境名が指定されない場合は'.venv'を使用します。
+
+オプション:
+    -h, --help    このヘルプメッセージを表示して終了
+
+例:
+    $(basename "$0")          # デフォルトの'.venv'を使用
+    $(basename "$0") my-venv  # 'my-venv'を使用
+EOF
+}
+
+# コマンドライン引数の処理
+case "$1" in
+    -h|--help)
+        show_help
+        exit 0
+        ;;
+esac
+
+# デフォルトの仮想環境名
+VENV_NAME="${1:-.venv}"
+
 # 仮想環境が存在しない場合は作成
-if [ ! -d ".venv" ]; then
-    echo "仮想環境を作成します..."
-    python3 -m venv .venv
+if [ ! -d "$VENV_NAME" ]; then
+    echo "仮想環境 ($VENV_NAME) を作成します..."
+    python3 -m venv "$VENV_NAME"
 fi
 
 # 仮想環境をアクティベート
-source .venv/bin/activate
+source "$VENV_NAME/bin/activate"
 
 echo "依存パッケージをインストールします..."
 pip install -r requirements.txt 2>/dev/null || echo "requirements.txtが見つからないか、インストールに失敗しました"
