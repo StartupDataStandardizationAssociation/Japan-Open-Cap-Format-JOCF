@@ -32,6 +32,17 @@ def get_property_type(prop: Dict[str, Any], input_file_relative_path_to_root:str
             return f"array of {get_property_type(items, input_file_relative_path_to_root)}"
         # それ以外の型の場合
         return prop['type']
+    elif 'oneOf' in prop:
+        # oneOfの場合は$refの値を列挙
+        refs = []
+        for item in prop['oneOf']:
+            if '$ref' in item:
+                ref_file_name = extract_file_name_wo_extension(item['$ref'])
+                ref_relative_path = extract_ref_relative_path(item['$ref'])
+                # ref_file_nameとref_relative_pathをMarkdown形式で追加（拡張子を.mdに変換）
+                md_relative_path = convert_extension_from_schema_path_to_md(ref_relative_path)
+                refs.append(f"[{ref_file_name}]({input_file_relative_path_to_root}{md_relative_path})")
+        return f"one of: <br> - {'<br> - '.join(refs)}"
     elif 'const' in prop:
         return f"const ({prop['const']})"
     elif '$ref' in prop:

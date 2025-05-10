@@ -13,6 +13,6 @@ ID = `https://jocf.startupstandard.org/jocf/main/schema/types/conversion_rights/
 | PropertyName | Type | Required | Description |
 |-------------|------|----------|-------------|
 | type | const (STOCK_CLASS_CONVERSION_RIGHT) | Yes |  |
-| conversion_mechanism | unknown | Yes |  |
+| conversion_mechanism | one of: <br> - [RatioConversionMechanism](../../types/conversion_mechanisms/RatioConversionMechanism.md) | Yes |  |
 | converts_to_future_round | unknown | No |  |
 | converts_to_stock_class_id | unknown | No |  |

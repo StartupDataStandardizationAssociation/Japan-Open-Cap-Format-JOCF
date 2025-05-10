@@ -9,5 +9,5 @@ ID = `https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/trans
 
 | PropertyName | Type | Required | Description |
 |-------------|------|----------|-------------|
-| securityholders_agreement | unknown | No | トランザクションの対象である証券保有者間同意 |
+| securityholders_agreement | one of: <br> - [MasterSecurityholdersAgreement](../../../objects/MasterSecurityholdersAgreement.md)<br> - [AcquisitionDistributionAgreement](../../../objects/AcquisitionDistributionAgreement.md) | No | トランザクションの対象である証券保有者間同意 |
 | securityholders_agreement_id | string | No | トランザクションの対象である証券保有者間同意の識別子 |
