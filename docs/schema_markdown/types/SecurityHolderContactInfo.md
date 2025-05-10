@@ -9,5 +9,5 @@ ID = `https://jocf.startupstandard.org/jocf/main/schema/types/SecurityHolderCont
 
 | PropertyName | Type | Required | Description |
 |-------------|------|----------|-------------|
-| phone_numbers | array of unknown | No | 電話番号 |
-| emails | array of unknown | No | メールアドレス |
+| phone_numbers | array of [Phone](../types/Phone.md) | No | 電話番号 |
+| emails | array of [Email](../types/Email.md) | No | メールアドレス |
