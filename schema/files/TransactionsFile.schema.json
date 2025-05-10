@@ -1,8 +1,13 @@
 {
-    "$id": "https://jocf.startupstandard.org/jocf/main/schema/files/TransactionFile.schema.json",
+    "$id": "https://jocf.startupstandard.org/jocf/main/schema/files/TransactionsFile.schema.json",
     "title": "トランザクション",
-    "description": "",
+    "description": "発生したトランザクションを記録するファイル",
     "type": "object",
+    "allOf": [
+        {
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/File.schema.json"
+        }
+    ],
     "properties": {
         "items": {
             "type": "array",

@@ -11,17 +11,15 @@
     "phone_numbers": {
       "description": "担当者の電話番号",
       "type": "array",
-      "items": [
-        {
-          "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Phone.schema.json"
-        }
-      ]
+      "items": {
+        "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Phone.schema.json"
+      }
     },
     "emails": {
       "description": "担当者のメールアドレス",
       "type": "array",
       "items": {
-        "$ref" : "https://jocf.startupstandard.org/jocf/main/schema/types/Email.schema.json"
+        "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Email.schema.json"
       }
     }
   },

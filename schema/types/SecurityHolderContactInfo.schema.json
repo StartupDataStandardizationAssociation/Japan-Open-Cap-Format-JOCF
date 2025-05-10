@@ -7,20 +7,16 @@
     "phone_numbers": {
       "description": "電話番号",
       "type": "array",
-      "items": [
-        {
-          "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Phone.schema.json"
-        }
-      ]
+      "items": {
+        "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Phone.schema.json"
+      }
     },
     "emails": {
       "description": "メールアドレス",
       "type": "array",
-      "items": [
-        {
-          "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Email.schema.json"
-        }
-      ]
+      "items": {
+        "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Email.schema.json"
+      }
     }
   },
   "additionalProperties": false,
