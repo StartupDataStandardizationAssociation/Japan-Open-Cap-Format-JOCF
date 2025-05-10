@@ -7,7 +7,7 @@ ID = `https://jocf.startupstandard.org/jocf/main/schema/files/SecurityHoldersFil
 
 ## Properties
 
-| PropertyName | Type | Required |
-|-------------|------|----------|
-| items | 証券保有者のリスト <br> array of [SecurityHolder](../objects/SecurityHolder.md) | Yes |
-| file_type | const (JOCF_SECURITY_HOLDERS_FILE) | Yes |
+| PropertyName | Type | Required | Description |
+|-------------|------|----------|-------------|
+| items | array of [SecurityHolder](../objects/SecurityHolder.md) | Yes | 証券保有者のリスト |
+| file_type | const (JOCF_SECURITY_HOLDERS_FILE) | Yes |  |

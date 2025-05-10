@@ -14,5 +14,5 @@ ID = `https://jocf.startupstandard.org/jocf/main/schema/types/conversion_rights/
 |-------------|------|----------|-------------|
 | type | const (CONVERTIBLE_CONVERSION_RIGHT) | Yes |  |
 | conversion_mechanism | one of: <br> - [JKISSConversionMechanism](../../types/conversion_mechanisms/JKISSConversionMechanism.md) | Yes |  |
-| converts_to_future_round | unknown | No |  |
-| converts_to_stock_class_id | unknown | No |  |
+| converts_to_future_round | - | No | ConversionRightから継承 |
+| converts_to_stock_class_id | - | No | ConversionRightから継承 |

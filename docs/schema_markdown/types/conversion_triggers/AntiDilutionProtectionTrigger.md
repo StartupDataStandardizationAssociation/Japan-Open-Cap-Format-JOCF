@@ -18,6 +18,6 @@ ID = `https://jocf.startupstandard.org/jocf/main/schema/types/conversion_trigger
 | non_triggering_condition | string | No | 希薄化防止が発動可能となる条件を満たした上で、希薄化防止による転換を実施しない条件を説明する法的な文言 |
 | anti_dilution_protection_type | string | Yes | 希薄化防止種別 |
 | incentive_exclusion_ratio | [Numeric](../../types/Numeric.md) | No | 希薄化防止対象から除外される従業員インセンティブの比率 |
-| trigger_id | unknown | Yes |  |
-| trigger_description | unknown | No |  |
-| conversion_right | unknown | Yes |  |
+| trigger_id | - | Yes | ConversionTriggerから継承 |
+| trigger_description | - | No | ConversionTriggerから継承 |
+| conversion_right | - | Yes | ConversionTriggerから継承 |

@@ -15,5 +15,5 @@ ID = `https://jocf.startupstandard.org/jocf/main/schema/types/conversion_trigger
 | type | const (ELECTIVE_AT_WILL) | Yes |  |
 | nickname | string | No | トリガーのニックネーム |
 | trigger_description | string | No | トリガーの説明 |
-| trigger_id | unknown | Yes |  |
-| conversion_right | unknown | Yes |  |
+| trigger_id | - | Yes | ConversionTriggerから継承 |
+| conversion_right | - | Yes | ConversionTriggerから継承 |

@@ -6,7 +6,7 @@ import os.path
 import sys
 from typing import Dict, Any
 import schema_config
-from schema_to_md.property_util import get_property_type
+from schema_to_md.property_util import get_property_type, get_property_description
 from schema_to_md.schema_id_util import extract_ref_relative_path, extract_file_name_wo_extension, convert_extension_from_schema_path_to_md, extract_ref_relative_path_to_root
 
 def validate_json_schema(schema: Dict[str, Any]) -> bool:
@@ -86,10 +86,10 @@ def generate_markdown(schema: Dict[str, Any]) -> str:
         md_lines.append("|-------------|------|----------|-------------|")
         
         for prop_name, prop_data in schema['properties'].items():
-            # プロパティの型情報を取得
+            # プロパティの型情報と説明を取得
             prop_type = get_property_type(prop_data, input_file_relative_path_to_root)
             required = is_required_property(prop_name, schema)
-            description = prop_data.get('description', '')
+            description = get_property_description(prop_data, schema)
             
             md_lines.append(f"| {prop_name} | {prop_type} | {required} | {description} |")
     

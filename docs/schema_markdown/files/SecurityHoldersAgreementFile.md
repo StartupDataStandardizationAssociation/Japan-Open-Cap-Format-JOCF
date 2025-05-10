@@ -10,7 +10,7 @@ ID = `https://jocf.startupstandard.org/jocf/main/schema/files/SecurityHoldersAgr
 
 ## Properties
 
-| PropertyName | Type | Required |
-|-------------|------|----------|
-| items | 証券保有者間同意の一覧 <br> one of: <br> - [MasterSecurityholdersAgreement](../objects/MasterSecurityholdersAgreement.md)<br> - [AcquisitionDistributionAgreement](../objects/AcquisitionDistributionAgreement.md) | Yes |
-| file_type | const (JOCF_SECURITYHOLDERS_AGREEMENT_FILE) | Yes |
+| PropertyName | Type | Required | Description |
+|-------------|------|----------|-------------|
+| items | one of: <br> - [MasterSecurityholdersAgreement](../objects/MasterSecurityholdersAgreement.md)<br> - [AcquisitionDistributionAgreement](../objects/AcquisitionDistributionAgreement.md) | Yes | 証券保有者間同意の一覧 |
+| file_type | const (JOCF_SECURITYHOLDERS_AGREEMENT_FILE) | Yes |  |

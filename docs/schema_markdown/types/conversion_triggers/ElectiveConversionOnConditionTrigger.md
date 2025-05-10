@@ -14,7 +14,7 @@ ID = `https://jocf.startupstandard.org/jocf/main/schema/types/conversion_trigger
 |-------------|------|----------|-------------|
 | type | const (ELECTIVE_ON_CONDITION) | Yes |  |
 | trigger_condition | string | Yes | 転換を選択可能となる条件を表す法的文言 |
-| trigger_id | unknown | Yes |  |
-| nickname | unknown | No |  |
-| trigger_description | unknown | No |  |
-| conversion_right | unknown | Yes |  |
+| trigger_id | - | Yes | ConversionTriggerから継承 |
+| nickname | - | No | ConversionTriggerから継承 |
+| trigger_description | - | No | ConversionTriggerから継承 |
+| conversion_right | - | Yes | ConversionTriggerから継承 |

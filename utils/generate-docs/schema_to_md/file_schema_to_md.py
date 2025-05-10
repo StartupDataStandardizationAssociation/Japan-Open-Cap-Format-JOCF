@@ -6,7 +6,7 @@ import os.path
 import sys
 from typing import Dict, Any
 import schema_config
-from schema_to_md.property_util import get_property_type
+from schema_to_md.property_util import get_property_type, get_property_description
 from schema_to_md.schema_id_util import extract_ref_relative_path, extract_file_name_wo_extension, convert_extension_from_schema_path_to_md, extract_ref_relative_path_to_root
 
 def validate_json_schema(schema: Dict[str, Any]) -> bool:
@@ -63,18 +63,15 @@ def generate_markdown(schema: Dict[str, Any]) -> str:
     if 'properties' in schema:
         md_lines.append("## Properties")
         md_lines.append("")
-        md_lines.append("| PropertyName | Type | Required |")
-        md_lines.append("|-------------|------|----------|")
+        md_lines.append("| PropertyName | Type | Required | Description |")
+        md_lines.append("|-------------|------|----------|-------------|")
         
         for prop_name, prop_data in schema['properties'].items():
             # プロパティの型情報を取得
             prop_type = get_property_type(prop_data, input_file_relative_path_to_root)
             required = is_required_property(prop_name, schema)
-            
-            # 型情報と説明を同じセルに表示
-            if 'description' in prop_data:
-                prop_type = f"{prop_data['description']} <br> {prop_type}"
-            md_lines.append(f"| {prop_name} | {prop_type} | {required} |")
+            description = get_property_description(prop_data, schema)
+            md_lines.append(f"| {prop_name} | {prop_type} | {required} | {description} |")
     
     return "\n".join(md_lines)
 
