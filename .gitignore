@@ -1,1 +1,4 @@
 **/__pycache__/
+
+# 自動生成されるmarkdownファイルはコミット対象外とする
+docs/schema_markdown/**
