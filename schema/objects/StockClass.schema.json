@@ -26,7 +26,7 @@
         },
         "class_type": {
             "description": "株式種類のタイプ（例. 普通、もしくは優先）",
-            "$ref": "../enums/StockClassType.schema.json"
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/enums/StockClassType.schema.json"
         },
         "votes_per_share": {
             "description": "一株あたりの議決権(株主総会)",
@@ -80,11 +80,11 @@
                         },
                         "participation_category": {
                             "description": "配当参加型区分",
-                            "$ref": "https://jocf.startupstandard.org/jocf/enums/ParticipationCategory.schema.json"
+                            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/enums/ParticipationCategory.schema.json"
                         },
                         "cumulative_category": {
                             "description": "配当累積区分",
-                            "$ref": "https://jocf.startupstandard.org/jocf/enums/CumulativeCategory.schema.json"
+                            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/enums/CumulativeCategory.schema.json"
                         },
                         "seniority": {
                             "description": "配当順位",
@@ -106,11 +106,11 @@
                         },
                         "participation_category": {
                             "description": "清算時の残余財産分配の参加型区分",
-                            "$ref": "https://jocf.startupstandard.org/jocf/enums/ParticipationCategory.schema.json"
+                            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/enums/ParticipationCategory.schema.json"
                         },
                         "cumulative_category": {
                             "description": "清算時の残余財産分配の累積区分",
-                            "$ref": "https://jocf.startupstandard.org/jocf/enums/CumulativeCategory.schema.json"
+                            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/enums/CumulativeCategory.schema.json"
                         },
                         "seniority": {
                             "description": "残余財産分配順位",
