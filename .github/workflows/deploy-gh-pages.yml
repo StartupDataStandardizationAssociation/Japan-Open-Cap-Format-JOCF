@@ -3,7 +3,7 @@ name: Deploy JOCF Documentation to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - main, feature/gen-docs-in-gh-action # FIXME: テストのため一時的に追加
     paths:
       # ドキュメント、GitHub Actions、MkDocsの設定ファイルに変更があった場合のみ実行
       - 'docs/**'
@@ -44,6 +44,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # 3.5. ドキュメントの生成
+      - name: Generate documentation
+        run: |
+          ./utils/generate-docs/gen_all_docs.sh
+
       # 4. MkDocsのビルド
       - name: Build MkDocs site
         run: mkdocs build --strict
@@ -51,7 +56,7 @@ jobs:
       # 5. GitHub Pagesにデプロイ
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/feature/gen-docs-in-gh-action' # FIXME: テストのため一時的に追加
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages  # デプロイ先のブランチを指定
