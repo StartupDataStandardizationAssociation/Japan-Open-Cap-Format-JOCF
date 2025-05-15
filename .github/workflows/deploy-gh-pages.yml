@@ -3,7 +3,8 @@ name: Deploy JOCF Documentation to GitHub Pages
 on:
   push:
     branches:
-      - main, feature/gen-docs-in-gh-action # FIXME: テストのため一時的に追加
+      - main
+      - feature/gen-docs-in-gh-action # FIXME: テストのため一時的に追加
     paths:
       # ドキュメント、GitHub Actions、MkDocsの設定ファイルに変更があった場合のみ実行
       - 'docs/**'
