@@ -28,6 +28,13 @@ case "$1" in
         ;;
 esac
 
+# スクリプトの場所を取得
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+# プロジェクトルートディレクトリに移動
+cd "$PROJECT_ROOT" || exit 1
+
 # デフォルトの仮想環境名
 VENV_NAME="${1:-.venv}"
 
