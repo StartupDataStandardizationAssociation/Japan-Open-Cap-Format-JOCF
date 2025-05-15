@@ -61,11 +61,11 @@
     },
     "representations_and_warranties_by_issuing_company": {
       "description": "発行会社による表明および保証",
-      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/types/IssuerRepresentationsAndWarranties.schema.json"
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/IssuerRepresentationsAndWarranties.schema.json"
     },
     "representations_and_warranties_by_investor": {
       "description": "投資家による表明および保証",
-      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/types/IssuerRepresentationsAndWarranties.schema.json"
+      "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/IssuerRepresentationsAndWarranties.schema.json"
     },
     "security_id" : {}
   },

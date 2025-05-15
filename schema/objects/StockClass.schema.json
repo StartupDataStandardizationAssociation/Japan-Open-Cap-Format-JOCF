@@ -40,7 +40,7 @@
             "description": "株式発行時点での種類株式の発行可能株式数",
             "oneOf": [
                 {
-                    "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/AuthorizedShares.schema.json"
+                    "$ref": "https://jocf.startupstandard.org/jocf/main/schema/enums/AuthorizedShares.schema.json"
                 },
                 {
                     "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json"
@@ -60,7 +60,7 @@
                                 "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_triggers/ElectiveConversionAtWillTrigger.schema.json"
                             },
                             {
-                                "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_triggers/AntiDilutionProtectionInDownRoundTrigger.schema.json"
+                                "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_triggers/AntiDilutionProtectionTrigger.schema.json"
                             },
                             {
                                 "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/conversion_triggers/AutomaticConversionOnConditionTrigger.schema.json"

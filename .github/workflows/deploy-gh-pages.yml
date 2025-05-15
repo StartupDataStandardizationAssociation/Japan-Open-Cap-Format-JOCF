@@ -5,8 +5,9 @@ on:
     branches:
       - main
     paths:
-      # ドキュメント、GitHub Actions、MkDocsの設定ファイルに変更があった場合のみ実行
+      # ドキュメント、GitHub Actions、MkDocsの設定ファイル + スキーマファイルに変更があった場合のみ実行
       - 'docs/**'
+      - 'schema/**'
       - '.github/workflows/deploy-gh-pages.yml'
       - 'mkdocs.yml'
 
@@ -43,6 +44,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      # 3.5. ドキュメントの生成
+      - name: Generate documentation
+        run: |
+          ./utils/generate-docs/gen_all_docs.sh
 
       # 4. MkDocsのビルド
       - name: Build MkDocs site

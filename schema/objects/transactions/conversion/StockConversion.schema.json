@@ -5,16 +5,16 @@
     "type": "object",
     "allOf": [
         {
-            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitive/objects/Object.schema.json"
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/Object.schema.json"
         },
         {
-            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitive/objects/transactions/Transaction.schema.json"
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/Transaction.schema.json"
         },
         {
-            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitive/objects/transactions/conversion/Conversion.schema.json"
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/conversion/Conversion.schema.json"
         },
         {
-            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitive/objects/transactions/SecurityTransaction.schema.json"
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/primitives/objects/transactions/SecurityTransaction.schema.json"
         }
     ],
     "properties": {
