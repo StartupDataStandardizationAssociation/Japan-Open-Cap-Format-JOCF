@@ -1,0 +1,30 @@
+{
+  "schema": {
+    "root_path": "schema",
+    "cache_enabled": true,
+    "cache_ttl": 3600,
+    "auto_reload": false
+  },
+  "validation": {
+    "strict_mode": true,
+    "allow_additional_properties": false,
+    "max_errors_per_object": 100,
+    "chunk_size": 100
+  },
+  "performance": {
+    "max_memory_mb": 256,
+    "parallel_processing": true,
+    "max_workers": 4,
+    "progress_bar": true
+  },
+  "output": {
+    "format": "json",
+    "include_warnings": true,
+    "detailed_errors": true,
+    "report_output_dir": "reports"
+  },
+  "testing": {
+    "samples_dir": "samples",
+    "test_data_dir": "test_data"
+  }
+}

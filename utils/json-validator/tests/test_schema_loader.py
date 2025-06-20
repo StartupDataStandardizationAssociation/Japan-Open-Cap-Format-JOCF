@@ -22,16 +22,23 @@ from jsonschema import RefResolver
 # テスト対象のクラス（実装予定）
 # from validator.schema_loader import SchemaLoader
 # from validator.exceptions import SchemaError, FileNotFoundError
+from validator.config import ConfigManager
 
 
 class MockSchemaLoader:
     """テスト用のSchemaLoaderモッククラス"""
     
-    def __init__(self):
+    def __init__(self, config_manager=None):
         self.file_type_map = {}
         self.object_type_map = {}
         self.ref_resolver = None
-        self.schema_root_path = Path("schema")
+        
+        # 設定管理システムから取得
+        if config_manager:
+            self.schema_root_path = config_manager.get_schema_root_path()
+        else:
+            # テスト用のデフォルト値
+            self.schema_root_path = Path("schema")
     
     def load_all_schemas(self):
         """全スキーマの読み込みとインデックス作成"""
@@ -55,7 +62,9 @@ class TestSchemaLoader(unittest.TestCase):
     
     def setUp(self):
         """テスト前の準備"""
-        self.schema_loader = MockSchemaLoader()
+        # 設定管理システムの初期化（TDD: 一時的にモック使用）
+        self.config_manager = ConfigManager()        
+        self.schema_loader = MockSchemaLoader(self.config_manager)
         self.temp_dir = None
         
         # テスト用のスキーマファイルデータ

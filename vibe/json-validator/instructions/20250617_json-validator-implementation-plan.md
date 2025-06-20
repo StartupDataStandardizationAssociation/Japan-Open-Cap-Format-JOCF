@@ -11,10 +11,11 @@ graph TD
     B --> C[🔵 Refactor<br/>コード改善・品質向上]
     C --> D[次のフェーズ]
     
-    E[ValidationResult] --> F[SchemaLoader]
-    F --> G[ObjectValidator]
-    G --> H[FileValidator] 
-    H --> I[JSONValidator統合]
+    E[ValidationResult] --> F[ConfigManager]
+    F --> G[SchemaLoader]
+    G --> H[ObjectValidator]
+    H --> I[FileValidator] 
+    I --> J[JSONValidator統合]
     
     style A fill:#ffebee
     style B fill:#e8f5e8
@@ -31,11 +32,14 @@ graph TD
 ```
 utils/json-validator/
 ├── validate.sh                    # メインエントリーポイント
+├── config/
+│   └── validator_config.json      # 設定ファイル
 ├── validator/
 │   ├── __init__.py
 │   ├── main.py                     # 統合処理
 │   ├── validation_result.py        # 検証結果クラス
 │   ├── schema_loader.py            # スキーマ管理
+│   ├── config_manager.py           # 設定管理
 │   ├── file_validator.py           # ファイル検証
 │   ├── object_validator.py         # オブジェクト検証
 │   └── exceptions.py               # 例外処理
@@ -43,6 +47,7 @@ utils/json-validator/
     ├── test_schema_loader.py
     ├── test_file_validator.py
     ├── test_object_validator.py
+    ├── test_config_manager.py       # 設定管理テスト
     └── test_integration.py
 ```
 
@@ -90,25 +95,65 @@ class ValidationResult:
 - 型ヒントの完全化
 - ドキュメンテーション
 
-### Phase 2: SchemaLoader実装（1.5日）
+### Phase 2: ConfigManager実装（1日）
+
+#### 🔴 Red: 設定管理テスト実行
+```bash
+python -m pytest utils/json-validator/tests/test_config_manager.py::test_load_config_file -v
+python -m pytest utils/json-validator/tests/test_config_manager.py::test_environment_variable_override -v
+python -m pytest utils/json-validator/tests/test_config_manager.py::test_dynamic_config_reload -v
+```
+
+#### 🟢 Green: 設定管理実装
+```python
+class ConfigManager:
+    def __init__(self, config_path: str = "config/validator_config.json"):
+        self.config_path = Path(config_path)
+        self.config = {}
+        self.load_config()
+    
+    def load_config(self) -> None:
+        # config/validator_config.json の読み込み
+        # 環境変数による設定値上書き（JOCF_SCHEMA_PATH等）
+        # デフォルト値の設定
+    
+    def get_schema_root_path(self) -> Path:
+        return Path(self.config.get("schema_root_path", "schema"))
+    
+    def get_cache_enabled(self) -> bool:
+        return self.config.get("cache_enabled", True)
+    
+    def reload_config(self) -> None:
+        # 設定ファイルの動的リロード
+```
+
+#### 🔵 Refactor: 設定管理最適化
+- 設定ファイルの自動監視機能
+- 設定値の型検証
+- 設定変更時のコールバック機構
+
+### Phase 3: SchemaLoader実装（1.5日）
 
 #### 🔴 Red: 段階的テスト実行
 ```bash
 python -m pytest utils/json-validator/tests/test_schema_loader.py::test_load_all_schemas_success -v
 python -m pytest utils/json-validator/tests/test_schema_loader.py::test_get_file_schema_success -v
 python -m pytest utils/json-validator/tests/test_schema_loader.py::test_ref_resolver_setup -v
+python -m pytest utils/json-validator/tests/test_schema_loader.py::test_config_integration -v
 ```
 
 #### 🟢 Green: 段階的実装
 ```python
 class SchemaLoader:
-    def __init__(self):
+    def __init__(self, config_manager: ConfigManager):
+        self.config_manager = config_manager
         self.file_type_map = {}
         self.object_type_map = {}
         self.ref_resolver = None
-        self.schema_root_path = Path("schema")
+        self.schema_root_path = self.config_manager.get_schema_root_path()
     
     def load_all_schemas(self) -> None:
+        # 設定管理による動的スキーマルート取得
         # schema/files/*.schema.json の読み込み
         # schema/objects/*.schema.json の読み込み
         # インデックス作成
@@ -124,11 +169,12 @@ class SchemaLoader:
 ```
 
 #### 🔵 Refactor: 最適化
-- スキーマキャッシュ機構
+- スキーマキャッシュ機構（設定管理統合）
 - パフォーマンス最適化（大量スキーマ処理対応）
 - エラーハンドリング強化
+- 設定変更時の動的スキーマリロード対応
 
-### Phase 3: ObjectValidator実装（1日）
+### Phase 4: ObjectValidator実装（1日）
 
 #### 🔴 Red: 基本機能テスト
 ```bash
@@ -154,7 +200,7 @@ class ObjectValidator:
 - ネストした$ref解決対応
 - 検証パスの追跡
 
-### Phase 4: FileValidator実装（1日）
+### Phase 5: FileValidator実装（1日）
 
 #### 🔴 Red: ファイル構造テスト
 ```bash
@@ -180,25 +226,33 @@ class FileValidator:
 - メモリ効率の改善
 - エラー収集の効率化
 
-### Phase 5: JSONValidator統合（1日）
+### Phase 6: JSONValidator統合（1日）
 
 #### 🔴 Red: 統合テスト実行
 ```bash
 python -m pytest utils/json-validator/tests/test_integration.py::test_validate_success_with_valid_file -v
+python -m pytest utils/json-validator/tests/test_integration.py::test_config_integration -v
 python -m pytest utils/json-validator/tests/test_integration.py -v
 ```
 
 #### 🟢 Green: 統合クラス実装
 ```python
 class JSONValidator:
-    def __init__(self):
-        self.schema_loader = SchemaLoader()
+    def __init__(self, config_path: str = None):
+        self.config_manager = ConfigManager(config_path)
+        self.schema_loader = SchemaLoader(self.config_manager)
         self.file_validator = FileValidator(self.schema_loader)
     
     def validate(self, file_path: str) -> ValidationResult:
         # ファイル読み込み
         # FileValidatorによる検証
         # 結果の統合と返却
+    
+    def reload_config(self) -> None:
+        # 設定の動的リロード対応
+        self.config_manager.reload_config()
+        self.schema_loader = SchemaLoader(self.config_manager)
+        self.file_validator = FileValidator(self.schema_loader)
 ```
 
 #### 🔵 Refactor: 最終最適化
@@ -235,16 +289,23 @@ mindmap
 
 ## 5. 技術的考慮事項
 
-### 5.1 パフォーマンス要件（テストから導出）
+### 5.1 設定管理の柔軟性
+- **設定ファイル**: [`config/validator_config.json`](config/validator_config.json)による柔軟な設定管理
+- **環境変数対応**: `JOCF_SCHEMA_PATH`、`JOCF_CACHE_ENABLED`等による設定上書き
+- **動的設定変更**: 実行時の設定リロード機能
+
+### 5.2 パフォーマンス要件（テストから導出）
 ```python
 # 大量スキーマ処理: 100個のスキーマファイル処理が2秒以内
 # 大量オブジェクト検証: 1000個のオブジェクト検証が5秒以内
+# 設定リロード: 設定変更の反映が1秒以内
 ```
 
-### 5.2 エラーハンドリング戦略
+### 5.3 エラーハンドリング戦略
 - **段階的エラー処理**: 各レイヤーでの適切なエラーハンドリング
 - **具体的エラーメッセージ**: ユーザーが問題を特定しやすい情報提供
 - **構造化エラー出力**: JSON形式での詳細なエラー情報
+- **設定エラー対応**: 設定ファイル・環境変数の検証とフォールバック
 
 ## 6. 使用方法と最終成果物
 
