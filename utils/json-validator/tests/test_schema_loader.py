@@ -19,9 +19,9 @@ from pathlib import Path
 from unittest.mock import Mock, patch, mock_open
 from jsonschema import RefResolver
 
-# テスト対象のクラス（実装予定）
-# from validator.schema_loader import SchemaLoader
-# from validator.exceptions import SchemaError, FileNotFoundError
+# テスト対象のクラス
+from validator.schema_loader import SchemaLoader
+from validator.exceptions import SchemaError, SchemaLoadError, SchemaNotFoundError
 from validator.config import ConfigManager
 
 
@@ -62,9 +62,9 @@ class TestSchemaLoader(unittest.TestCase):
     
     def setUp(self):
         """テスト前の準備"""
-        # 設定管理システムの初期化（TDD: 一時的にモック使用）
+        # 設定管理システムの初期化
         self.config_manager = ConfigManager()        
-        self.schema_loader = MockSchemaLoader(self.config_manager)
+        self.schema_loader = SchemaLoader(self.config_manager)
         self.temp_dir = None
         
         # テスト用のスキーマファイルデータ

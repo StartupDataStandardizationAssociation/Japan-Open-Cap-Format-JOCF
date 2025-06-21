@@ -8,10 +8,9 @@ JSONスキーマファイルの読み込み、インデックス作成、$ref解
 
 import json
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Union
+from typing import Dict, Any, Optional, List
 from jsonschema import RefResolver
 from .config_manager import ConfigManager
-from .exceptions import SchemaError, SchemaLoadError, SchemaNotFoundError, RefResolutionError
 
 
 class SchemaLoader:
@@ -29,7 +28,11 @@ class SchemaLoader:
         Args:
             config_manager (ConfigManager): 設定管理インスタンス
         """
-        raise NotImplementedError("SchemaLoader.__init__() is not implemented yet")
+        self.config_manager = config_manager
+        self.schema_root_path = config_manager.get_schema_root_path()
+        self.file_type_map = {}
+        self.object_type_map = {}
+        self.ref_resolver = None
     
     def load_all_schemas(self) -> None:
         """
@@ -41,7 +44,15 @@ class SchemaLoader:
         Raises:
             SchemaLoadError: スキーマの読み込みに失敗した場合
         """
-        raise NotImplementedError("SchemaLoader.load_all_schemas() is not implemented yet")
+        # まず既存のマップをクリア
+        self.file_type_map.clear()
+        self.object_type_map.clear()
+        
+        # ファイルスキーマを読み込み
+        self.load_file_schemas()
+        
+        # オブジェクトスキーマを読み込み
+        self.load_object_schemas()
     
     def load_file_schemas(self) -> None:
         """
@@ -50,7 +61,19 @@ class SchemaLoader:
         schema/files/配下のスキーマファイルを読み込み、
         file_type_mapを構築します。
         """
-        raise NotImplementedError("SchemaLoader.load_file_schemas() is not implemented yet")
+        files_dir = self.schema_root_path / "files"
+        if not files_dir.exists():
+            return
+            
+        for schema_file in files_dir.glob("*.schema.json"):
+            try:
+                schema = self._load_schema_file(schema_file)
+                file_type = self._extract_file_type(schema)
+                if file_type:
+                    self.file_type_map[file_type] = schema
+            except Exception:
+                # エラーが発生した場合はスキップ（後で適切なエラーハンドリングを追加）
+                continue
     
     def load_object_schemas(self) -> None:
         """
@@ -59,7 +82,20 @@ class SchemaLoader:
         schema/objects/配下のスキーマファイルを読み込み、
         object_type_mapを構築します。
         """
-        raise NotImplementedError("SchemaLoader.load_object_schemas() is not implemented yet")
+        objects_dir = self.schema_root_path / "objects"
+        if not objects_dir.exists():
+            return
+            
+        # 再帰的にobjectsディレクトリ内の全ての.schema.jsonファイルを検索
+        for schema_file in objects_dir.rglob("*.schema.json"):
+            try:
+                schema = self._load_schema_file(schema_file)
+                object_type = self._extract_object_type(schema)
+                if object_type:
+                    self.object_type_map[object_type] = schema
+            except Exception:
+                # エラーが発生した場合はスキップ（後で適切なエラーハンドリングを追加）
+                continue
     
     def get_file_schema(self, file_type: str) -> Optional[Dict[str, Any]]:
         """
@@ -71,7 +107,7 @@ class SchemaLoader:
         Returns:
             Optional[Dict[str, Any]]: 対応するスキーマ。見つからない場合はNone
         """
-        raise NotImplementedError("SchemaLoader.get_file_schema() is not implemented yet")
+        return self.file_type_map.get(file_type)
     
     def get_object_schema(self, object_type: str) -> Optional[Dict[str, Any]]:
         """
@@ -83,7 +119,7 @@ class SchemaLoader:
         Returns:
             Optional[Dict[str, Any]]: 対応するスキーマ。見つからない場合はNone
         """
-        raise NotImplementedError("SchemaLoader.get_object_schema() is not implemented yet")
+        return self.object_type_map.get(object_type)
     
     def get_ref_resolver(self) -> RefResolver:
         """
@@ -92,7 +128,9 @@ class SchemaLoader:
         Returns:
             RefResolver: 構築されたRefResolver
         """
-        raise NotImplementedError("SchemaLoader.get_ref_resolver() is not implemented yet")
+        if self.ref_resolver is None:
+            self.ref_resolver = self._build_ref_resolver()
+        return self.ref_resolver
     
     def get_schema_by_id(self, schema_id: str) -> Optional[Dict[str, Any]]:
         """
@@ -165,7 +203,8 @@ class SchemaLoader:
         Raises:
             SchemaLoadError: ファイルの読み込みに失敗した場合
         """
-        raise NotImplementedError("SchemaLoader._load_schema_file() is not implemented yet")
+        with open(schema_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
     
     def _register_file_schema(self, schema: Dict[str, Any], schema_path: Path) -> None:
         """
@@ -194,7 +233,27 @@ class SchemaLoader:
         Returns:
             RefResolver: 構築されたRefResolver
         """
-        raise NotImplementedError("SchemaLoader._build_ref_resolver() is not implemented yet")
+        # スキーマストアを構築（全てのスキーマを$idをキーとして格納）
+        store = {}
+        
+        # ファイルスキーマをストアに追加
+        for schema in self.file_type_map.values():
+            schema_id = schema.get("$id")
+            if schema_id:
+                store[schema_id] = schema
+        
+        # オブジェクトスキーマをストアに追加
+        for schema in self.object_type_map.values():
+            schema_id = schema.get("$id")
+            if schema_id:
+                store[schema_id] = schema
+                
+        # その他のスキーマファイル（types, primitives, enums）も読み込む
+        self._load_additional_schemas_for_resolver(store)
+        
+        # RefResolverを作成
+        base_uri = "https://jocf.startupstandard.org/jocf/main/"
+        return RefResolver(base_uri, None, store=store)
     
     def _extract_file_type(self, schema: Dict[str, Any]) -> Optional[str]:
         """
@@ -206,7 +265,17 @@ class SchemaLoader:
         Returns:
             Optional[str]: file_type。見つからない場合はNone
         """
-        raise NotImplementedError("SchemaLoader._extract_file_type() is not implemented yet")
+        # schema直下のfile_typeをチェック
+        if "file_type" in schema:
+            return schema["file_type"]
+        
+        # properties内のfile_typeのconst値をチェック
+        properties = schema.get("properties", {})
+        file_type_prop = properties.get("file_type", {})
+        if "const" in file_type_prop:
+            return file_type_prop["const"]
+        
+        return None
     
     def _extract_object_type(self, schema: Dict[str, Any]) -> Optional[str]:
         """
@@ -218,7 +287,17 @@ class SchemaLoader:
         Returns:
             Optional[str]: object_type。見つからない場合はNone
         """
-        raise NotImplementedError("SchemaLoader._extract_object_type() is not implemented yet")
+        # schema直下のobject_typeをチェック
+        if "object_type" in schema:
+            return schema["object_type"]
+        
+        # properties内のobject_typeのconst値をチェック
+        properties = schema.get("properties", {})
+        object_type_prop = properties.get("object_type", {})
+        if "const" in object_type_prop:
+            return object_type_prop["const"]
+        
+        return None
     
     def _find_schema_files(self, directory: Path, pattern: str = "*.schema.json") -> List[Path]:
         """
@@ -231,7 +310,32 @@ class SchemaLoader:
         Returns:
             List[Path]: 見つかったスキーマファイルのリスト
         """
-        raise NotImplementedError("SchemaLoader._find_schema_files() is not implemented yet")
+        if not directory.exists():
+            return []
+        return list(directory.rglob(pattern))
+    
+    def _load_additional_schemas_for_resolver(self, store: Dict[str, Dict[str, Any]]) -> None:
+        """
+        RefResolver用に追加のスキーマ（types, primitives, enums）を読み込む
+        
+        Args:
+            store (Dict[str, Dict[str, Any]]): スキーマストア
+        """
+        # types, primitives, enumsディレクトリからスキーマを読み込み
+        additional_dirs = ["types", "primitives", "enums"]
+        
+        for dir_name in additional_dirs:
+            schema_dir = self.schema_root_path / dir_name
+            if schema_dir.exists():
+                for schema_file in schema_dir.rglob("*.schema.json"):
+                    try:
+                        schema = self._load_schema_file(schema_file)
+                        schema_id = schema.get("$id")
+                        if schema_id:
+                            store[schema_id] = schema
+                    except Exception:
+                        # エラーが発生した場合はスキップ
+                        continue
     
     def __str__(self) -> str:
         """
