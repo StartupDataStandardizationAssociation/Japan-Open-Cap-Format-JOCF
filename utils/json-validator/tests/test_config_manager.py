@@ -487,7 +487,8 @@ class TestConfigManagerPathMethods:
         
         schema_path = cm.get_schema_root_path()
         assert isinstance(schema_path, Path)
-        assert str(schema_path) == "test_schema"
+        assert schema_path.is_absolute()  # 絶対パスを返すことを確認
+        assert schema_path.name == "test_schema"  # ディレクトリ名が正しいことを確認
     
     def test_get_samples_dir(self, path_config_manager):
         """get_samples_dir()のPath型検証"""
@@ -495,7 +496,8 @@ class TestConfigManagerPathMethods:
         
         samples_dir = cm.get_samples_dir()
         assert isinstance(samples_dir, Path)
-        assert str(samples_dir) == "test_samples"
+        assert samples_dir.is_absolute()  # 絶対パスを返すことを確認
+        assert samples_dir.name == "test_samples"  # ディレクトリ名が正しいことを確認
     
     def test_get_custom_schema_paths(self, path_config_manager):
         """get_custom_schema_paths()のList[Path]型検証"""

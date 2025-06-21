@@ -9,6 +9,7 @@ JSON設定ファイルから設定を読み込み、環境変数での上書き�
 
 import json
 import os
+import re
 from pathlib import Path
 from typing import Dict, Any, Optional, Union, List
 from .exceptions import ConfigError
@@ -20,6 +21,11 @@ class ConfigManager:
     
     JSON設定ファイルの読み込み、環境変数による上書き、
     動的な設定リロード機能を提供します。
+    
+    パス解決は以下の方針で行われます：
+    - 相対パスはプロジェクトルートからの相対パスとして解釈
+    - 絶対パスはそのまま使用
+    - パスの存在確認は設定読み込み時に実行
     """
     
     def __init__(self, config_path: Optional[str] = None):
@@ -30,7 +36,100 @@ class ConfigManager:
             config_path (str, optional): 設定ファイルのパス。
                                        指定されない場合はデフォルトパスを使用
         """
-        raise NotImplementedError("ConfigManager.__init__() is not implemented yet")
+        # プロジェクトルートの検出（最初に実行）
+        self._project_root = self._detect_project_root()
+        
+        if config_path is None:
+            # デフォルトパスをプロジェクトルートベースで設定
+            self._config_path = self._project_root / "utils/json-validator/config/validator_config.json"
+        else:
+            self._config_path = Path(config_path)
+            # 相対パスの場合は絶対パスに変換
+            if not self._config_path.is_absolute():
+                self._config_path = self._project_root / self._config_path
+        
+        # 設定ファイルの存在確認
+        if not self._config_path.exists():
+            raise ConfigError(f"Config file not found: {self._config_path}")
+        
+        # 設定辞書の初期化
+        self._config = {}
+        
+        # 設定の読み込み
+        try:
+            self.load_config()
+        except Exception as e:
+            if "Invalid JSON format" in str(e) or "Permission denied" in str(e):
+                raise e
+            else:
+                # その他のエラーは再発生
+                raise
+    
+    def _detect_project_root(self) -> Path:
+        """
+        プロジェクトルートディレクトリを検出する
+        
+        複数の戦略を使用してプロジェクトルートを検出します：
+        1. マーカーファイル（.git, pyproject.toml, setup.py, requirements.txt）の検索
+        2. 固定の相対パスをフォールバックとして使用
+        
+        Returns:
+            Path: プロジェクトルートディレクトリの絶対パス
+        """
+        current_path = Path(__file__).resolve().parent
+        
+        # 戦略1: マーカーファイルの検索
+        markers = ['.git', 'pyproject.toml', 'setup.py', 'requirements.txt', 'mkdocs.yml']
+        
+        for parent in [current_path] + list(current_path.parents):
+            for marker in markers:
+                if (parent / marker).exists():
+                    return parent
+        
+        # 戦略2: 固定の相対パス（フォールバック）
+        # utils/json-validator/validator -> repository root
+        fallback_root = current_path.parent.parent.parent
+        if fallback_root.exists():
+            return fallback_root
+        
+        # 最終フォールバック: 現在のディレクトリの親
+        return current_path.parent
+    
+    def _resolve_path(self, path_str: str) -> Path:
+        """
+        パス文字列を絶対Pathオブジェクトに解決する
+        
+        Args:
+            path_str (str): 解決するパス文字列
+            
+        Returns:
+            Path: 絶対パス
+        """
+        path = Path(path_str)
+        
+        if path.is_absolute():
+            return path
+        else:
+            # 相対パスはプロジェクトルートからの相対パスとして解釈
+            return self._project_root / path
+    
+    def _validate_path_exists(self, path: Path, path_description: str) -> None:
+        """
+        パスの存在を検証する
+        
+        Args:
+            path (Path): 検証するパス
+            path_description (str): パスの説明（エラーメッセージ用）
+            
+        Raises:
+            ConfigError: パスが存在しない場合
+        """
+        if not path.exists():
+            raise ConfigError(
+                f"{path_description} does not exist: {path}\n"
+                f"Project root: {self._project_root}\n"
+                f"Resolved from relative path in configuration"
+            )
     
     def load_config(self) -> None:
         """
@@ -39,7 +138,15 @@ class ConfigManager:
         Raises:
             ConfigError: 設定ファイルの読み込みに失敗した場合
         """
-        raise NotImplementedError("ConfigManager.load_config() is not implemented yet")
+        try:
+            with open(self._config_path, 'r', encoding='utf-8') as f:
+                self._config = json.load(f)
+        except FileNotFoundError:
+            raise ConfigError(f"Config file not found: {self._config_path}")
+        except PermissionError:
+            raise ConfigError(f"Permission denied: {self._config_path}")
+        except json.JSONDecodeError as e:
+            raise ConfigError(f"Invalid JSON format in {self._config_path}: {e}")
     
     def reload_config(self) -> None:
         """
@@ -47,7 +154,7 @@ class ConfigManager:
         
         動的な設定変更に対応するため、設定ファイルを再読み込みします。
         """
-        raise NotImplementedError("ConfigManager.reload_config() is not implemented yet")
+        self.load_config()
     
     def get(self, key_path: str, default: Any = None) -> Any:
         """
@@ -60,7 +167,27 @@ class ConfigManager:
         Returns:
             設定値または環境変数での上書き値
         """
-        raise NotImplementedError("ConfigManager.get() is not implemented yet")
+        if not key_path or key_path.strip() == "":
+            raise ConfigError("Invalid key path: empty string")
+        
+        if ".." in key_path:
+            raise ConfigError("Invalid key path: contains consecutive dots")
+        
+        # 環境変数での上書きをチェック
+        env_key = f"VALIDATOR_{key_path.replace('.', '_').upper()}"
+        if env_key in os.environ:
+            env_value = os.environ[env_key]
+            # 文字列が boolean っぽい場合は変換
+            if env_value.lower() in ('true', 'false'):
+                return env_value.lower() == 'true'
+            return env_value
+        
+        value = self._get_nested_value(self._config, key_path)
+        if value is None:
+            return default
+        
+        # 環境変数プレースホルダーを解決
+        return self._resolve_environment_variables(value)
     
     def set(self, key_path: str, value: Any) -> None:
         """
@@ -70,7 +197,13 @@ class ConfigManager:
             key_path (str): 設定のキーパス
             value: 設定する値
         """
-        raise NotImplementedError("ConfigManager.set() is not implemented yet")
+        if not key_path or key_path.strip() == "":
+            raise ConfigError("Invalid key path: empty string")
+        
+        if ".." in key_path:
+            raise ConfigError("Invalid key path: contains consecutive dots")
+        
+        self._set_nested_value(self._config, key_path, value)
     
     def get_schema_config(self) -> Dict[str, Any]:
         """
@@ -79,7 +212,7 @@ class ConfigManager:
         Returns:
             Dict[str, Any]: スキーマ設定
         """
-        raise NotImplementedError("ConfigManager.get_schema_config() is not implemented yet")
+        return self.get("schema", {})
     
     def get_validation_config(self) -> Dict[str, Any]:
         """
@@ -88,7 +221,7 @@ class ConfigManager:
         Returns:
             Dict[str, Any]: バリデーション設定
         """
-        raise NotImplementedError("ConfigManager.get_validation_config() is not implemented yet")
+        return self.get("validation", {})
     
     def get_output_config(self) -> Dict[str, Any]:
         """
@@ -97,7 +230,7 @@ class ConfigManager:
         Returns:
             Dict[str, Any]: 出力設定
         """
-        raise NotImplementedError("ConfigManager.get_output_config() is not implemented yet")
+        return self.get("output", {})
     
     def get_testing_config(self) -> Dict[str, Any]:
         """
@@ -106,16 +239,28 @@ class ConfigManager:
         Returns:
             Dict[str, Any]: テスト設定
         """
-        raise NotImplementedError("ConfigManager.get_testing_config() is not implemented yet")
+        return self.get("testing", {})
     
-    def get_schema_root_path(self) -> Path:
+    def get_schema_root_path(self, validate_exists: bool = False) -> Path:
         """
         スキーマのルートパスを取得
         
+        Args:
+            validate_exists (bool): パスの存在確認を行うかどうか
+        
         Returns:
-            Path: スキーマのルートパス
+            Path: スキーマのルートパス（絶対パス）
+            
+        Raises:
+            ConfigError: validate_exists=Trueでスキーマルートパスが存在しない場合
         """
-        raise NotImplementedError("ConfigManager.get_schema_root_path() is not implemented yet")
+        path_str = self.get("schema.root_path", "schema")
+        resolved_path = self._resolve_path(path_str)
+        
+        if validate_exists:
+            self._validate_path_exists(resolved_path, "Schema root directory")
+        
+        return resolved_path
     
     def get_cache_enabled(self) -> bool:
         """
@@ -124,16 +269,28 @@ class ConfigManager:
         Returns:
             bool: キャッシュが有効な場合True
         """
-        raise NotImplementedError("ConfigManager.get_cache_enabled() is not implemented yet")
+        return self.get("schema.cache_enabled", False)
     
-    def get_samples_dir(self) -> Path:
+    def get_samples_dir(self, validate_exists: bool = False) -> Path:
         """
         サンプルディレクトリのパスを取得
         
+        Args:
+            validate_exists (bool): パスの存在確認を行うかどうか
+        
         Returns:
-            Path: サンプルディレクトリのパス
+            Path: サンプルディレクトリのパス（絶対パス）
+            
+        Raises:
+            ConfigError: validate_exists=Trueでサンプルディレクトリが存在しない場合
         """
-        raise NotImplementedError("ConfigManager.get_samples_dir() is not implemented yet")
+        path_str = self.get("testing.samples_dir", "samples")
+        resolved_path = self._resolve_path(path_str)
+        
+        if validate_exists:
+            self._validate_path_exists(resolved_path, "Samples directory")
+        
+        return resolved_path
     
     def get_log_level(self) -> str:
         """
@@ -142,7 +299,16 @@ class ConfigManager:
         Returns:
             str: ログレベル
         """
-        raise NotImplementedError("ConfigManager.get_log_level() is not implemented yet")
+        return self.get("output.log_level", "INFO")
+    
+    def get_project_root(self) -> Path:
+        """
+        プロジェクトルートディレクトリのパスを取得
+        
+        Returns:
+            Path: プロジェクトルートディレクトリの絶対パス
+        """
+        return self._project_root
     
     def is_strict_mode(self) -> bool:
         """
@@ -151,16 +317,21 @@ class ConfigManager:
         Returns:
             bool: 厳密モードが有効な場合True
         """
-        raise NotImplementedError("ConfigManager.is_strict_mode() is not implemented yet")
+        return self.get("validation.strict_mode", True)
     
     def get_custom_schema_paths(self) -> List[Path]:
         """
         カスタムスキーマパスのリストを取得
         
         Returns:
-            List[Path]: カスタムスキーマパスのリスト
+            List[Path]: カスタムスキーマパスのリスト（絶対パス）
+            
+        Note:
+            存在しないパスも含まれる可能性があります。
+            個別の存在確認が必要な場合は呼び出し側で実行してください。
         """
-        raise NotImplementedError("ConfigManager.get_custom_schema_paths() is not implemented yet")
+        paths_list = self.get("schema.custom_paths", [])
+        return [self._resolve_path(path_str) for path_str in paths_list]
     
     def get_environment_overrides(self) -> Dict[str, str]:
         """
@@ -169,7 +340,11 @@ class ConfigManager:
         Returns:
             Dict[str, str]: 環境変数の設定マッピング
         """
-        raise NotImplementedError("ConfigManager.get_environment_overrides() is not implemented yet")
+        overrides = {}
+        for key, value in os.environ.items():
+            if key.startswith('VALIDATOR_'):
+                overrides[key] = value
+        return overrides
     
     def validate_config(self) -> List[str]:
         """
@@ -178,7 +353,42 @@ class ConfigManager:
         Returns:
             List[str]: 検証エラーのリスト（空の場合は正常）
         """
-        raise NotImplementedError("ConfigManager.validate_config() is not implemented yet")
+        errors = []
+        
+        # schema.root_path の検証
+        root_path = self.get("schema.root_path")
+        if root_path is None:
+            errors.append("schema.root_path is required")
+        elif not isinstance(root_path, str) or not root_path.strip():
+            errors.append("schema.root_path must be a non-empty string")
+        
+        # validation.max_errors_per_object の検証
+        max_errors = self.get("validation.max_errors_per_object")
+        if max_errors is not None and (not isinstance(max_errors, int) or max_errors < 0):
+            errors.append("validation.max_errors_per_object must be a non-negative integer")
+        
+        return errors
+    
+    def validate_paths(self) -> List[str]:
+        """
+        設定されたパスの存在を検証する
+        
+        Returns:
+            List[str]: パス検証エラーのリスト（空の場合は正常）
+        """
+        errors = []
+        
+        try:
+            self.get_schema_root_path(validate_exists=True)
+        except ConfigError as e:
+            errors.append(str(e))
+        
+        try:
+            self.get_samples_dir(validate_exists=True)
+        except ConfigError as e:
+            errors.append(str(e))
+        
+        return errors
     
     def get_config_dict(self) -> Dict[str, Any]:
         """
@@ -187,7 +397,7 @@ class ConfigManager:
         Returns:
             Dict[str, Any]: 全設定の辞書
         """
-        raise NotImplementedError("ConfigManager.get_config_dict() is not implemented yet")
+        return self._config.copy()
     
     def save_config(self, output_path: Optional[str] = None) -> None:
         """
@@ -196,7 +406,13 @@ class ConfigManager:
         Args:
             output_path (str, optional): 出力先パス。Noneの場合は元のファイルを上書き
         """
-        raise NotImplementedError("ConfigManager.save_config() is not implemented yet")
+        target_path = Path(output_path) if output_path else self._config_path
+        
+        try:
+            with open(target_path, 'w', encoding='utf-8') as f:
+                json.dump(self._config, f, indent=2, ensure_ascii=False)
+        except (PermissionError, OSError) as e:
+            raise ConfigError(f"Failed to save config to {target_path}: {e}")
     
     def merge_config(self, other_config: Dict[str, Any]) -> None:
         """
@@ -205,13 +421,38 @@ class ConfigManager:
         Args:
             other_config (Dict[str, Any]): マージする設定
         """
-        raise NotImplementedError("ConfigManager.merge_config() is not implemented yet")
+        def deep_merge(base_dict, merge_dict):
+            for key, value in merge_dict.items():
+                if key in base_dict and isinstance(base_dict[key], dict) and isinstance(value, dict):
+                    deep_merge(base_dict[key], value)
+                else:
+                    base_dict[key] = value
+        
+        deep_merge(self._config, other_config)
     
     def reset_to_defaults(self) -> None:
         """
         設定をデフォルト値にリセット
         """
-        raise NotImplementedError("ConfigManager.reset_to_defaults() is not implemented yet")
+        default_config = {
+            "schema": {
+                "root_path": "schema",
+                "cache_enabled": True
+            },
+            "validation": {
+                "strict_mode": True,
+                "max_errors_per_object": 100
+            },
+            "output": {
+                "format": "json",
+                "log_level": "INFO"
+            },
+            "testing": {
+                "samples_dir": "samples",
+                "test_data_dir": "test_data"
+            }
+        }
+        self._config = default_config
     
     def get_config_file_path(self) -> Path:
         """
@@ -220,7 +461,7 @@ class ConfigManager:
         Returns:
             Path: 設定ファイルのパス
         """
-        raise NotImplementedError("ConfigManager.get_config_file_path() is not implemented yet")
+        return self._config_path
     
     def watch_config_file(self, callback: callable) -> None:
         """
@@ -229,13 +470,15 @@ class ConfigManager:
         Args:
             callback: 変更時に呼び出されるコールバック関数
         """
-        raise NotImplementedError("ConfigManager.watch_config_file() is not implemented yet")
+        # 現在は監視機能は未実装
+        pass
     
     def stop_watching(self) -> None:
         """
         設定ファイルの監視を停止する
         """
-        raise NotImplementedError("ConfigManager.stop_watching() is not implemented yet")
+        # 現在は監視機能は未実装
+        pass
     
     def _resolve_environment_variables(self, value: Any) -> Any:
         """
@@ -247,7 +490,15 @@ class ConfigManager:
         Returns:
             解決後の値
         """
-        raise NotImplementedError("ConfigManager._resolve_environment_variables() is not implemented yet")
+        if not isinstance(value, str):
+            return value
+        
+        # ${VAR_NAME} 形式の環境変数を置換
+        def replace_env_var(match):
+            var_name = match.group(1)
+            return os.environ.get(var_name, match.group(0))
+        
+        return re.sub(r'\$\{([^}]+)\}', replace_env_var, value)
     
     def _get_nested_value(self, config: Dict[str, Any], key_path: str) -> Any:
         """
@@ -260,7 +511,16 @@ class ConfigManager:
         Returns:
             取得した値
         """
-        raise NotImplementedError("ConfigManager._get_nested_value() is not implemented yet")
+        keys = key_path.split('.')
+        current = config
+        
+        for key in keys:
+            if isinstance(current, dict) and key in current:
+                current = current[key]
+            else:
+                return None
+        
+        return current
     
     def _set_nested_value(self, config: Dict[str, Any], key_path: str, value: Any) -> None:
         """
@@ -271,7 +531,19 @@ class ConfigManager:
             key_path (str): キーパス
             value: 設定する値
         """
-        raise NotImplementedError("ConfigManager._set_nested_value() is not implemented yet")
+        keys = key_path.split('.')
+        current = config
+        
+        # 最後のキー以外を処理して、必要に応じて辞書を作成
+        for key in keys[:-1]:
+            if key not in current:
+                current[key] = {}
+            elif not isinstance(current[key], dict):
+                current[key] = {}
+            current = current[key]
+        
+        # 最後のキーに値を設定
+        current[keys[-1]] = value
     
     def __str__(self) -> str:
         """
@@ -280,7 +552,9 @@ class ConfigManager:
         Returns:
             str: 設定の文字列表現
         """
-        raise NotImplementedError("ConfigManager.__str__() is not implemented yet")
+        schema_path = self.get("schema.root_path", "N/A")
+        log_level = self.get("output.log_level", "N/A")
+        return f"ConfigManager(schema_path={schema_path}, log_level={log_level})"
     
     def __repr__(self) -> str:
         """
@@ -289,7 +563,7 @@ class ConfigManager:
         Returns:
             str: デバッグ用の文字列表現
         """
-        raise NotImplementedError("ConfigManager.__repr__() is not implemented yet")
+        return f"ConfigManager(config_path={self._config_path})"
 
 
 # グローバルインスタンス管理
@@ -306,14 +580,20 @@ def get_config_manager(config_path: Optional[str] = None) -> ConfigManager:
     Returns:
         ConfigManager: 設定管理インスタンス
     """
-    raise NotImplementedError("get_config_manager() is not implemented yet")
+    global _global_config_manager
+    
+    if _global_config_manager is None:
+        _global_config_manager = ConfigManager(config_path)
+    
+    return _global_config_manager
 
 
 def reset_config_manager() -> None:
     """
     グローバル設定マネージャーインスタンスをリセット（主にテスト用）
     """
-    raise NotImplementedError("reset_config_manager() is not implemented yet")
+    global _global_config_manager
+    _global_config_manager = None
 
 
 def load_config_from_dict(config_dict: Dict[str, Any]) -> ConfigManager:
@@ -326,4 +606,12 @@ def load_config_from_dict(config_dict: Dict[str, Any]) -> ConfigManager:
     Returns:
         ConfigManager: 設定管理インスタンス
     """
-    raise NotImplementedError("load_config_from_dict() is not implemented yet")
+    # 空のインスタンスを作成し、設定を直接設定
+    cm = ConfigManager.__new__(ConfigManager)
+    cm._config = config_dict.copy()
+    cm._config_path = Path("<from_dict>")
+    
+    # プロジェクトルートの検出
+    cm._project_root = cm._detect_project_root()
+    
+    return cm
