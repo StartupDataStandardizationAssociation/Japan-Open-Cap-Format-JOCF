@@ -11,12 +11,6 @@
     "max_errors_per_object": 100,
     "chunk_size": 100
   },
-  "performance": {
-    "max_memory_mb": 256,
-    "parallel_processing": true,
-    "max_workers": 4,
-    "progress_bar": true
-  },
   "output": {
     "format": "json",
     "include_warnings": true,

@@ -10,7 +10,7 @@ JSON設定ファイルから設定を読み込み、環境変数での上書き�
 import json
 import os
 from pathlib import Path
-from typing import Dict, Any, Optional, Union
+from typing import Dict, Any, Optional, Union, List
 from .exceptions import ConfigError
 
 
@@ -90,15 +90,6 @@ class ConfigManager:
         """
         raise NotImplementedError("ConfigManager.get_validation_config() is not implemented yet")
     
-    def get_performance_config(self) -> Dict[str, Any]:
-        """
-        パフォーマンス関連の設定を取得
-        
-        Returns:
-            Dict[str, Any]: パフォーマンス設定
-        """
-        raise NotImplementedError("ConfigManager.get_performance_config() is not implemented yet")
-    
     def get_output_config(self) -> Dict[str, Any]:
         """
         出力関連の設定を取得
@@ -152,33 +143,6 @@ class ConfigManager:
             str: ログレベル
         """
         raise NotImplementedError("ConfigManager.get_log_level() is not implemented yet")
-    
-    def get_max_file_size(self) -> int:
-        """
-        処理可能な最大ファイルサイズを取得
-        
-        Returns:
-            int: 最大ファイルサイズ（バイト）
-        """
-        raise NotImplementedError("ConfigManager.get_max_file_size() is not implemented yet")
-    
-    def get_timeout_seconds(self) -> int:
-        """
-        処理タイムアウト秒数を取得
-        
-        Returns:
-            int: タイムアウト秒数
-        """
-        raise NotImplementedError("ConfigManager.get_timeout_seconds() is not implemented yet")
-    
-    def get_max_objects_per_file(self) -> int:
-        """
-        1ファイルあたりの最大オブジェクト数を取得
-        
-        Returns:
-            int: 最大オブジェクト数
-        """
-        raise NotImplementedError("ConfigManager.get_max_objects_per_file() is not implemented yet")
     
     def is_strict_mode(self) -> bool:
         """
