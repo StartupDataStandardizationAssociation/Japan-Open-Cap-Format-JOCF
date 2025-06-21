@@ -96,7 +96,7 @@ class SchemaLoader:
     
     def get_schema_by_id(self, schema_id: str) -> Optional[Dict[str, Any]]:
         """
-        スキーマIDからスキーマを取得
+        スキーマID($id)からスキーマを取得
         
         Args:
             schema_id (str): スキーマID
@@ -105,15 +105,6 @@ class SchemaLoader:
             Optional[Dict[str, Any]]: 対応するスキーマ。見つからない場合はNone
         """
         raise NotImplementedError("SchemaLoader.get_schema_by_id() is not implemented yet")
-    
-    def reload_schemas(self) -> None:
-        """
-        スキーマを再読み込み
-        
-        設定変更や新しいスキーマファイルが追加された場合に
-        スキーマを再読み込みします。
-        """
-        raise NotImplementedError("SchemaLoader.reload_schemas() is not implemented yet")
     
     def get_file_types(self) -> List[str]:
         """
@@ -132,52 +123,6 @@ class SchemaLoader:
             List[str]: object_typeのリスト
         """
         raise NotImplementedError("SchemaLoader.get_object_types() is not implemented yet")
-    
-    def get_schema_count(self) -> Dict[str, int]:
-        """
-        読み込まれたスキーマの統計情報を取得
-        
-        Returns:
-            Dict[str, int]: スキーマ数の統計情報
-        """
-        raise NotImplementedError("SchemaLoader.get_schema_count() is not implemented yet")
-    
-    def validate_schema(self, schema: Dict[str, Any]) -> List[str]:
-        """
-        スキーマ自体の妥当性を検証
-        
-        Args:
-            schema (Dict[str, Any]): 検証するスキーマ
-            
-        Returns:
-            List[str]: 検証エラーのリスト（空の場合は正常）
-        """
-        raise NotImplementedError("SchemaLoader.validate_schema() is not implemented yet")
-    
-    def get_schema_dependencies(self, schema: Dict[str, Any]) -> List[str]:
-        """
-        スキーマの依存関係を取得
-        
-        Args:
-            schema (Dict[str, Any]): 対象スキーマ
-            
-        Returns:
-            List[str]: 依存するスキーマIDのリスト
-        """
-        raise NotImplementedError("SchemaLoader.get_schema_dependencies() is not implemented yet")
-    
-    def is_schema_loaded(self, file_type: Optional[str] = None, object_type: Optional[str] = None) -> bool:
-        """
-        指定されたスキーマが読み込まれているかを確認
-        
-        Args:
-            file_type (str, optional): ファイルタイプ
-            object_type (str, optional): オブジェクトタイプ
-            
-        Returns:
-            bool: スキーマが読み込まれている場合True
-        """
-        raise NotImplementedError("SchemaLoader.is_schema_loaded() is not implemented yet")
     
     def get_schema_info(self, file_type: Optional[str] = None, object_type: Optional[str] = None) -> Dict[str, Any]:
         """
@@ -206,15 +151,6 @@ class SchemaLoader:
         スキーマキャッシュをクリア
         """
         raise NotImplementedError("SchemaLoader.clear_cache() is not implemented yet")
-    
-    def get_cache_stats(self) -> Dict[str, Any]:
-        """
-        キャッシュの統計情報を取得
-        
-        Returns:
-            Dict[str, Any]: キャッシュ統計情報
-        """
-        raise NotImplementedError("SchemaLoader.get_cache_stats() is not implemented yet")
     
     def _load_schema_file(self, schema_path: Path) -> Dict[str, Any]:
         """
@@ -296,18 +232,6 @@ class SchemaLoader:
             List[Path]: 見つかったスキーマファイルのリスト
         """
         raise NotImplementedError("SchemaLoader._find_schema_files() is not implemented yet")
-    
-    def _validate_schema_structure(self, schema: Dict[str, Any]) -> bool:
-        """
-        スキーマの基本構造を検証する（内部メソッド）
-        
-        Args:
-            schema (Dict[str, Any]): 検証するスキーマ
-            
-        Returns:
-            bool: 構造が正しい場合True
-        """
-        raise NotImplementedError("SchemaLoader._validate_schema_structure() is not implemented yet")
     
     def __str__(self) -> str:
         """
