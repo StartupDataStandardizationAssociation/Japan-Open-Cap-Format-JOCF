@@ -63,3 +63,4 @@ local/*
 # Claude Codeの設定を除外 #
 #########################
 CLAUDE.md
+.claude/*
