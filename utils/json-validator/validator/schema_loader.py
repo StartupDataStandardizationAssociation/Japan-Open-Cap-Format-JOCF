@@ -152,7 +152,7 @@ class SchemaLoader:
         if self.ref_resolver is None:
             self.logger.debug("Building RefResolver")
             new_resolver = self._build_ref_resolver()
-            self.refresolver = new_resolver
+            self.ref_resolver = new_resolver
             self.logger.debug("RefResolver built successfully")
         # この時点でself.ref_resolverは確実にRefResolverインスタンス
         assert self.ref_resolver is not None
