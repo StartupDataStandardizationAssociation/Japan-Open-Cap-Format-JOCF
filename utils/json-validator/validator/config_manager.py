@@ -8,6 +8,7 @@ JSON設定ファイルから設定を読み込み、環境変数での上書き�
 """
 
 import json
+import logging
 import os
 import re
 from pathlib import Path
@@ -36,20 +37,26 @@ class ConfigManager:
             config_path (str, optional): 設定ファイルのパス。
                                        指定されない場合はデフォルトパスを使用
         """
+        self.logger = logging.getLogger('json_validator.config_manager')
+        
         # プロジェクトルートの検出（最初に実行）
         self._project_root = self._detect_project_root()
+        self.logger.debug(f"Project root detected: {self._project_root}")
         
         if config_path is None:
             # デフォルトパスをプロジェクトルートベースで設定
             self._config_path = self._project_root / "utils/json-validator/config/validator_config.json"
+            self.logger.debug(f"Using default config path: {self._config_path}")
         else:
             self._config_path = Path(config_path)
             # 相対パスの場合は絶対パスに変換
             if not self._config_path.is_absolute():
                 self._config_path = self._project_root / self._config_path
+            self.logger.debug(f"Using provided config path: {self._config_path}")
         
         # 設定ファイルの存在確認
         if not self._config_path.exists():
+            self.logger.error(f"Config file not found: {self._config_path}")
             raise ConfigError(f"Config file not found: {self._config_path}")
         
         # 設定辞書の初期化
@@ -71,7 +78,7 @@ class ConfigManager:
         
         複数の戦略を使用してプロジェクトルートを検出します：
         1. マーカーファイル（.git, pyproject.toml, setup.py, requirements.txt）の検索
-        2. 固定の相対パスをフォールバックとして使用
+        2. 固定の相対パス（フォールバック）
         
         Returns:
             Path: プロジェクトルートディレクトリの絶対パス
@@ -83,7 +90,9 @@ class ConfigManager:
         
         for parent in [current_path] + list(current_path.parents):
             for marker in markers:
-                if (parent / marker).exists():
+                marker_path = parent / marker
+                if marker_path.exists():
+                    # ログはここで直接出力（loggerがまだ初期化されていないため）
                     return parent
         
         # 戦略2: 固定の相対パス（フォールバック）
@@ -108,10 +117,13 @@ class ConfigManager:
         path = Path(path_str)
         
         if path.is_absolute():
+            self.logger.debug(f"Path is already absolute: {path}")
             return path
         else:
             # 相対パスはプロジェクトルートからの相対パスとして解釈
-            return self._project_root / path
+            resolved_path = self._project_root / path
+            self.logger.debug(f"Resolved relative path {path_str} to: {resolved_path}")
+            return resolved_path
     
     def _validate_path_exists(self, path: Path, path_description: str) -> None:
         """
@@ -124,12 +136,18 @@ class ConfigManager:
         Raises:
             ConfigError: パスが存在しない場合
         """
+        self.logger.debug(f"Validating path exists: {path}")
+        
         if not path.exists():
-            raise ConfigError(
+            error_msg = (
                 f"{path_description} does not exist: {path}\n"
                 f"Project root: {self._project_root}\n"
                 f"Resolved from relative path in configuration"
             )
+            self.logger.error(error_msg)
+            raise ConfigError(error_msg)
+        
+        self.logger.debug(f"Path validation successful: {path}")
     
     def load_config(self) -> None:
         """
@@ -138,14 +156,20 @@ class ConfigManager:
         Raises:
             ConfigError: 設定ファイルの読み込みに失敗した場合
         """
+        self.logger.debug(f"Loading config from: {self._config_path}")
+        
         try:
             with open(self._config_path, 'r', encoding='utf-8') as f:
                 self._config = json.load(f)
+            self.logger.debug(f"Config loaded successfully. Keys: {list(self._config.keys())}")
         except FileNotFoundError:
+            self.logger.error(f"Config file not found: {self._config_path}")
             raise ConfigError(f"Config file not found: {self._config_path}")
         except PermissionError:
+            self.logger.error(f"Permission denied: {self._config_path}")
             raise ConfigError(f"Permission denied: {self._config_path}")
         except json.JSONDecodeError as e:
+            self.logger.error(f"Invalid JSON format in {self._config_path}: {e}")
             raise ConfigError(f"Invalid JSON format in {self._config_path}: {e}")
     
     def reload_config(self) -> None:
@@ -167,6 +191,8 @@ class ConfigManager:
         Returns:
             設定値または環境変数での上書き値
         """
+        self.logger.debug(f"Getting config value for key: {key_path}")
+        
         if not key_path or key_path.strip() == "":
             raise ConfigError("Invalid key path: empty string")
         
@@ -177,6 +203,7 @@ class ConfigManager:
         env_key = f"VALIDATOR_{key_path.replace('.', '_').upper()}"
         if env_key in os.environ:
             env_value = os.environ[env_key]
+            self.logger.debug(f"Using environment override for {key_path}: {env_value}")
             # 文字列が boolean っぽい場合は変換
             if env_value.lower() in ('true', 'false'):
                 return env_value.lower() == 'true'
@@ -184,10 +211,13 @@ class ConfigManager:
         
         value = self._get_nested_value(self._config, key_path)
         if value is None:
+            self.logger.debug(f"Config key {key_path} not found, using default: {default}")
             return default
         
         # 環境変数プレースホルダーを解決
-        return self._resolve_environment_variables(value)
+        resolved_value = self._resolve_environment_variables(value)
+        self.logger.debug(f"Config value for {key_path}: {resolved_value}")
+        return resolved_value
     
     def set(self, key_path: str, value: Any) -> None:
         """
@@ -256,6 +286,7 @@ class ConfigManager:
         """
         path_str = self.get("schema.root_path", "schema")
         resolved_path = self._resolve_path(path_str)
+        self.logger.debug(f"Schema root path resolved to: {resolved_path}")
         
         if validate_exists:
             self._validate_path_exists(resolved_path, "Schema root directory")
@@ -407,11 +438,14 @@ class ConfigManager:
             output_path (str, optional): 出力先パス。Noneの場合は元のファイルを上書き
         """
         target_path = Path(output_path) if output_path else self._config_path
+        self.logger.debug(f"Saving config to: {target_path}")
         
         try:
             with open(target_path, 'w', encoding='utf-8') as f:
                 json.dump(self._config, f, indent=2, ensure_ascii=False)
+            self.logger.debug(f"Config saved successfully to: {target_path}")
         except (PermissionError, OSError) as e:
+            self.logger.error(f"Failed to save config to {target_path}: {e}")
             raise ConfigError(f"Failed to save config to {target_path}: {e}")
     
     def merge_config(self, other_config: Dict[str, Any]) -> None:
@@ -581,9 +615,13 @@ def get_config_manager(config_path: Optional[str] = None) -> ConfigManager:
         ConfigManager: 設定管理インスタンス
     """
     global _global_config_manager
+    logger = logging.getLogger('json_validator.config_manager')
     
     if _global_config_manager is None:
+        logger.debug(f"Creating new global ConfigManager with path: {config_path}")
         _global_config_manager = ConfigManager(config_path)
+    else:
+        logger.debug("Returning existing global ConfigManager")
     
     return _global_config_manager
 

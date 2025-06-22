@@ -7,6 +7,7 @@ JSONスキーマファイルの読み込み、インデックス作成、$ref解
 """
 
 import json
+import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 from jsonschema import RefResolver
@@ -28,11 +29,14 @@ class SchemaLoader:
         Args:
             config_manager (ConfigManager): 設定管理インスタンス
         """
+        self.logger = logging.getLogger('json_validator.schema_loader')
         self.config_manager = config_manager
         self.schema_root_path = config_manager.get_schema_root_path()
         self.file_type_map = {}
         self.object_type_map = {}
         self.ref_resolver = None
+        
+        self.logger.debug(f"SchemaLoader initialized with root path: {self.schema_root_path}")
     
     def load_all_schemas(self) -> None:
         """
@@ -44,15 +48,20 @@ class SchemaLoader:
         Raises:
             SchemaLoadError: スキーマの読み込みに失敗した場合
         """
+        self.logger.debug("Starting to load all schemas")
+        
         # まず既存のマップをクリア
         self.file_type_map.clear()
         self.object_type_map.clear()
+        self.logger.debug("Cleared existing schema maps")
         
         # ファイルスキーマを読み込み
         self.load_file_schemas()
         
         # オブジェクトスキーマを読み込み
         self.load_object_schemas()
+        
+        self.logger.debug(f"Schema loading completed. Files: {len(self.file_type_map)}, Objects: {len(self.object_type_map)}")
     
     def load_file_schemas(self) -> None:
         """
@@ -62,15 +71,23 @@ class SchemaLoader:
         file_type_mapを構築します。
         """
         files_dir = self.schema_root_path / "files"
+        self.logger.debug(f"Loading file schemas from: {files_dir}")
+        
         if not files_dir.exists():
+            self.logger.debug(f"Files directory does not exist: {files_dir}")
             return
             
-        for schema_file in files_dir.glob("*.schema.json"):
+        schema_files = list(files_dir.glob("*.schema.json"))
+        self.logger.debug(f"Found {len(schema_files)} file schema files")
+        
+        for schema_file in schema_files:
             try:
+                self.logger.debug(f"Loading file schema: {schema_file}")
                 schema = self._load_schema_file(schema_file)
                 self._register_file_schema(schema)
-            except Exception:
-                # エラーが発生した場合はスキップ（後で適切なエラーハンドリングを追加）
+                self.logger.debug(f"Successfully loaded file schema: {schema_file}")
+            except Exception as e:
+                self.logger.debug(f"Failed to load file schema {schema_file}: {e}")
                 continue
     
     def load_object_schemas(self) -> None:
@@ -81,16 +98,24 @@ class SchemaLoader:
         object_type_mapを構築します。
         """
         objects_dir = self.schema_root_path / "objects"
+        self.logger.debug(f"Loading object schemas from: {objects_dir}")
+        
         if not objects_dir.exists():
+            self.logger.debug(f"Objects directory does not exist: {objects_dir}")
             return
             
         # 再帰的にobjectsディレクトリ内の全ての.schema.jsonファイルを検索
-        for schema_file in objects_dir.rglob("*.schema.json"):
+        schema_files = list(objects_dir.rglob("*.schema.json"))
+        self.logger.debug(f"Found {len(schema_files)} object schema files")
+        
+        for schema_file in schema_files:
             try:
+                self.logger.debug(f"Loading object schema: {schema_file}")
                 schema = self._load_schema_file(schema_file)
                 self._register_object_schema(schema)
-            except Exception:
-                # エラーが発生した場合はスキップ（後で適切なエラーハンドリングを追加）
+                self.logger.debug(f"Successfully loaded object schema: {schema_file}")
+            except Exception as e:
+                self.logger.debug(f"Failed to load object schema {schema_file}: {e}")
                 continue
     
     def get_file_schema(self, file_type: str) -> Optional[Dict[str, Any]]:
@@ -125,7 +150,9 @@ class SchemaLoader:
             RefResolver: 構築されたRefResolver
         """
         if self.ref_resolver is None:
+            self.logger.debug("Building RefResolver")
             self.ref_resolver = self._build_ref_resolver()
+            self.logger.debug("RefResolver built successfully")
         return self.ref_resolver
     
     def get_schema_by_id(self, schema_id: str) -> Optional[Dict[str, Any]]:
@@ -255,8 +282,11 @@ class SchemaLoader:
         Raises:
             SchemaLoadError: ファイルの読み込みに失敗した場合
         """
+        self.logger.debug(f"Reading schema file: {schema_path}")
         with open(schema_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+            schema = json.load(f)
+        self.logger.debug(f"Successfully parsed JSON from: {schema_path}")
+        return schema
     
     def _register_file_schema(self, schema: Dict[str, Any]) -> None:
         """
@@ -268,6 +298,9 @@ class SchemaLoader:
         file_type = self._extract_file_type(schema)
         if file_type:
             self.file_type_map[file_type] = schema
+            self.logger.debug(f"Registered file schema with type: {file_type}")
+        else:
+            self.logger.debug(f"Could not extract file_type from schema: {schema.get('$id', 'unknown')}")
     
     def _register_object_schema(self, schema: Dict[str, Any]) -> None:
         """
@@ -279,6 +312,9 @@ class SchemaLoader:
         object_type = self._extract_object_type(schema)
         if object_type:
             self.object_type_map[object_type] = schema
+            self.logger.debug(f"Registered object schema with type: {object_type}")
+        else:
+            self.logger.debug(f"Could not extract object_type from schema: {schema.get('$id', 'unknown')}")
     
     def _build_ref_resolver(self) -> RefResolver:
         """
@@ -287,27 +323,38 @@ class SchemaLoader:
         Returns:
             RefResolver: 構築されたRefResolver
         """
+        self.logger.debug("Building RefResolver store")
+        
         # スキーマストアを構築（全てのスキーマを$idをキーとして格納）
         store = {}
         
         # ファイルスキーマをストアに追加
+        file_schema_count = 0
         for schema in self.file_type_map.values():
             schema_id = schema.get("$id")
             if schema_id:
                 store[schema_id] = schema
+                file_schema_count += 1
+                self.logger.debug(f"Added file schema to store: {schema_id}")
         
         # オブジェクトスキーマをストアに追加
+        object_schema_count = 0
         for schema in self.object_type_map.values():
             schema_id = schema.get("$id")
             if schema_id:
                 store[schema_id] = schema
+                object_schema_count += 1
+                self.logger.debug(f"Added object schema to store: {schema_id}")
                 
         # その他のスキーマファイル（types, primitives, enums）も読み込む
         self._load_additional_schemas_for_resolver(store)
         
         # RefResolverを作成
         base_uri = "https://jocf.startupstandard.org/jocf/main/"
-        return RefResolver(base_uri, None, store=store)
+        resolver = RefResolver(base_uri, None, store=store)
+        
+        self.logger.debug(f"RefResolver created with {len(store)} schemas in store (files: {file_schema_count}, objects: {object_schema_count})")
+        return resolver
     
     def _extract_file_type(self, schema: Dict[str, Any]) -> Optional[str]:
         """
@@ -380,16 +427,25 @@ class SchemaLoader:
         
         for dir_name in additional_dirs:
             schema_dir = self.schema_root_path / dir_name
+            self.logger.debug(f"Loading additional schemas from: {schema_dir}")
+            
             if schema_dir.exists():
-                for schema_file in schema_dir.rglob("*.schema.json"):
+                schema_files = list(schema_dir.rglob("*.schema.json"))
+                self.logger.debug(f"Found {len(schema_files)} additional schema files in {dir_name}")
+                
+                for schema_file in schema_files:
                     try:
+                        self.logger.debug(f"Loading additional schema: {schema_file}")
                         schema = self._load_schema_file(schema_file)
                         schema_id = schema.get("$id")
                         if schema_id:
                             store[schema_id] = schema
-                    except Exception:
-                        # エラーが発生した場合はスキップ
+                            self.logger.debug(f"Added additional schema to store: {schema_id}")
+                    except Exception as e:
+                        self.logger.debug(f"Failed to load additional schema {schema_file}: {e}")
                         continue
+            else:
+                self.logger.debug(f"Additional schema directory does not exist: {schema_dir}")
     
     def __str__(self) -> str:
         """
