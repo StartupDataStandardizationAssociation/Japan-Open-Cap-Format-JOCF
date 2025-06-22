@@ -68,9 +68,7 @@ class SchemaLoader:
         for schema_file in files_dir.glob("*.schema.json"):
             try:
                 schema = self._load_schema_file(schema_file)
-                file_type = self._extract_file_type(schema)
-                if file_type:
-                    self.file_type_map[file_type] = schema
+                self._register_file_schema(schema)
             except Exception:
                 # エラーが発生した場合はスキップ（後で適切なエラーハンドリングを追加）
                 continue
@@ -90,9 +88,7 @@ class SchemaLoader:
         for schema_file in objects_dir.rglob("*.schema.json"):
             try:
                 schema = self._load_schema_file(schema_file)
-                object_type = self._extract_object_type(schema)
-                if object_type:
-                    self.object_type_map[object_type] = schema
+                self._register_object_schema(schema)
             except Exception:
                 # エラーが発生した場合はスキップ（後で適切なエラーハンドリングを追加）
                 continue
@@ -142,7 +138,12 @@ class SchemaLoader:
         Returns:
             Optional[Dict[str, Any]]: 対応するスキーマ。見つからない場合はNone
         """
-        raise NotImplementedError("SchemaLoader.get_schema_by_id() is not implemented yet")
+        if schema_id is None:
+            return None
+        
+        # RefResolverのストアから検索（全スキーマが含まれている）
+        resolver = self.get_ref_resolver()
+        return resolver.store.get(schema_id)
     
     def get_file_types(self) -> List[str]:
         """
@@ -151,7 +152,7 @@ class SchemaLoader:
         Returns:
             List[str]: file_typeのリスト
         """
-        raise NotImplementedError("SchemaLoader.get_file_types() is not implemented yet")
+        return list(self.file_type_map.keys())
     
     def get_object_types(self) -> List[str]:
         """
@@ -160,7 +161,7 @@ class SchemaLoader:
         Returns:
             List[str]: object_typeのリスト
         """
-        raise NotImplementedError("SchemaLoader.get_object_types() is not implemented yet")
+        return list(self.object_type_map.keys())
     
     def get_schema_info(self, file_type: Optional[str] = None, object_type: Optional[str] = None) -> Dict[str, Any]:
         """
@@ -173,7 +174,46 @@ class SchemaLoader:
         Returns:
             Dict[str, Any]: スキーマの詳細情報
         """
-        raise NotImplementedError("SchemaLoader.get_schema_info() is not implemented yet")
+        if file_type is not None:
+            if not file_type.strip():  # 空文字列または空白のみの場合
+                return {"error": "File type cannot be empty"}
+            
+            schema = self.get_file_schema(file_type)
+            if schema:
+                return {
+                    "file_type": file_type,
+                    "schema": schema,
+                    "schema_id": schema.get("$id"),
+                    "title": schema.get("title"),
+                    "description": schema.get("description")
+                }
+            else:
+                return {"error": f"File type '{file_type}' not found"}
+        
+        if object_type is not None:
+            if not object_type.strip():  # 空文字列または空白のみの場合
+                return {"error": "Object type cannot be empty"}
+            
+            schema = self.get_object_schema(object_type)
+            if schema:
+                return {
+                    "object_type": object_type,
+                    "schema": schema,
+                    "schema_id": schema.get("$id"),
+                    "title": schema.get("title"),
+                    "description": schema.get("description")
+                }
+            else:
+                return {"error": f"Object type '{object_type}' not found"}
+        
+        # パラメータなしの場合は全体のサマリー
+        return {
+            "total_file_schemas": len(self.file_type_map),
+            "total_object_schemas": len(self.object_type_map),
+            "file_types": list(self.file_type_map.keys()),
+            "object_types": list(self.object_type_map.keys()),
+            "schema_root_path": str(self.schema_root_path)
+        }
     
     def preload_schemas(self, schema_paths: List[str]) -> None:
         """
@@ -182,13 +222,25 @@ class SchemaLoader:
         Args:
             schema_paths (List[str]): 読み込むスキーマファイルのパスリスト
         """
-        raise NotImplementedError("SchemaLoader.preload_schemas() is not implemented yet")
+        # 現在の実装では、load_all_schemas()ですべてをロードするため、
+        # 特定のスキーマのみをプリロードする機能は将来の実装用のプレースホルダー
+        for schema_path in schema_paths:
+            full_path = self.schema_root_path / schema_path
+            if full_path.exists():
+                try:
+                    schema = self._load_schema_file(full_path)
+                    # 適切なマップに追加（register メソッドを使用）
+                    self._register_file_schema(schema)
+                    self._register_object_schema(schema)
+                except Exception:
+                    # エラーが発生した場合はスキップ
+                    continue
     
     def clear_cache(self) -> None:
         """
         スキーマキャッシュをクリア
         """
-        raise NotImplementedError("SchemaLoader.clear_cache() is not implemented yet")
+        self.ref_resolver = None
     
     def _load_schema_file(self, schema_path: Path) -> Dict[str, Any]:
         """
@@ -206,25 +258,27 @@ class SchemaLoader:
         with open(schema_path, 'r', encoding='utf-8') as f:
             return json.load(f)
     
-    def _register_file_schema(self, schema: Dict[str, Any], schema_path: Path) -> None:
+    def _register_file_schema(self, schema: Dict[str, Any]) -> None:
         """
         ファイルスキーマを登録する（内部メソッド）
         
         Args:
             schema (Dict[str, Any]): 登録するスキーマ
-            schema_path (Path): スキーマファイルのパス
         """
-        raise NotImplementedError("SchemaLoader._register_file_schema() is not implemented yet")
+        file_type = self._extract_file_type(schema)
+        if file_type:
+            self.file_type_map[file_type] = schema
     
-    def _register_object_schema(self, schema: Dict[str, Any], schema_path: Path) -> None:
+    def _register_object_schema(self, schema: Dict[str, Any]) -> None:
         """
         オブジェクトスキーマを登録する（内部メソッド）
         
         Args:
             schema (Dict[str, Any]): 登録するスキーマ
-            schema_path (Path): スキーマファイルのパス
         """
-        raise NotImplementedError("SchemaLoader._register_object_schema() is not implemented yet")
+        object_type = self._extract_object_type(schema)
+        if object_type:
+            self.object_type_map[object_type] = schema
     
     def _build_ref_resolver(self) -> RefResolver:
         """
@@ -344,7 +398,7 @@ class SchemaLoader:
         Returns:
             str: スキーマローダーの文字列表現
         """
-        raise NotImplementedError("SchemaLoader.__str__() is not implemented yet")
+        return f"SchemaLoader(files={len(self.file_type_map)}, objects={len(self.object_type_map)}, root={self.schema_root_path})"
     
     def __repr__(self) -> str:
         """
@@ -353,4 +407,4 @@ class SchemaLoader:
         Returns:
             str: デバッグ用の文字列表現
         """
-        raise NotImplementedError("SchemaLoader.__repr__() is not implemented yet")
+        return f"SchemaLoader(config_manager={self.config_manager!r}, schema_root_path={self.schema_root_path!r})"
