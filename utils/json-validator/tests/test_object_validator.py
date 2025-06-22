@@ -17,9 +17,9 @@ import jsonschema
 from jsonschema import ValidationError, RefResolver
 
 # テスト対象のクラス（実装予定）
-# from validator.object_validator import ObjectValidator
-# from validator.schema_loader import SchemaLoader
-# from validator.exceptions import ObjectValidationError
+from validator.object_validator import ObjectValidator
+from validator.schema_loader import SchemaLoader
+from validator.exceptions import ObjectValidationError
 
 
 class ValidationResult:
@@ -303,7 +303,7 @@ class TestObjectValidator(unittest.TestCase):
     def setUp(self):
         """テスト前の準備"""
         self.mock_schema_loader = Mock()
-        self.object_validator = MockObjectValidator(self.mock_schema_loader)
+        self.object_validator = ObjectValidator(self.mock_schema_loader)
         
         # テスト用のスキーマデータ
         self.stock_issuance_schema = {
@@ -1254,7 +1254,7 @@ class TestObjectValidator(unittest.TestCase):
         str_repr = str(self.object_validator)
         
         self.assertIsInstance(str_repr, str)
-        self.assertIn("MockObjectValidator", str_repr)
+        self.assertIn("ObjectValidator", str_repr)
         self.assertIn("strict_mode", str_repr)
     
     def test_repr_representation(self):
@@ -1262,7 +1262,7 @@ class TestObjectValidator(unittest.TestCase):
         repr_str = repr(self.object_validator)
         
         self.assertIsInstance(repr_str, str)
-        self.assertIn("MockObjectValidator", repr_str)
+        self.assertIn("ObjectValidator", repr_str)
         self.assertIn("schema_loader", repr_str)
         self.assertIn("strict_mode", repr_str)
 

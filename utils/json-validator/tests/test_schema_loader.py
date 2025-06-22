@@ -391,6 +391,41 @@ class TestSchemaLoader(unittest.TestCase):
         self.assertIsNotNone(schema)
         self.assertEqual(schema["file_type"], "TEST_FILE_50")
 
+    def test_has_object_schema_existing_type(self):
+        """has_object_schema() - 存在するオブジェクトタイプの場合"""
+        # テスト用スキーマを設定
+        test_object_type = "TEST_OBJECT"
+        self.schema_loader.object_type_map[test_object_type] = {
+            "$id": "https://jocf.startupstandard.org/jocf/main/schema/objects/TestObject.schema.json",
+            "type": "object",
+            "properties": {
+                "object_type": {"const": test_object_type}
+            }
+        }
+        
+        # 検証
+        result = self.schema_loader.has_object_schema(test_object_type)
+        self.assertTrue(result, "存在するオブジェクトタイプに対してTrueを返すべき")
+
+    def test_has_object_schema_non_existing_type(self):
+        """has_object_schema() - 存在しないオブジェクトタイプの場合"""
+        non_existing_type = "NON_EXISTING_OBJECT_TYPE"
+        
+        # 検証
+        result = self.schema_loader.has_object_schema(non_existing_type)
+        self.assertFalse(result, "存在しないオブジェクトタイプに対してFalseを返すべき")
+
+    def test_has_object_schema_empty_string(self):
+        """has_object_schema() - 空文字列の場合"""
+        result = self.schema_loader.has_object_schema("")
+        self.assertFalse(result, "空文字列に対してFalseを返すべき")
+
+    def test_has_object_schema_none_value(self):
+        """has_object_schema() - None値の場合"""
+        # None値は通常発生しないが、実装上は False を返す
+        result = self.schema_loader.has_object_schema(None)
+        self.assertFalse(result, "None値に対してFalseを返すべき")
+
 
 class TestSchemaLoaderGetSchemaById(unittest.TestCase):
     """get_schema_by_id()メソッドのTDDテスト"""

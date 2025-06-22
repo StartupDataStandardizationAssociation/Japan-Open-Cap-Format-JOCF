@@ -9,7 +9,7 @@ JSONスキーマファイルの読み込み、インデックス作成、$ref解
 import json
 import logging
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, cast
 from jsonschema import RefResolver
 from .config_manager import ConfigManager
 
@@ -32,8 +32,8 @@ class SchemaLoader:
         self.logger = logging.getLogger('json_validator.schema_loader')
         self.config_manager = config_manager
         self.schema_root_path = config_manager.get_schema_root_path()
-        self.file_type_map = {}
-        self.object_type_map = {}
+        self.file_type_map: Dict[str, Dict[str, Any]] = {}
+        self.object_type_map: Dict[str, Dict[str, Any]] = {}
         self.ref_resolver = None
         
         self.logger.debug(f"SchemaLoader initialized with root path: {self.schema_root_path}")
@@ -151,8 +151,11 @@ class SchemaLoader:
         """
         if self.ref_resolver is None:
             self.logger.debug("Building RefResolver")
-            self.ref_resolver = self._build_ref_resolver()
+            new_resolver = self._build_ref_resolver()
+            self.refresolver = new_resolver
             self.logger.debug("RefResolver built successfully")
+        # この時点でself.ref_resolverは確実にRefResolverインスタンス
+        assert self.ref_resolver is not None
         return self.ref_resolver
     
     def get_schema_by_id(self, schema_id: str) -> Optional[Dict[str, Any]]:
@@ -170,7 +173,12 @@ class SchemaLoader:
         
         # RefResolverのストアから検索（全スキーマが含まれている）
         resolver = self.get_ref_resolver()
-        return resolver.store.get(schema_id)
+        result = resolver.store.get(schema_id)
+        # resolver.storeの値はDict[str, Any]型のスキーマか、存在しない場合はNone
+        if isinstance(result, dict):
+            return result
+        # Dict[str, Any]型でない場合はNoneを返す
+        return None
     
     def get_file_types(self) -> List[str]:
         """
@@ -189,6 +197,18 @@ class SchemaLoader:
             List[str]: object_typeのリスト
         """
         return list(self.object_type_map.keys())
+    
+    def has_object_schema(self, object_type: str) -> bool:
+        """
+        指定されたobject_typeのスキーマが存在するかを確認
+        
+        Args:
+            object_type (str): オブジェクトタイプ
+            
+        Returns:
+            bool: スキーマが存在する場合True
+        """
+        return object_type in self.object_type_map
     
     def get_schema_info(self, file_type: Optional[str] = None, object_type: Optional[str] = None) -> Dict[str, Any]:
         """
@@ -286,7 +306,7 @@ class SchemaLoader:
         with open(schema_path, 'r', encoding='utf-8') as f:
             schema = json.load(f)
         self.logger.debug(f"Successfully parsed JSON from: {schema_path}")
-        return schema
+        return cast(Dict[str, Any], schema)
     
     def _register_file_schema(self, schema: Dict[str, Any]) -> None:
         """
@@ -351,7 +371,7 @@ class SchemaLoader:
         
         # RefResolverを作成
         base_uri = "https://jocf.startupstandard.org/jocf/main/"
-        resolver = RefResolver(base_uri, None, store=store)
+        resolver = RefResolver(base_uri, {}, store=store)
         
         self.logger.debug(f"RefResolver created with {len(store)} schemas in store (files: {file_schema_count}, objects: {object_schema_count})")
         return resolver
@@ -366,15 +386,20 @@ class SchemaLoader:
         Returns:
             Optional[str]: file_type。見つからない場合はNone
         """
-        # schema直下のfile_typeをチェック
+        # schema直下のfile_typeのconst値をチェック
         if "file_type" in schema:
-            return schema["file_type"]
-        
+            file_type_prop = schema["file_type"]
+            if "const" in file_type_prop:
+                # const値が存在する場合はそれを返す
+                return file_type_prop["const"] if isinstance(file_type_prop["const"], str) else None
+            return None
+
         # properties内のfile_typeのconst値をチェック
         properties = schema.get("properties", {})
         file_type_prop = properties.get("file_type", {})
-        if "const" in file_type_prop:
-            return file_type_prop["const"]
+        if "const" in file_type_prop:       
+            # const値が存在する場合はそれを返す
+                return file_type_prop["const"] if isinstance(file_type_prop["const"], str) else None
         
         return None
     
@@ -390,13 +415,18 @@ class SchemaLoader:
         """
         # schema直下のobject_typeをチェック
         if "object_type" in schema:
-            return schema["object_type"]
+            object_type_prop = schema["object_type"]
+            if "const" in object_type_prop:
+                # const値が存在する場合はそれを返す
+                return object_type_prop["const"] if isinstance(object_type_prop["const"], str) else None
+            return None
         
         # properties内のobject_typeのconst値をチェック
         properties = schema.get("properties", {})
         object_type_prop = properties.get("object_type", {})
         if "const" in object_type_prop:
-            return object_type_prop["const"]
+            # const値が存在する場合はそれを返す
+            return object_type_prop["const"] if isinstance(object_type_prop["const"], str) else None
         
         return None
     

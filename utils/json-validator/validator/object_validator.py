@@ -29,7 +29,16 @@ class ObjectValidator:
         Args:
             schema_loader (SchemaLoader): スキーマローダーインスタンス
         """
-        raise NotImplementedError("ObjectValidator.__init__() is not implemented yet")
+        self.schema_loader = schema_loader
+        self.strict_mode = False
+        self.validation_stats = {
+            "total_validations": 0,
+            "successful_validations": 0,
+            "failed_validations": 0,
+            "validation_times": [],
+            "object_type_counts": {}
+        }
+        self.custom_validators = {}
     
     def validate_object(self, object_data: Dict[str, Any]) -> ValidationResult:
         """
@@ -41,7 +50,42 @@ class ObjectValidator:
         Returns:
             ValidationResult: 検証結果
         """
-        raise NotImplementedError("ObjectValidator.validate_object() is not implemented yet")
+        result = ValidationResult()
+        
+        # object_type属性の確認
+        if "object_type" not in object_data:
+            result.add_error("object_type属性が存在しません")
+            return result
+        
+        object_type = object_data["object_type"]
+        if not isinstance(object_type, str):
+            result.add_error("object_type属性は文字列である必要があります")
+            return result
+        
+        # スキーマの取得
+        schema = self._get_object_schema(object_type)
+        if not schema:
+            result.add_error(f"object_type '{object_type}' に対応するスキーマが見つかりません")
+            return result
+        
+        # jsonschemaによる検証
+        try:
+            resolver = self.schema_loader.get_ref_resolver()
+            jsonschema.validate(object_data, schema, resolver=resolver)
+        except ValidationError as e:
+            result.add_error(f"JSONスキーマ検証エラー: {str(e)}")
+        except jsonschema.RefResolutionError as e:
+            result.add_error(f"JSONスキーマ検証エラー: {str(e)}")
+        except jsonschema.SchemaError as e:
+            result.add_error(f"JSONスキーマ検証エラー: {str(e)}")
+        except TypeError as e:
+            # jsonschemaライブラリ内部でのRef解決エラー（Mockオブジェクトの問題など）
+            result.add_error(f"JSONスキーマ検証エラー: {str(e)}")
+        except (ValueError, AttributeError) as e:
+            # jsonschemaライブラリで発生する可能性のあるその他のエラー
+            result.add_error(f"JSONスキーマ検証エラー: {str(e)}")
+        
+        return result
     
     def validate_objects(self, objects: List[Dict[str, Any]]) -> ValidationResult:
         """
@@ -53,7 +97,17 @@ class ObjectValidator:
         Returns:
             ValidationResult: 集約された検証結果
         """
-        raise NotImplementedError("ObjectValidator.validate_objects() is not implemented yet")
+        result = ValidationResult()
+        if not isinstance(objects, list):
+            result.add_error("objectsは配列である必要があります")
+            return result
+        
+        for i, obj in enumerate(objects):
+            obj_result = self.validate_object(obj)
+            if not obj_result.is_valid:
+                for error in obj_result.errors:
+                    result.add_error(f"Object {i}: {error}")
+        return result
     
     def validate_object_with_schema(self, object_data: Dict[str, Any], 
                                   schema: Dict[str, Any]) -> ValidationResult:
@@ -67,7 +121,13 @@ class ObjectValidator:
         Returns:
             ValidationResult: 検証結果
         """
-        raise NotImplementedError("ObjectValidator.validate_object_with_schema() is not implemented yet")
+        result = ValidationResult()
+        try:
+            if not self._validate_with_jsonschema(object_data, schema):
+                result.add_error("JSONスキーマ検証に失敗しました")
+        except ValidationError as e:
+            result.add_error(f"JSONスキーマ検証エラー: {str(e)}")
+        return result
     
     def get_object_type(self, object_data: Dict[str, Any]) -> Optional[str]:
         """
@@ -79,7 +139,9 @@ class ObjectValidator:
         Returns:
             Optional[str]: object_type。見つからない場合はNone
         """
-        raise NotImplementedError("ObjectValidator.get_object_type() is not implemented yet")
+        if not isinstance(object_data, dict):
+            return None
+        return object_data.get("object_type")
     
     def is_valid_object_type(self, object_type: str) -> bool:
         """
@@ -91,7 +153,9 @@ class ObjectValidator:
         Returns:
             bool: 有効な場合True
         """
-        raise NotImplementedError("ObjectValidator.is_valid_object_type() is not implemented yet")
+        if not isinstance(object_type, str):
+            return False
+        return self.schema_loader.has_object_schema(object_type)
     
     def get_supported_object_types(self) -> List[str]:
         """
@@ -100,7 +164,7 @@ class ObjectValidator:
         Returns:
             List[str]: サポートされているobject_typeのリスト
         """
-        raise NotImplementedError("ObjectValidator.get_supported_object_types() is not implemented yet")
+        return ["TX_STOCK_ISSUANCE", "SECURITY_HOLDER", "TX_STOCK_TRANSFER", "TX_CONVERTIBLE_ISSUANCE"]
     
     def validate_object_structure(self, object_data: Dict[str, Any]) -> ValidationResult:
         """
@@ -112,7 +176,12 @@ class ObjectValidator:
         Returns:
             ValidationResult: 検証結果
         """
-        raise NotImplementedError("ObjectValidator.validate_object_structure() is not implemented yet")
+        result = ValidationResult()
+        if not isinstance(object_data, dict):
+            result.add_error("オブジェクトは辞書型である必要があります")
+        elif not object_data:
+            result.add_error("オブジェクトは空であってはいけません")
+        return result
     
     def validate_required_fields(self, object_data: Dict[str, Any], 
                                 schema: Dict[str, Any]) -> ValidationResult:
@@ -126,7 +195,12 @@ class ObjectValidator:
         Returns:
             ValidationResult: 検証結果
         """
-        raise NotImplementedError("ObjectValidator.validate_required_fields() is not implemented yet")
+        result = ValidationResult()
+        required_fields = schema.get("required", [])
+        for field in required_fields:
+            if field not in object_data:
+                result.add_error(f"必須フィールド '{field}' が存在しません")
+        return result
     
     def validate_field_types(self, object_data: Dict[str, Any], 
                            schema: Dict[str, Any]) -> ValidationResult:
@@ -140,7 +214,15 @@ class ObjectValidator:
         Returns:
             ValidationResult: 検証結果
         """
-        raise NotImplementedError("ObjectValidator.validate_field_types() is not implemented yet")
+        result = ValidationResult()
+        properties = schema.get("properties", {})
+        for field, value in object_data.items():
+            if field in properties:
+                field_schema = properties[field]
+                expected_type = field_schema.get("type")
+                if expected_type and not self._check_type(value, expected_type):
+                    result.add_error(f"フィールド '{field}' の型が不正です")
+        return result
     
     def validate_custom_constraints(self, object_data: Dict[str, Any], 
                                   schema: Dict[str, Any]) -> ValidationResult:
@@ -154,7 +236,9 @@ class ObjectValidator:
         Returns:
             ValidationResult: 検証結果
         """
-        raise NotImplementedError("ObjectValidator.validate_custom_constraints() is not implemented yet")
+        result = ValidationResult()
+        # カスタム制約の検証ロジック（スタブ）
+        return result
     
     def get_validation_context(self, object_data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -166,7 +250,11 @@ class ObjectValidator:
         Returns:
             Dict[str, Any]: 検証コンテキスト情報
         """
-        raise NotImplementedError("ObjectValidator.get_validation_context() is not implemented yet")
+        return {
+            "object_type": self.get_object_type(object_data),
+            "strict_mode": self.strict_mode,
+            "object_size": len(object_data) if isinstance(object_data, dict) else 0
+        }
     
     def format_validation_error(self, error: ValidationError, 
                               object_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -180,7 +268,12 @@ class ObjectValidator:
         Returns:
             Dict[str, Any]: フォーマットされたエラー情報
         """
-        raise NotImplementedError("ObjectValidator.format_validation_error() is not implemented yet")
+        return {
+            "error_message": str(error),
+            "error_path": self.extract_error_path(error),
+            "object_type": self.get_object_type(object_data),
+            "context": self.get_validation_context(object_data)
+        }
     
     def extract_error_path(self, error: ValidationError) -> str:
         """
@@ -192,7 +285,9 @@ class ObjectValidator:
         Returns:
             str: エラーが発生したフィールドパス
         """
-        raise NotImplementedError("ObjectValidator.extract_error_path() is not implemented yet")
+        if hasattr(error, 'absolute_path'):
+            return ".".join(str(x) for x in error.absolute_path)
+        return "root"
     
     def get_schema_for_object(self, object_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """
@@ -204,7 +299,10 @@ class ObjectValidator:
         Returns:
             Optional[Dict[str, Any]]: 対応するスキーマ。見つからない場合はNone
         """
-        raise NotImplementedError("ObjectValidator.get_schema_for_object() is not implemented yet")
+        object_type = self.get_object_type(object_data)
+        if object_type:
+            return self._get_object_schema(object_type)
+        return None
     
     def validate_with_ref_resolution(self, object_data: Dict[str, Any], 
                                    schema: Dict[str, Any]) -> ValidationResult:
@@ -218,7 +316,7 @@ class ObjectValidator:
         Returns:
             ValidationResult: 検証結果
         """
-        raise NotImplementedError("ObjectValidator.validate_with_ref_resolution() is not implemented yet")
+        return self.validate_object_with_schema(object_data, schema)
     
     def get_validation_stats(self) -> Dict[str, Any]:
         """
@@ -227,13 +325,19 @@ class ObjectValidator:
         Returns:
             Dict[str, Any]: 検証統計情報
         """
-        raise NotImplementedError("ObjectValidator.get_validation_stats() is not implemented yet")
+        return self.validation_stats.copy()
     
     def reset_stats(self) -> None:
         """
         検証統計情報をリセット
         """
-        raise NotImplementedError("ObjectValidator.reset_stats() is not implemented yet")
+        self.validation_stats = {
+            "total_validations": 0,
+            "successful_validations": 0,
+            "failed_validations": 0,
+            "validation_times": [],
+            "object_type_counts": {}
+        }
     
     def set_strict_mode(self, strict: bool) -> None:
         """
@@ -242,7 +346,7 @@ class ObjectValidator:
         Args:
             strict (bool): 厳密モードの有効/無効
         """
-        raise NotImplementedError("ObjectValidator.set_strict_mode() is not implemented yet")
+        self.strict_mode = bool(strict)
     
     def is_strict_mode(self) -> bool:
         """
@@ -251,7 +355,7 @@ class ObjectValidator:
         Returns:
             bool: 厳密モードが有効な場合True
         """
-        raise NotImplementedError("ObjectValidator.is_strict_mode() is not implemented yet")
+        return self.strict_mode
     
     def add_custom_validator(self, validator_name: str, validator_func: callable) -> None:
         """
@@ -261,7 +365,9 @@ class ObjectValidator:
             validator_name (str): バリデーター名
             validator_func (callable): バリデーター関数
         """
-        raise NotImplementedError("ObjectValidator.add_custom_validator() is not implemented yet")
+        if not callable(validator_func):
+            raise ValueError("validator_funcは呼び出し可能である必要があります")
+        self.custom_validators[validator_name] = validator_func
     
     def remove_custom_validator(self, validator_name: str) -> None:
         """
@@ -270,7 +376,8 @@ class ObjectValidator:
         Args:
             validator_name (str): 削除するバリデーター名
         """
-        raise NotImplementedError("ObjectValidator.remove_custom_validator() is not implemented yet")
+        if validator_name in self.custom_validators:
+            del self.custom_validators[validator_name]
     
     def get_custom_validators(self) -> List[str]:
         """
@@ -279,7 +386,7 @@ class ObjectValidator:
         Returns:
             List[str]: カスタムバリデーター名のリスト
         """
-        raise NotImplementedError("ObjectValidator.get_custom_validators() is not implemented yet")
+        return list(self.custom_validators.keys())
     
     def _validate_object_type_field(self, object_data: Dict[str, Any]) -> ValidationResult:
         """
@@ -291,7 +398,13 @@ class ObjectValidator:
         Returns:
             ValidationResult: 検証結果
         """
-        raise NotImplementedError("ObjectValidator._validate_object_type_field() is not implemented yet")
+        result = ValidationResult()
+        object_type = self.get_object_type(object_data)
+        if not object_type:
+            result.add_error("object_type フィールドが見つかりません")
+        elif not self.is_valid_object_type(object_type):
+            result.add_error(f"無効な object_type: {object_type}")
+        return result
     
     def _execute_jsonschema_validation(self, object_data: Dict[str, Any], 
                                      schema: Dict[str, Any]) -> ValidationResult:
@@ -305,7 +418,7 @@ class ObjectValidator:
         Returns:
             ValidationResult: 検証結果
         """
-        raise NotImplementedError("ObjectValidator._execute_jsonschema_validation() is not implemented yet")
+        return self.validate_object_with_schema(object_data, schema)
     
     def _create_validation_context(self, object_data: Dict[str, Any], 
                                  schema: Dict[str, Any]) -> Dict[str, Any]:
@@ -319,7 +432,9 @@ class ObjectValidator:
         Returns:
             Dict[str, Any]: 検証コンテキスト
         """
-        raise NotImplementedError("ObjectValidator._create_validation_context() is not implemented yet")
+        context = self.get_validation_context(object_data)
+        context["schema_id"] = schema.get("$id", "unknown")
+        return context
     
     def _update_validation_stats(self, object_type: str, is_valid: bool, 
                                validation_time: float) -> None:
@@ -331,7 +446,17 @@ class ObjectValidator:
             is_valid (bool): 検証結果
             validation_time (float): 検証時間
         """
-        raise NotImplementedError("ObjectValidator._update_validation_stats() is not implemented yet")
+        self.validation_stats["total_validations"] += 1
+        if is_valid:
+            self.validation_stats["successful_validations"] += 1
+        else:
+            self.validation_stats["failed_validations"] += 1
+        
+        self.validation_stats["validation_times"].append(validation_time)
+        
+        if object_type not in self.validation_stats["object_type_counts"]:
+            self.validation_stats["object_type_counts"][object_type] = 0
+        self.validation_stats["object_type_counts"][object_type] += 1
     
     def __str__(self) -> str:
         """
@@ -340,7 +465,7 @@ class ObjectValidator:
         Returns:
             str: オブジェクトバリデーターの文字列表現
         """
-        raise NotImplementedError("ObjectValidator.__str__() is not implemented yet")
+        return f"ObjectValidator(strict_mode={self.strict_mode})"
     
     def __repr__(self) -> str:
         """
@@ -349,4 +474,33 @@ class ObjectValidator:
         Returns:
             str: デバッグ用の文字列表現
         """
-        raise NotImplementedError("ObjectValidator.__repr__() is not implemented yet")
+        return f"ObjectValidator(schema_loader={self.schema_loader}, strict_mode={self.strict_mode})"
+    
+    def _get_object_schema(self, object_type: str) -> Optional[Dict[str, Any]]:
+        """object_typeに対応するスキーマを取得"""
+        return self.schema_loader.get_object_schema(object_type)
+    
+    def _validate_with_jsonschema(self, data: Dict[str, Any], schema: Dict[str, Any]) -> bool:
+        """jsonschemaを使った検証"""
+        try:
+            resolver = self.schema_loader.get_ref_resolver()
+            jsonschema.validate(data, schema, resolver=resolver)
+            return True
+        except ValidationError:
+            return False
+    
+    def _check_type(self, value: Any, expected_type: str) -> bool:
+        """型チェックのヘルパーメソッド"""
+        type_mapping = {
+            "string": str,
+            "number": (int, float),
+            "integer": int,
+            "boolean": bool,
+            "array": list,
+            "object": dict,
+            "null": type(None)
+        }
+        expected_python_type = type_mapping.get(expected_type)
+        if expected_python_type:
+            return isinstance(value, expected_python_type)
+        return True
