@@ -12,7 +12,7 @@ import logging
 import os
 import re
 from pathlib import Path
-from typing import Dict, Any, Optional, Union, List
+from typing import Dict, Any, Optional, Union, List, Callable
 from .exceptions import ConfigError
 
 
@@ -28,6 +28,12 @@ class ConfigManager:
     - 絶対パスはそのまま使用
     - パスの存在確認は設定読み込み時に実行
     """
+    
+    def __new__(cls, config_path: Optional[str] = None):
+        instance = super(ConfigManager, cls).__new__(cls)
+        # logger初期化をここで確実に行う
+        instance.logger = logging.getLogger('json_validator.config_manager')
+        return instance
     
     def __init__(self, config_path: Optional[str] = None):
         """
@@ -60,7 +66,7 @@ class ConfigManager:
             raise ConfigError(f"Config file not found: {self._config_path}")
         
         # 設定辞書の初期化
-        self._config = {}
+        self._config: Dict[str, Any] = {}
         
         # 設定の読み込み
         try:
@@ -242,7 +248,8 @@ class ConfigManager:
         Returns:
             Dict[str, Any]: スキーマ設定
         """
-        return self.get("schema", {})
+        result = self.get("schema", {})
+        return result if isinstance(result, dict) else {}
     
     def get_validation_config(self) -> Dict[str, Any]:
         """
@@ -251,7 +258,8 @@ class ConfigManager:
         Returns:
             Dict[str, Any]: バリデーション設定
         """
-        return self.get("validation", {})
+        result = self.get("validation", {})
+        return result if isinstance(result, dict) else {}
     
     def get_output_config(self) -> Dict[str, Any]:
         """
@@ -260,7 +268,8 @@ class ConfigManager:
         Returns:
             Dict[str, Any]: 出力設定
         """
-        return self.get("output", {})
+        result = self.get("output", {})
+        return result if isinstance(result, dict) else {}
     
     def get_testing_config(self) -> Dict[str, Any]:
         """
@@ -269,7 +278,8 @@ class ConfigManager:
         Returns:
             Dict[str, Any]: テスト設定
         """
-        return self.get("testing", {})
+        result = self.get("testing", {})
+        return result if isinstance(result, dict) else {}
     
     def get_schema_root_path(self, validate_exists: bool = False) -> Path:
         """
@@ -300,7 +310,8 @@ class ConfigManager:
         Returns:
             bool: キャッシュが有効な場合True
         """
-        return self.get("schema.cache_enabled", False)
+        result = self.get("schema.cache_enabled", False)
+        return bool(result)
     
     def get_samples_dir(self, validate_exists: bool = False) -> Path:
         """
@@ -330,7 +341,8 @@ class ConfigManager:
         Returns:
             str: ログレベル
         """
-        return self.get("output.log_level", "INFO")
+        result = self.get("output.log_level", "INFO")
+        return str(result)
     
     def get_project_root(self) -> Path:
         """
@@ -348,7 +360,8 @@ class ConfigManager:
         Returns:
             bool: 厳密モードが有効な場合True
         """
-        return self.get("validation.strict_mode", True)
+        result = self.get("validation.strict_mode", True)
+        return bool(result)
     
     def get_custom_schema_paths(self) -> List[Path]:
         """
@@ -497,7 +510,7 @@ class ConfigManager:
         """
         return self._config_path
     
-    def watch_config_file(self, callback: callable) -> None:
+    def watch_config_file(self, callback: Callable) -> None:
         """
         設定ファイルの変更を監視する
         
@@ -649,7 +662,12 @@ def load_config_from_dict(config_dict: Dict[str, Any]) -> ConfigManager:
     cm._config = config_dict.copy()
     cm._config_path = Path("<from_dict>")
     
+    # loggerは既に__new__で初期化済み
+    
     # プロジェクトルートの検出
     cm._project_root = cm._detect_project_root()
-    
+
+    # cmがConfigManagerのインスタンスであることを確認
+    if not isinstance(cm, ConfigManager):
+        raise TypeError("Expected an instance of ConfigManager")   
     return cm
