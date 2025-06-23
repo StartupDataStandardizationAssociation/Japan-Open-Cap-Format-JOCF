@@ -7,7 +7,7 @@
 """
 
 import jsonschema
-from typing import Dict, Any, Optional, List, Union
+from typing import Dict, Any, Optional, List, Union, Callable, Type
 from jsonschema import ValidationError, RefResolver
 from .schema_loader import SchemaLoader
 from .validation_result import ValidationResult
@@ -31,14 +31,14 @@ class ObjectValidator:
         """
         self.schema_loader = schema_loader
         self.strict_mode = False
-        self.validation_stats = {
+        self.validation_stats: Dict[str, Any] = {
             "total_validations": 0,
             "successful_validations": 0,
             "failed_validations": 0,
             "validation_times": [],
             "object_type_counts": {}
         }
-        self.custom_validators = {}
+        self.custom_validators: Dict[str, Callable[[Any], bool]] = {}
     
     def validate_object(self, object_data: Dict[str, Any]) -> ValidationResult:
         """
@@ -357,7 +357,7 @@ class ObjectValidator:
         """
         return self.strict_mode
     
-    def add_custom_validator(self, validator_name: str, validator_func: callable) -> None:
+    def add_custom_validator(self, validator_name: str, validator_func: Callable[[Any], bool]) -> None:
         """
         カスタムバリデーターを追加
         
@@ -446,17 +446,17 @@ class ObjectValidator:
             is_valid (bool): 検証結果
             validation_time (float): 検証時間
         """
-        self.validation_stats["total_validations"] += 1
+        self.validation_stats["total_validations"] = self.validation_stats["total_validations"] + 1
         if is_valid:
-            self.validation_stats["successful_validations"] += 1
+            self.validation_stats["successful_validations"] = self.validation_stats["successful_validations"] + 1
         else:
-            self.validation_stats["failed_validations"] += 1
+            self.validation_stats["failed_validations"] = self.validation_stats["failed_validations"] + 1
         
         self.validation_stats["validation_times"].append(validation_time)
         
         if object_type not in self.validation_stats["object_type_counts"]:
             self.validation_stats["object_type_counts"][object_type] = 0
-        self.validation_stats["object_type_counts"][object_type] += 1
+        self.validation_stats["object_type_counts"][object_type] = self.validation_stats["object_type_counts"][object_type] + 1
     
     def __str__(self) -> str:
         """
@@ -491,7 +491,7 @@ class ObjectValidator:
     
     def _check_type(self, value: Any, expected_type: str) -> bool:
         """型チェックのヘルパーメソッド"""
-        type_mapping = {
+        type_mapping: Dict[str, Union[Type[Any], tuple]] = {
             "string": str,
             "number": (int, float),
             "integer": int,
@@ -501,6 +501,6 @@ class ObjectValidator:
             "null": type(None)
         }
         expected_python_type = type_mapping.get(expected_type)
-        if expected_python_type:
+        if expected_python_type is not None:
             return isinstance(value, expected_python_type)
         return True

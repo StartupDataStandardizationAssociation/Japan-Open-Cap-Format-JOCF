@@ -34,7 +34,7 @@ class SchemaLoader:
         self.schema_root_path = config_manager.get_schema_root_path()
         self.file_type_map: Dict[str, Dict[str, Any]] = {}
         self.object_type_map: Dict[str, Dict[str, Any]] = {}
-        self.ref_resolver = None
+        self.ref_resolver: Optional[RefResolver] = None
         
         self.logger.debug(f"SchemaLoader initialized with root path: {self.schema_root_path}")
     
@@ -151,8 +151,7 @@ class SchemaLoader:
         """
         if self.ref_resolver is None:
             self.logger.debug("Building RefResolver")
-            new_resolver = self._build_ref_resolver()
-            self.ref_resolver = new_resolver
+            self.ref_resolver = self._build_ref_resolver()
             self.logger.debug("RefResolver built successfully")
         # この時点でself.ref_resolverは確実にRefResolverインスタンス
         assert self.ref_resolver is not None
