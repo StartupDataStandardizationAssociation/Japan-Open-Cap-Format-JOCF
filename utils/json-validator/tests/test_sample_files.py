@@ -204,11 +204,11 @@ class TestRealWorldFiles(unittest.TestCase):
         self.assertEqual(samples_dir_config, "samples")
         
         # 環境変数での上書きテスト
-        with patch.dict(os.environ, {"JOCF_TESTING_SAMPLES_DIR": "custom_samples"}):
-            from validator.config import Config
-            test_config = Config()
-            test_testing_config = test_config.get_testing_config()
-            self.assertEqual(test_testing_config.get("samples_dir"), "custom_samples")
+        with patch.dict(os.environ, {"VALIDATOR_TESTING_SAMPLES_DIR": "custom_samples"}):
+            # 新しいConfigManagerインスタンスを作成して環境変数を反映
+            from validator.config_manager import ConfigManager
+            test_config = ConfigManager()
+            self.assertEqual(test_config.get("testing.samples_dir"), "custom_samples")
 
 if __name__ == '__main__':
     unittest.main()

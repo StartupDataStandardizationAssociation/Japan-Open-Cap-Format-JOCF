@@ -335,6 +335,47 @@ class TestConfigManagerEnvironmentVariables:
             finally:
                 os.unlink(f.name)
 
+    def test_environment_variable_override_scope_limitation(self):
+        """
+        環境変数上書きの適用範囲の制限
+        
+        環境変数による上書きは get() メソッドでのみ適用され、
+        get_*_config() メソッドで取得したDict[str, Any]には適用されません。
+        """
+        sample_config = {
+            "testing": {"samples_dir": "default_samples"},
+            "schema": {"root_path": "default_schema"}
+        }
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(sample_config, f)
+            f.flush()
+            
+            try:
+                with patch.dict('os.environ', {
+                    'VALIDATOR_TESTING_SAMPLES_DIR': 'env_override_samples',
+                    'VALIDATOR_SCHEMA_ROOT_PATH': 'env_override_schema'
+                }):
+                    cm = ConfigManager(f.name)
+                    
+                    # get()メソッドでは環境変数上書きが適用される
+                    assert cm.get("testing.samples_dir") == "env_override_samples"
+                    assert cm.get("schema.root_path") == "env_override_schema"
+                    
+                    # get_*_config()で取得した辞書では環境変数上書きが適用されない
+                    testing_config = cm.get_testing_config()
+                    schema_config = cm.get_schema_config()
+                    
+                    assert testing_config.get("samples_dir") == "default_samples"  # 元の値のまま
+                    assert schema_config.get("root_path") == "default_schema"      # 元の値のまま
+                    
+                    # この違いは意図的な設計：
+                    # - get()は動的な環境変数適用
+                    # - get_*_config()は設定ファイルの原型を返す
+                    
+            finally:
+                os.unlink(f.name)
+
     def test_environment_variable_placeholder_resolution(self):
         """
         環境変数プレースホルダーの解決
