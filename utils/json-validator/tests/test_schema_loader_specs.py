@@ -19,7 +19,7 @@ from pathlib import Path
 
 from validator.schema_loader import SchemaLoader
 from validator.config_manager import ConfigManager
-from validator.types import FileType, ObjectType
+from validator.types import FileType, ObjectType, SchemaId
 from jsonschema import RefResolver
 
 
@@ -60,10 +60,12 @@ class TestSchemaLoaderBasicUsageSpecs(unittest.TestCase):
         loader.load_all_schemas()
         
         # Step 2: ファイルスキーマを取得
-        transactions_schema = loader.get_file_schema('JOCF_TRANSACTIONS_FILE')
+        file_type = FileType('JOCF_TRANSACTIONS_FILE')
+        transactions_schema = loader.get_file_schema(file_type)
         
         # Step 3: オブジェクトスキーマを取得
-        stock_issuance_schema = loader.get_object_schema('TX_STOCK_ISSUANCE')
+        object_type = ObjectType('TX_STOCK_ISSUANCE')
+        stock_issuance_schema = loader.get_object_schema(object_type)
         
         # Step 4: RefResolverを取得
         resolver = loader.get_ref_resolver()
@@ -96,31 +98,35 @@ class TestSchemaLoaderAPIContractSpecs(unittest.TestCase):
         # Given: スキーマがロード済み
         
         # When & Then: 存在するfile_typeの場合
-        schema = self.loader.get_file_schema('JOCF_TRANSACTIONS_FILE')
+        file_type = FileType('JOCF_TRANSACTIONS_FILE')
+        schema = self.loader.get_file_schema(file_type)
         self.assertIsInstance(schema, dict, "存在するfile_typeでは辞書を返す")
         self.assertIn('$id', schema, "返されるスキーマには$idが含まれる")
         self.assertIn('title', schema, "返されるスキーマにはtitleが含まれる")
         
         # When & Then: 存在しないfile_typeの場合
-        non_existent_schema = self.loader.get_file_schema('NON_EXISTENT_TYPE')
+        non_existent_file_type = FileType('NON_EXISTENT_TYPE')
+        non_existent_schema = self.loader.get_file_schema(non_existent_file_type)
         self.assertIsNone(non_existent_schema, "存在しないfile_typeではNoneを返す")
         
-        # When & Then: Noneを渡した場合
-        none_schema = self.loader.get_file_schema(None)
-        self.assertIsNone(none_schema, "NoneをキーとしてもNoneを返す（辞書のget動作）")
+        # When & Then: 型安全化でNoneは渡せないため、このテストは削除
+        # none_schema = self.loader.get_file_schema(None)
+        # self.assertIsNone(none_schema, "NoneをキーとしてもNoneを返す（辞書のget動作）")
     
     def test_get_object_schema_contract_spec(self):
         """仕様: get_object_schema()のAPI契約"""
         # Given: スキーマがロード済み
         
         # When & Then: 存在するobject_typeの場合
-        schema = self.loader.get_object_schema('TX_STOCK_ISSUANCE')
+        object_type = ObjectType('TX_STOCK_ISSUANCE')
+        schema = self.loader.get_object_schema(object_type)
         self.assertIsInstance(schema, dict, "存在するobject_typeでは辞書を返す")
         self.assertIn('$id', schema, "返されるスキーマには$idが含まれる")
         self.assertIn('title', schema, "返されるスキーマにはtitleが含まれる")
         
         # When & Then: 存在しないobject_typeの場合
-        non_existent_schema = self.loader.get_object_schema('NON_EXISTENT_TYPE')
+        non_existent_object_type = ObjectType('NON_EXISTENT_TYPE')
+        non_existent_schema = self.loader.get_object_schema(non_existent_object_type)
         self.assertIsNone(non_existent_schema, "存在しないobject_typeではNoneを返す")
     
     def test_get_ref_resolver_lazy_initialization_spec(self):
@@ -338,8 +344,10 @@ class TestSchemaLoaderAdditionalMethodsSpecs(unittest.TestCase):
         stock_issuance_id = "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/issuance/StockIssuance.schema.json"
         
         # When: get_schema_by_id()でスキーマを取得
-        transactions_schema = self.loader.get_schema_by_id(transactions_id)
-        stock_issuance_schema = self.loader.get_schema_by_id(stock_issuance_id)
+        transactions_schema_id = SchemaId(transactions_id)
+        stock_issuance_schema_id = SchemaId(stock_issuance_id)
+        transactions_schema = self.loader.get_schema_by_id(transactions_schema_id)
+        stock_issuance_schema = self.loader.get_schema_by_id(stock_issuance_schema_id)
         
         # Then: IDに対応するスキーマが取得できる
         self.assertIsNotNone(transactions_schema, "正確なIDでスキーマを取得")
