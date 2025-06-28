@@ -209,57 +209,6 @@ class SchemaLoader:
         """
         return object_type in self.object_type_map
     
-    def get_schema_info(self, file_type: Optional[str] = None, object_type: Optional[str] = None) -> Dict[str, Any]:
-        """
-        スキーマの詳細情報を取得
-        
-        Args:
-            file_type (str, optional): ファイルタイプ
-            object_type (str, optional): オブジェクトタイプ
-            
-        Returns:
-            Dict[str, Any]: スキーマの詳細情報
-        """
-        if file_type is not None:
-            if not file_type.strip():  # 空文字列または空白のみの場合
-                return {"error": "File type cannot be empty"}
-            
-            schema = self.get_file_schema(file_type)
-            if schema:
-                return {
-                    "file_type": file_type,
-                    "schema": schema,
-                    "schema_id": schema.get("$id"),
-                    "title": schema.get("title"),
-                    "description": schema.get("description")
-                }
-            else:
-                return {"error": f"File type '{file_type}' not found"}
-        
-        if object_type is not None:
-            if not object_type.strip():  # 空文字列または空白のみの場合
-                return {"error": "Object type cannot be empty"}
-            
-            schema = self.get_object_schema(object_type)
-            if schema:
-                return {
-                    "object_type": object_type,
-                    "schema": schema,
-                    "schema_id": schema.get("$id"),
-                    "title": schema.get("title"),
-                    "description": schema.get("description")
-                }
-            else:
-                return {"error": f"Object type '{object_type}' not found"}
-        
-        # パラメータなしの場合は全体のサマリー
-        return {
-            "total_file_schemas": len(self.file_type_map),
-            "total_object_schemas": len(self.object_type_map),
-            "file_types": list(self.file_type_map.keys()),
-            "object_types": list(self.object_type_map.keys()),
-            "schema_root_path": str(self.schema_root_path)
-        }
     
     def preload_schemas(self, schema_paths: List[str]) -> None:
         """

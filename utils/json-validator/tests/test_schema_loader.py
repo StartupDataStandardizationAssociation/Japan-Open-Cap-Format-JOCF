@@ -12,7 +12,6 @@ SchemaLoaderクラスの単体テスト
 - 追加メソッド: get_schema_by_id(), get_file_types(), get_object_types()
 - 文字列表現: __str__(), __repr__()
 - キャッシュ管理: clear_cache(), preload_schemas()
-- スキーマ情報: get_schema_info()
 """
 
 import unittest
@@ -679,90 +678,6 @@ class TestSchemaLoaderStringRepresentation(unittest.TestCase):
         self.assertEqual(str_result1, str_result2, "複数回呼び出しで同じ結果")
         self.assertEqual(str_result2, str_result3, "複数回呼び出しで同じ結果")
 
-
-class TestSchemaLoaderGetSchemaInfo(unittest.TestCase):
-    """get_schema_info()メソッドのテスト"""
-    
-    def setUp(self):
-        """テスト前の準備"""
-        self.config_manager = ConfigManager()
-        self.loader = SchemaLoader(self.config_manager)
-        self.loader.load_all_schemas()
-    
-    def test_get_schema_info_for_file_type(self):
-        """file_typeを指定してスキーマ情報を取得"""
-        # When: file_typeを指定してget_schema_info()を呼び出し
-        info = self.loader.get_schema_info(file_type="JOCF_TRANSACTIONS_FILE")
-        
-        # Then: 辞書が返される
-        self.assertIsInstance(info, dict, "辞書が返される")
-        self.assertIn("file_type", info, "file_typeが含まれる")
-        self.assertIn("schema", info, "schemaが含まれる")
-        self.assertEqual(info["file_type"], "JOCF_TRANSACTIONS_FILE", "正しいfile_type")
-    
-    def test_get_schema_info_for_object_type(self):
-        """object_typeを指定してスキーマ情報を取得"""
-        # When: object_typeを指定してget_schema_info()を呼び出し
-        info = self.loader.get_schema_info(object_type="TX_STOCK_ISSUANCE")
-        
-        # Then: 辞書が返される
-        self.assertIsInstance(info, dict, "辞書が返される")
-        self.assertIn("object_type", info, "object_typeが含まれる")
-        self.assertIn("schema", info, "schemaが含まれる")
-        self.assertEqual(info["object_type"], "TX_STOCK_ISSUANCE", "正しいobject_type")
-    
-    def test_get_schema_info_with_no_parameters(self):
-        """パラメータなしでスキーマ情報を取得"""
-        # When: パラメータなしでget_schema_info()を呼び出し
-        info = self.loader.get_schema_info()
-        
-        # Then: 全体のサマリー情報が返される
-        self.assertIsInstance(info, dict, "辞書が返される")
-        self.assertIn("total_file_schemas", info, "ファイルスキーマ数が含まれる")
-        self.assertIn("total_object_schemas", info, "オブジェクトスキーマ数が含まれる")
-    
-    def test_get_schema_info_for_non_existent_file_type(self):
-        """異常系: 存在しないfile_typeを指定"""
-        # When: 存在しないfile_typeを指定
-        info = self.loader.get_schema_info(file_type="NON_EXISTENT_FILE_TYPE")
-        
-        # Then: エラー情報が返される
-        self.assertIsInstance(info, dict, "辞書が返される")
-        self.assertIn("error", info, "エラーメッセージが含まれる")
-        self.assertIn("NON_EXISTENT_FILE_TYPE", info["error"], "指定したタイプがエラーメッセージに含まれる")
-    
-    def test_get_schema_info_for_non_existent_object_type(self):
-        """異常系: 存在しないobject_typeを指定"""
-        # When: 存在しないobject_typeを指定
-        info = self.loader.get_schema_info(object_type="NON_EXISTENT_OBJECT_TYPE")
-        
-        # Then: エラー情報が返される
-        self.assertIsInstance(info, dict, "辞書が返される")
-        self.assertIn("error", info, "エラーメッセージが含まれる")
-        self.assertIn("NON_EXISTENT_OBJECT_TYPE", info["error"], "指定したタイプがエラーメッセージに含まれる")
-    
-    def test_get_schema_info_with_both_parameters(self):
-        """境界値: file_typeとobject_typeの両方を指定（file_typeが優先される）"""
-        # When: 両方のパラメータを指定
-        info = self.loader.get_schema_info(
-            file_type="JOCF_TRANSACTIONS_FILE", 
-            object_type="TX_STOCK_ISSUANCE"
-        )
-        
-        # Then: file_typeが優先される
-        self.assertIsInstance(info, dict, "辞書が返される")
-        self.assertIn("file_type", info, "file_typeが含まれる")
-        self.assertNotIn("object_type", info, "object_typeは含まれない")
-        self.assertEqual(info["file_type"], "JOCF_TRANSACTIONS_FILE", "file_typeが優先される")
-    
-    def test_get_schema_info_with_empty_string_parameters(self):
-        """境界値: 空文字列のパラメータを指定"""
-        # When: 空文字列のfile_typeを指定
-        info = self.loader.get_schema_info(file_type="")
-        
-        # Then: エラー情報が返される
-        self.assertIsInstance(info, dict, "辞書が返される")
-        self.assertIn("error", info, "エラーメッセージが含まれる")
 
 
 class TestSchemaLoaderCacheManagement(unittest.TestCase):

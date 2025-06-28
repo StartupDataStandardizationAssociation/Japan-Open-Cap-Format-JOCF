@@ -138,14 +138,14 @@ class JSONValidator:
         """
         raise NotImplementedError("JSONValidator.get_supported_object_types() is not implemented yet")
     
-    def get_schema_info(self) -> Dict[str, Any]:
+    def get_schema_summary(self) -> Dict[str, Any]:
         """
-        読み込まれたスキーマの情報を取得
+        読み込まれたスキーマのサマリー情報を取得
         
         Returns:
-            Dict[str, Any]: スキーマ情報
+            Dict[str, Any]: スキーマサマリー情報
         """
-        raise NotImplementedError("JSONValidator.get_schema_info() is not implemented yet")
+        raise NotImplementedError("JSONValidator.get_schema_summary() is not implemented yet")
     
     def get_validation_stats(self) -> Dict[str, Any]:
         """

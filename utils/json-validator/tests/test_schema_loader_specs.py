@@ -376,33 +376,44 @@ class TestSchemaLoaderAdditionalMethodsSpecs(unittest.TestCase):
         self.assertGreater(len(combined_types["file_types"]), 0, "ドキュメント用データ構造を構築")
         self.assertGreater(len(combined_types["object_types"]), 0, "ドキュメント用データ構造を構築")
     
-    def test_get_schema_info_usage_spec(self):
-        """仕様: get_schema_info()の使用方法"""
-        # 用途: スキーマの詳細情報を構造化して取得する際に使用
+    def test_schema_metadata_access_pattern_spec(self):
+        """仕様: スキーマメタデータへの直接アクセスパターン"""
+        # 直接スキーマからメタデータを取得するパターン
         
-        # 使用例1: 特定のファイルタイプの詳細情報取得
-        transactions_info = self.loader.get_schema_info(file_type="JOCF_TRANSACTIONS_FILE")
+        # 使用例1: 特定のファイルスキーマの詳細情報取得
+        transactions_schema = self.loader.get_file_schema("JOCF_TRANSACTIONS_FILE")
+        if transactions_schema:
+            schema_id = transactions_schema.get("$id")
+            title = transactions_schema.get("title")
+            description = transactions_schema.get("description")
+            
+            self.assertIsNotNone(schema_id, "スキーマIDが取得できる")
+            self.assertIsNotNone(title, "タイトルが取得できる")
+            self.assertEqual(title, "トランザクション", "期待されるタイトル")
         
-        self.assertIsInstance(transactions_info, dict, "構造化された情報が辞書で取得")
-        self.assertIn("file_type", transactions_info, "ファイルタイプ情報が含まれる")
-        self.assertIn("schema", transactions_info, "完全なスキーマ情報が含まれる")
-        self.assertIn("schema_id", transactions_info, "スキーマIDが含まれる")
-        self.assertIn("title", transactions_info, "タイトルが含まれる")
+        # 使用例2: 特定のオブジェクトスキーマの詳細情報取得
+        stock_issuance_schema = self.loader.get_object_schema("TX_STOCK_ISSUANCE")
+        if stock_issuance_schema:
+            schema_id = stock_issuance_schema.get("$id")
+            title = stock_issuance_schema.get("title")
+            
+            self.assertIsNotNone(schema_id, "スキーマIDが取得できる")
+            self.assertEqual(title, "株式発行トランザクション", "期待されるタイトル")
         
-        # 使用例2: 特定のオブジェクトタイプの詳細情報取得
-        stock_issuance_info = self.loader.get_schema_info(object_type="TX_STOCK_ISSUANCE")
+        # 使用例3: 全体のサマリー情報は直接メソッドで取得
+        file_types = self.loader.get_file_types()
+        object_types = self.loader.get_object_types()
         
-        self.assertIn("object_type", stock_issuance_info, "オブジェクトタイプ情報が含まれる")
-        self.assertEqual(stock_issuance_info["object_type"], "TX_STOCK_ISSUANCE", "正しいタイプが設定")
+        summary_info = {
+            "total_file_schemas": len(file_types),
+            "total_object_schemas": len(object_types),
+            "file_types": file_types,
+            "object_types": object_types,
+            "schema_root_path": str(self.loader.schema_root_path)
+        }
         
-        # 使用例3: 全体のサマリー情報取得
-        summary_info = self.loader.get_schema_info()
-        
-        self.assertIn("total_file_schemas", summary_info, "ファイルスキーマ数が含まれる")
-        self.assertIn("total_object_schemas", summary_info, "オブジェクトスキーマ数が含まれる")
-        self.assertIn("file_types", summary_info, "全ファイルタイプリストが含まれる")
-        self.assertIn("object_types", summary_info, "全オブジェクトタイプリストが含まれる")
-        self.assertIn("schema_root_path", summary_info, "ルートパス情報が含まれる")
+        self.assertGreater(summary_info["total_file_schemas"], 0, "ファイルスキーマ数")
+        self.assertGreater(summary_info["total_object_schemas"], 0, "オブジェクトスキーマ数")
         
         # 管理画面での表示用データとして利用可能
         total_schemas = summary_info["total_file_schemas"] + summary_info["total_object_schemas"]
