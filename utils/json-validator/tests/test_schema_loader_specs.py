@@ -19,6 +19,7 @@ from pathlib import Path
 
 from validator.schema_loader import SchemaLoader
 from validator.config_manager import ConfigManager
+from validator.types import FileType, ObjectType
 from jsonschema import RefResolver
 
 
@@ -173,8 +174,9 @@ class TestSchemaLoaderWorkflowSpecs(unittest.TestCase):
             'JOCF_SECURITY_HOLDERS_FILE',
             'JOCF_SECURITYHOLDERS_AGREEMENT_FILE'
         ]
-        for file_type in expected_file_types:
-            self.assertIn(file_type, self.loader.file_type_map, f"{file_type}がロードされる")
+        for file_type_str in expected_file_types:
+            file_type = FileType(file_type_str)
+            self.assertIn(file_type, self.loader.file_type_map, f"{file_type_str}がロードされる")
         
         # And: 期待されるobject_typeが含まれる  
         expected_object_types = [
@@ -182,8 +184,9 @@ class TestSchemaLoaderWorkflowSpecs(unittest.TestCase):
             'SECURITY_HOLDER',
             'STOCK_CLASS'
         ]
-        for object_type in expected_object_types:
-            self.assertIn(object_type, self.loader.object_type_map, f"{object_type}がロードされる")
+        for object_type_str in expected_object_types:
+            object_type = ObjectType(object_type_str)
+            self.assertIn(object_type, self.loader.object_type_map, f"{object_type_str}がロードされる")
     
     def test_multiple_load_all_schemas_calls_spec(self):
         """仕様: load_all_schemas()の複数回呼び出し動作"""
@@ -282,7 +285,7 @@ class TestSchemaLoaderDataIntegritySpecs(unittest.TestCase):
             
             # file_typeがproperties.file_type.constまたは直接定義されている
             extracted_file_type = self.loader._extract_file_type(schema)
-            self.assertEqual(extracted_file_type, file_type, 
+            self.assertEqual(extracted_file_type, file_type.value, 
                            f"抽出されたfile_typeが一致: {file_type}")
         
         # When & Then: オブジェクトスキーマの構造検証  
@@ -294,7 +297,7 @@ class TestSchemaLoaderDataIntegritySpecs(unittest.TestCase):
             
             # object_typeがproperties.object_type.constまたは直接定義されている
             extracted_object_type = self.loader._extract_object_type(schema)
-            self.assertEqual(extracted_object_type, object_type,
+            self.assertEqual(extracted_object_type, object_type.value,
                            f"抽出されたobject_typeが一致: {object_type}")
     
     def test_schema_uniqueness_spec(self):
@@ -363,8 +366,10 @@ class TestSchemaLoaderAdditionalMethodsSpecs(unittest.TestCase):
         self.assertIsInstance(object_types, list, "object_typesはリストで取得")
         
         # 使用例1: UIでの選択肢作成
-        self.assertIn('JOCF_TRANSACTIONS_FILE', file_types, "期待されるファイルタイプが含まれる")
-        self.assertIn('TX_STOCK_ISSUANCE', object_types, "期待されるオブジェクトタイプが含まれる")
+        file_type_strings = [ft.value for ft in file_types]
+        object_type_strings = [ot.value for ot in object_types]
+        self.assertIn('JOCF_TRANSACTIONS_FILE', file_type_strings, "期待されるファイルタイプが含まれる")
+        self.assertIn('TX_STOCK_ISSUANCE', object_type_strings, "期待されるオブジェクトタイプが含まれる")
         
         # 使用例2: 動的バリデーション対象の決定
         for file_type in file_types:

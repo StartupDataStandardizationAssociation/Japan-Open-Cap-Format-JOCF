@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List, cast
 from jsonschema import RefResolver
 from .config_manager import ConfigManager
+from .types import ObjectType, FileType, SchemaId
 
 
 class SchemaLoader:
@@ -32,8 +33,8 @@ class SchemaLoader:
         self.logger = logging.getLogger('json_validator.schema_loader')
         self.config_manager = config_manager
         self.schema_root_path = config_manager.get_schema_root_path()
-        self.file_type_map: Dict[str, Dict[str, Any]] = {}
-        self.object_type_map: Dict[str, Dict[str, Any]] = {}
+        self.file_type_map: Dict[FileType, Dict[str, Any]] = {}
+        self.object_type_map: Dict[ObjectType, Dict[str, Any]] = {}
         self.ref_resolver: Optional[RefResolver] = None
         
         self.logger.debug(f"SchemaLoader initialized with root path: {self.schema_root_path}")
@@ -118,24 +119,24 @@ class SchemaLoader:
                 self.logger.debug(f"Failed to load object schema {schema_file}: {e}")
                 continue
     
-    def get_file_schema(self, file_type: str) -> Optional[Dict[str, Any]]:
+    def get_file_schema(self, file_type: FileType) -> Optional[Dict[str, Any]]:
         """
         file_typeに対応するスキーマを取得
         
         Args:
-            file_type (str): ファイルタイプ
+            file_type (FileType): ファイルタイプ
             
         Returns:
             Optional[Dict[str, Any]]: 対応するスキーマ。見つからない場合はNone
         """
         return self.file_type_map.get(file_type)
     
-    def get_object_schema(self, object_type: str) -> Optional[Dict[str, Any]]:
+    def get_object_schema(self, object_type: ObjectType) -> Optional[Dict[str, Any]]:
         """
         object_typeに対応するスキーマを取得
         
         Args:
-            object_type (str): オブジェクトタイプ
+            object_type (ObjectType): オブジェクトタイプ
             
         Returns:
             Optional[Dict[str, Any]]: 対応するスキーマ。見つからない場合はNone
@@ -157,52 +158,49 @@ class SchemaLoader:
         assert self.ref_resolver is not None
         return self.ref_resolver
     
-    def get_schema_by_id(self, schema_id: str) -> Optional[Dict[str, Any]]:
+    def get_schema_by_id(self, schema_id: SchemaId) -> Optional[Dict[str, Any]]:
         """
         スキーマID($id)からスキーマを取得
         
         Args:
-            schema_id (str): スキーマID
+            schema_id (SchemaId): スキーマID
             
         Returns:
             Optional[Dict[str, Any]]: 対応するスキーマ。見つからない場合はNone
         """
-        if schema_id is None:
-            return None
-        
         # RefResolverのストアから検索（全スキーマが含まれている）
         resolver = self.get_ref_resolver()
-        result = resolver.store.get(schema_id)
+        result = resolver.store.get(schema_id.value)
         # resolver.storeの値はDict[str, Any]型のスキーマか、存在しない場合はNone
         if isinstance(result, dict):
             return result
         # Dict[str, Any]型でない場合はNoneを返す
         return None
     
-    def get_file_types(self) -> List[str]:
+    def get_file_types(self) -> List[FileType]:
         """
         利用可能なfile_typeのリストを取得
         
         Returns:
-            List[str]: file_typeのリスト
+            List[FileType]: file_typeのリスト
         """
         return list(self.file_type_map.keys())
     
-    def get_object_types(self) -> List[str]:
+    def get_object_types(self) -> List[ObjectType]:
         """
         利用可能なobject_typeのリストを取得
         
         Returns:
-            List[str]: object_typeのリスト
+            List[ObjectType]: object_typeのリスト
         """
         return list(self.object_type_map.keys())
     
-    def has_object_schema(self, object_type: str) -> bool:
+    def has_object_schema(self, object_type: ObjectType) -> bool:
         """
         指定されたobject_typeのスキーマが存在するかを確認
         
         Args:
-            object_type (str): オブジェクトタイプ
+            object_type (ObjectType): オブジェクトタイプ
             
         Returns:
             bool: スキーマが存在する場合True
@@ -263,10 +261,14 @@ class SchemaLoader:
         Args:
             schema (Dict[str, Any]): 登録するスキーマ
         """
-        file_type = self._extract_file_type(schema)
-        if file_type:
-            self.file_type_map[file_type] = schema
-            self.logger.debug(f"Registered file schema with type: {file_type}")
+        file_type_str = self._extract_file_type(schema)
+        if file_type_str:
+            try:
+                file_type = FileType(file_type_str)
+                self.file_type_map[file_type] = schema
+                self.logger.debug(f"Registered file schema with type: {file_type}")
+            except (TypeError, ValueError) as e:
+                self.logger.debug(f"Failed to create FileType from '{file_type_str}': {e}")
         else:
             self.logger.debug(f"Could not extract file_type from schema: {schema.get('$id', 'unknown')}")
     
@@ -277,10 +279,14 @@ class SchemaLoader:
         Args:
             schema (Dict[str, Any]): 登録するスキーマ
         """
-        object_type = self._extract_object_type(schema)
-        if object_type:
-            self.object_type_map[object_type] = schema
-            self.logger.debug(f"Registered object schema with type: {object_type}")
+        object_type_str = self._extract_object_type(schema)
+        if object_type_str:
+            try:
+                object_type = ObjectType(object_type_str)
+                self.object_type_map[object_type] = schema
+                self.logger.debug(f"Registered object schema with type: {object_type}")
+            except (TypeError, ValueError) as e:
+                self.logger.debug(f"Failed to create ObjectType from '{object_type_str}': {e}")
         else:
             self.logger.debug(f"Could not extract object_type from schema: {schema.get('$id', 'unknown')}")
     

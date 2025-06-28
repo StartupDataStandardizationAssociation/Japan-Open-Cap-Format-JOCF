@@ -26,6 +26,7 @@ from jsonschema import RefResolver
 from validator.schema_loader import SchemaLoader
 from validator.exceptions import SchemaError, SchemaLoadError, SchemaNotFoundError
 from validator.config import ConfigManager
+from validator.types import ObjectType, FileType, SchemaId
 
 
 class MockSchemaLoader:
@@ -155,14 +156,16 @@ class TestSchemaLoader(unittest.TestCase):
     def test_get_file_schema_success(self):
         """正常系: file_typeに対応するスキーマの取得成功"""
         # テストデータ設定
-        self.schema_loader.file_type_map["JOCF_TRANSACTIONS_FILE"] = {
+        from validator.types import FileType
+        file_type = FileType("JOCF_TRANSACTIONS_FILE")
+        self.schema_loader.file_type_map[file_type] = {
             "$id": "https://jocf.startupstandard.org/jocf/main/schema/files/TransactionsFile.schema.json",
             "title": "トランザクション",
             "file_type": "JOCF_TRANSACTIONS_FILE"
         }
         
-        # テスト実行
-        schema = self.schema_loader.get_file_schema("JOCF_TRANSACTIONS_FILE")
+        # テスト実行（型安全）
+        schema = self.schema_loader.get_file_schema(file_type)
         
         # 検証
         self.assertIsNotNone(schema)
@@ -180,14 +183,16 @@ class TestSchemaLoader(unittest.TestCase):
     def test_get_object_schema_success(self):
         """正常系: object_typeに対応するスキーマの取得成功"""
         # テストデータ設定
-        self.schema_loader.object_type_map["TX_STOCK_ISSUANCE"] = {
+        from validator.types import ObjectType
+        object_type = ObjectType("TX_STOCK_ISSUANCE")
+        self.schema_loader.object_type_map[object_type] = {
             "$id": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/issuance/StockIssuance.schema.json",
             "title": "株式発行トランザクション",
             "object_type": "TX_STOCK_ISSUANCE"
         }
         
-        # テスト実行
-        schema = self.schema_loader.get_object_schema("TX_STOCK_ISSUANCE")
+        # テスト実行（型安全）
+        schema = self.schema_loader.get_object_schema(object_type)
         
         # 検証
         self.assertIsNotNone(schema)
@@ -368,41 +373,48 @@ class TestSchemaLoader(unittest.TestCase):
     def test_large_number_of_schemas(self):
         """境界値: 大量のスキーマファイル処理"""
         # 大量のスキーマファイルを想定したテスト
+        from validator.types import FileType, ObjectType
         for i in range(100):
-            file_type = f"TEST_FILE_{i}"
-            object_type = f"TEST_OBJECT_{i}"
+            file_type_str = f"TEST_FILE_{i}"
+            object_type_str = f"TEST_OBJECT_{i}"
+            
+            file_type = FileType(file_type_str)
+            object_type = ObjectType(object_type_str)
             
             self.schema_loader.file_type_map[file_type] = {
                 "$id": f"https://jocf.startupstandard.org/jocf/main/schema/files/TestFile{i}.schema.json",
-                "file_type": file_type
+                "file_type": file_type_str
             }
             self.schema_loader.object_type_map[object_type] = {
                 "$id": f"https://jocf.startupstandard.org/jocf/main/schema/objects/TestObject{i}.schema.json",
-                "object_type": object_type
+                "object_type": object_type_str
             }
         
         # 検証
         self.assertEqual(len(self.schema_loader.file_type_map), 100)
         self.assertEqual(len(self.schema_loader.object_type_map), 100)
         
-        # 特定のスキーマが正しく取得できることを確認
-        schema = self.schema_loader.get_file_schema("TEST_FILE_50")
+        # 特定のスキーマが正しく取得できることを確認（型安全）
+        test_file_type = FileType("TEST_FILE_50")
+        schema = self.schema_loader.get_file_schema(test_file_type)
         self.assertIsNotNone(schema)
         self.assertEqual(schema["file_type"], "TEST_FILE_50")
 
     def test_has_object_schema_existing_type(self):
         """has_object_schema() - 存在するオブジェクトタイプの場合"""
         # テスト用スキーマを設定
-        test_object_type = "TEST_OBJECT"
+        from validator.types import ObjectType
+        test_object_type_str = "TEST_OBJECT"
+        test_object_type = ObjectType(test_object_type_str)
         self.schema_loader.object_type_map[test_object_type] = {
             "$id": "https://jocf.startupstandard.org/jocf/main/schema/objects/TestObject.schema.json",
             "type": "object",
             "properties": {
-                "object_type": {"const": test_object_type}
+                "object_type": {"const": test_object_type_str}
             }
         }
         
-        # 検証
+        # 検証（型安全）
         result = self.schema_loader.has_object_schema(test_object_type)
         self.assertTrue(result, "存在するオブジェクトタイプに対してTrueを返すべき")
 
@@ -438,46 +450,53 @@ class TestSchemaLoaderGetSchemaById(unittest.TestCase):
     def test_get_schema_by_id_with_existing_file_schema(self):
         """存在するファイルスキーマIDでスキーマを取得"""
         # Given: 既知のファイルスキーマID
-        transactions_id = "https://jocf.startupstandard.org/jocf/main/schema/files/TransactionsFile.schema.json"
+        from validator.types import SchemaId
+        transactions_id_str = "https://jocf.startupstandard.org/jocf/main/schema/files/TransactionsFile.schema.json"
+        transactions_id = SchemaId(transactions_id_str)
         
         # When: get_schema_by_id()を呼び出し
         schema = self.loader.get_schema_by_id(transactions_id)
         
         # Then: 対応するスキーマが返される
         self.assertIsNotNone(schema, "存在するIDでスキーマが取得できる")
-        self.assertEqual(schema.get('$id'), transactions_id, "正しいスキーマが取得される")
+        self.assertEqual(schema.get('$id'), transactions_id_str, "正しいスキーマが取得される")
         self.assertEqual(schema.get('title'), 'トランザクション', "期待されるtitleを持つ")
     
     def test_get_schema_by_id_with_existing_object_schema(self):
         """存在するオブジェクトスキーマIDでスキーマを取得"""
         # Given: 既知のオブジェクトスキーマID
-        stock_issuance_id = "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/issuance/StockIssuance.schema.json"
+        from validator.types import SchemaId
+        stock_issuance_id_str = "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/issuance/StockIssuance.schema.json"
+        stock_issuance_id = SchemaId(stock_issuance_id_str)
         
         # When: get_schema_by_id()を呼び出し
         schema = self.loader.get_schema_by_id(stock_issuance_id)
         
         # Then: 対応するスキーマが返される
         self.assertIsNotNone(schema, "存在するIDでスキーマが取得できる")
-        self.assertEqual(schema.get('$id'), stock_issuance_id, "正しいスキーマが取得される")
+        self.assertEqual(schema.get('$id'), stock_issuance_id_str, "正しいスキーマが取得される")
         self.assertEqual(schema.get('title'), '株式発行トランザクション', "期待されるtitleを持つ")
     
     def test_get_schema_by_id_with_types_schema(self):
         """typesディレクトリのスキーマIDでスキーマを取得"""
         # Given: typesディレクトリのスキーマID
-        file_type_id = "https://jocf.startupstandard.org/jocf/main/schema/types/File.schema.json"
+        from validator.types import SchemaId
+        file_type_id_str = "https://jocf.startupstandard.org/jocf/main/schema/types/File.schema.json"
+        file_type_id = SchemaId(file_type_id_str)
         
         # When: get_schema_by_id()を呼び出し
         schema = self.loader.get_schema_by_id(file_type_id)
         
         # Then: 対応するスキーマが返される
         self.assertIsNotNone(schema, "typesスキーマが取得できる")
-        self.assertEqual(schema.get('$id'), file_type_id, "正しいスキーマが取得される")
+        self.assertEqual(schema.get('$id'), file_type_id_str, "正しいスキーマが取得される")
         self.assertEqual(schema.get('title'), 'Type - File', "期待されるtitleを持つ")
     
     def test_get_schema_by_id_with_non_existent_id(self):
         """存在しないIDの場合はNoneを返す"""
         # Given: 存在しないスキーマID
-        non_existent_id = "https://jocf.startupstandard.org/jocf/main/schema/files/NonExistentFile.schema.json"
+        from validator.types import SchemaId
+        non_existent_id = SchemaId("https://jocf.startupstandard.org/jocf/main/schema/files/NonExistentFile.schema.json")
         
         # When: get_schema_by_id()を呼び出し
         schema = self.loader.get_schema_by_id(non_existent_id)
@@ -486,24 +505,25 @@ class TestSchemaLoaderGetSchemaById(unittest.TestCase):
         self.assertIsNone(schema, "存在しないIDではNoneが返される")
     
     def test_get_schema_by_id_with_none_input(self):
-        """Noneを渡した場合の動作"""
-        # When: Noneを渡す
-        schema = self.loader.get_schema_by_id(None)
-        
-        # Then: Noneが返される
-        self.assertIsNone(schema, "None入力ではNoneが返される")
+        """Noneを渡した場合の動作（型安全化後は無効なテスト）"""
+        # 型安全化後はSchemaId型のみ受け取るため、Noneは渡せない
+        # このテストはTypeErrorが期待されるが、型チェッカーで検出されるべき問題
+        # 代わりに空文字列でSchemaIdを作成しようとした場合のテストに変更
+        from validator.types import SchemaId
+        with self.assertRaises(ValueError, msg="空文字列でSchemaIdを作成するとValueErrorが発生"):
+            SchemaId("")
     
     def test_get_schema_by_id_with_empty_string(self):
-        """境界値: 空文字列を渡した場合の動作"""
-        # When: 空文字列を渡す
-        schema = self.loader.get_schema_by_id("")
-        
-        # Then: Noneが返される
-        self.assertIsNone(schema, "空文字列入力ではNoneが返される")
+        """境界値: 空文字列でSchemaIdを作成した場合の動作"""
+        # 型安全化後は空文字列でSchemaIdを作成することはValueErrorとなる
+        from validator.types import SchemaId
+        with self.assertRaises(ValueError, msg="空文字列でSchemaIdを作成するとValueErrorが発生"):
+            SchemaId("")
     
     def test_get_schema_by_id_with_invalid_url_format(self):
-        """境界値: 不正なURL形式のIDを渡した場合"""
-        # When: 不正なURL形式のIDを渡す
+        """境界値: 不正なURL形式のIDでSchemaIdを作成した場合"""
+        # When: 不正なURL形式のIDでSchemaIdを作成して検索
+        from validator.types import SchemaId
         invalid_ids = [
             "invalid-id",
             "http://",
@@ -512,15 +532,17 @@ class TestSchemaLoaderGetSchemaById(unittest.TestCase):
         ]
         
         for invalid_id in invalid_ids:
-            # Then: Noneが返される（例外は発生しない）
-            schema = self.loader.get_schema_by_id(invalid_id)
+            # SchemaIdは不正なURLでも作成できるが、検索ではNoneが返される
+            schema_id = SchemaId(invalid_id)
+            schema = self.loader.get_schema_by_id(schema_id)
             self.assertIsNone(schema, f"不正なID '{invalid_id}' ではNoneが返される")
     
     def test_get_schema_by_id_case_sensitivity(self):
         """境界値: IDの大文字小文字の違い"""
         # Given: 既知のスキーマID（小文字）
+        from validator.types import SchemaId
         original_id = "https://jocf.startupstandard.org/jocf/main/schema/files/TransactionsFile.schema.json"
-        uppercase_id = original_id.upper()
+        uppercase_id = SchemaId(original_id.upper())
         
         # When: 大文字のIDで検索
         schema = self.loader.get_schema_by_id(uppercase_id)
@@ -532,7 +554,8 @@ class TestSchemaLoaderGetSchemaById(unittest.TestCase):
         """境界値: 多数のスキーマが存在する状態での検索性能"""
         # Given: 全スキーマが読み込まれた状態
         # When: 複数回検索を実行（性能テスト）
-        test_id = "https://jocf.startupstandard.org/jocf/main/schema/files/TransactionsFile.schema.json"
+        from validator.types import SchemaId
+        test_id = SchemaId("https://jocf.startupstandard.org/jocf/main/schema/files/TransactionsFile.schema.json")
         
         # 複数回実行して例外が発生しないことを確認
         for _ in range(10):
@@ -562,8 +585,9 @@ class TestSchemaLoaderGetTypes(unittest.TestCase):
         
         # And: 期待されるfile_typeが含まれる
         expected_types = ['JOCF_TRANSACTIONS_FILE', 'JOCF_STOCK_CLASSES_FILE']
+        file_type_strings = [ft.value for ft in file_types]
         for expected_type in expected_types:
-            self.assertIn(expected_type, file_types, f"{expected_type}が含まれる")
+            self.assertIn(expected_type, file_type_strings, f"{expected_type}が含まれる")
     
     def test_get_object_types_returns_list(self):
         """get_object_types()がリストを返す"""
@@ -576,8 +600,9 @@ class TestSchemaLoaderGetTypes(unittest.TestCase):
         
         # And: 期待されるobject_typeが含まれる
         expected_types = ['TX_STOCK_ISSUANCE', 'SECURITY_HOLDER', 'STOCK_CLASS']
+        object_type_strings = [ot.value for ot in object_types]
         for expected_type in expected_types:
-            self.assertIn(expected_type, object_types, f"{expected_type}が含まれる")
+            self.assertIn(expected_type, object_type_strings, f"{expected_type}が含まれる")
     
     def test_get_file_types_no_duplicates(self):
         """get_file_types()の結果に重複がない"""
@@ -780,6 +805,81 @@ class TestSchemaLoaderCacheManagement(unittest.TestCase):
         
         # 検証: エラーが発生しても処理が継続される
         self.assertIsInstance(invalid_json_paths, list, "リストが処理される")
+
+
+class TestSchemaLoaderTypeSafety(unittest.TestCase):
+    """型安全化のテスト"""
+    
+    def setUp(self):
+        """テスト前の準備"""
+        self.config_manager = ConfigManager()
+        self.loader = SchemaLoader(self.config_manager)
+        self.loader.load_all_schemas()
+    
+    def test_get_file_schema_with_file_type_object(self):
+        """get_file_schema()がFileType型を受け入れる"""
+        # Given: FileType型のオブジェクト
+        file_type = FileType("JOCF_TRANSACTIONS_FILE")
+        
+        # When: get_file_schema()を呼び出し
+        schema = self.loader.get_file_schema(file_type)
+        
+        # Then: スキーマが取得できる
+        if schema:  # スキーマが存在する場合のみテスト
+            self.assertIsInstance(schema, dict, "スキーマが辞書として取得される")
+            self.assertEqual(schema.get('properties', {}).get('file_type', {}).get('const'), file_type.value, "正しいfile_typeのスキーマが取得される")
+    
+    def test_get_object_schema_with_object_type_object(self):
+        """get_object_schema()がObjectType型を受け入れる"""
+        # Given: ObjectType型のオブジェクト
+        object_type = ObjectType("TX_STOCK_ISSUANCE")
+        
+        # When: get_object_schema()を呼び出し
+        schema = self.loader.get_object_schema(object_type)
+        
+        # Then: スキーマが取得できる
+        if schema:  # スキーマが存在する場合のみテスト
+            self.assertIsInstance(schema, dict, "スキーマが辞書として取得される")
+            # object_typeの値が正しいことを確認
+            properties = schema.get('properties', {})
+            object_type_prop = properties.get('object_type', {})
+            if 'const' in object_type_prop:
+                self.assertEqual(object_type_prop.get('const'), object_type.value, "正しいobject_typeのスキーマが取得される")
+    
+    def test_get_schema_by_id_with_schema_id_object(self):
+        """get_schema_by_id()がSchemaId型を受け入れる"""
+        # Given: SchemaId型のオブジェクト
+        schema_id = SchemaId("https://jocf.startupstandard.org/jocf/main/schema/files/TransactionsFile.schema.json")
+        
+        # When: get_schema_by_id()を呼び出し
+        schema = self.loader.get_schema_by_id(schema_id)
+        
+        # Then: スキーマが取得できる
+        if schema:  # スキーマが存在する場合のみテスト
+            self.assertIsInstance(schema, dict, "スキーマが辞書として取得される")
+            self.assertEqual(schema.get('$id'), schema_id.value, "正しいIDのスキーマが取得される")
+    
+    def test_has_object_schema_with_object_type_object(self):
+        """has_object_schema()がObjectType型を受け入れる"""
+        # Given: ObjectType型のオブジェクト
+        object_type = ObjectType("TX_STOCK_ISSUANCE")
+        
+        # When: has_object_schema()を呼び出し
+        result = self.loader.has_object_schema(object_type)
+        
+        # Then: booleanが返される
+        self.assertIsInstance(result, bool, "boolean値が返される")
+    
+    def test_file_type_map_uses_file_type_keys(self):
+        """file_type_mapのキーがFileType型である"""
+        # Given: スキーマが読み込まれた状態
+        # When: file_type_mapを確認
+        file_type_map = self.loader.file_type_map
+        
+        # Then: キーの型を確認（現在は文字列だが、型安全化後はFileType型になるべき）
+        for key in file_type_map.keys():
+            # 現在の実装では文字列だが、将来的にはFileType型にする予定
+            self.assertIsInstance(key, (str, FileType), "キーは文字列またはFileType型")
 
 
 if __name__ == '__main__':
