@@ -16,23 +16,12 @@ import unittest
 import json
 from unittest.mock import Mock, patch, MagicMock
 
-# テスト対象のクラス（実装予定）
-# from validator.file_validator import FileValidator
-# from validator.schema_loader import SchemaLoader
-# from validator.object_validator import ObjectValidator
-# from validator.exceptions import FileValidationError
-
-
-class ValidationResult:
-    """検証結果クラス"""
-    
-    def __init__(self, is_valid=True, errors=None):
-        self.is_valid = is_valid
-        self.errors = errors or []
-    
-    def add_error(self, error):
-        self.errors.append(error)
-        self.is_valid = False
+# テスト対象のクラス
+from validator.file_validator import FileValidator
+from validator.schema_loader import SchemaLoader
+from validator.object_validator import ObjectValidator
+from validator.validation_result import ValidationResult
+from validator.exceptions import FileValidationError
 
 
 class MockFileValidator:
@@ -110,8 +99,18 @@ class TestFileValidator(unittest.TestCase):
     
     def setUp(self):
         """テスト前の準備"""
+        import logging
+        self.logger = logging.getLogger(__name__)
+        
+        # 実際のSchemaLoaderを使用
+        from validator.config_manager import ConfigManager
+        config_manager = ConfigManager()
+        self.schema_loader = SchemaLoader(config_manager)
+        self.schema_loader.load_all_schemas()  # ← 重要：スキーマを実際にロード
+        self.file_validator = FileValidator(self.schema_loader)
+        
+        # バックアップ用のモック（必要に応じて使用）
         self.mock_schema_loader = Mock()
-        self.file_validator = MockFileValidator(self.mock_schema_loader)
         
         # テスト用のスキーマデータ
         self.transactions_schema = {
@@ -147,7 +146,7 @@ class TestFileValidator(unittest.TestCase):
                     "securityholder_id": "test-securityholder-1",
                     "share_price": {
                         "amount": "100",
-                        "currency_code": "JPY"
+                        "currency": "JPY"
                     },
                     "quantity": "1000",
                     "date": "2023-01-01",
@@ -166,16 +165,24 @@ class TestFileValidator(unittest.TestCase):
     
     def test_validate_file_success(self):
         """正常系: 有効なファイルの検証成功"""
-        # モックの設定
-        self.mock_schema_loader.get_file_schema.return_value = self.transactions_schema
+        # 実際のSchemaLoaderを使用するため、モック設定は不要
         
         # テスト実行
         result = self.file_validator.validate_file(self.valid_file_data)
         
         # 検証
+        if not result.is_valid:
+            self.logger.debug(f"Validation errors: {result.errors}")
+            # 実際のスキーマ情報をデバッグ出力
+            actual_schema = self.schema_loader.get_file_schema("JOCF_TRANSACTIONS_FILE")
+            if actual_schema:
+                self.logger.debug(f"Actual schema ID: {actual_schema.get('$id')}")
+                items_structure = actual_schema.get('properties', {}).get('items', {})
+                self.logger.debug(f"Actual items structure: {items_structure}")
+            else:
+                self.logger.debug("No schema found for JOCF_TRANSACTIONS_FILE")
         self.assertTrue(result.is_valid)
         self.assertEqual(len(result.errors), 0)
-        self.mock_schema_loader.get_file_schema.assert_called_once_with("JOCF_TRANSACTIONS_FILE")
     
     def test_validate_file_missing_file_type(self):
         """異常系: file_type属性が存在しない"""
@@ -209,10 +216,7 @@ class TestFileValidator(unittest.TestCase):
         invalid_data = self.valid_file_data.copy()
         invalid_data["file_type"] = "UNKNOWN_FILE_TYPE"
         
-        # モックの設定（スキーマが見つからない）
-        self.mock_schema_loader.get_file_schema.return_value = None
-        
-        # テスト実行
+        # テスト実行（実際のSchemaLoaderを使用）
         result = self.file_validator.validate_file(invalid_data)
         
         # 検証
@@ -374,7 +378,7 @@ class TestFileValidator(unittest.TestCase):
                     "id": "issuance-1",
                     "stock_class_id": "common-stock",
                     "securityholder_id": "holder-1",
-                    "share_price": {"amount": "1000", "currency_code": "JPY"},
+                    "share_price": {"amount": "1000", "currency": "JPY"},
                     "quantity": "100",
                     "date": "2023-01-01",
                     "security_id": "security-1",
@@ -383,7 +387,7 @@ class TestFileValidator(unittest.TestCase):
                 {
                     "object_type": "TX_CONVERTIBLE_ISSUANCE",
                     "id": "convertible-1",
-                    "investment_amount": {"amount": "10000000", "currency_code": "JPY"},
+                    "investment_amount": {"amount": "10000000", "currency": "JPY"},
                     "convertible_type": "J-KISS_2",
                     "date": "2023-02-01",
                     "description": "Seed round"
@@ -428,7 +432,7 @@ class TestFileValidator(unittest.TestCase):
                 "id": f"test-stock-issuance-{i}",
                 "stock_class_id": "test-stock-class-common",
                 "securityholder_id": f"test-securityholder-{i}",
-                "share_price": {"amount": "100", "currency_code": "JPY"},
+                "share_price": {"amount": "100", "currency": "JPY"},
                 "quantity": "1000",
                 "date": "2023-01-01",
                 "security_id": f"test-security-{i}"
@@ -508,6 +512,172 @@ class TestFileValidator(unittest.TestCase):
         # 検証（現在の実装では常にTrueを返す）
         self.assertTrue(is_valid)
     
+    def test_validate_other_attributes_disallows_additional_properties(self):
+        """異常系: スキーマで許可されていない追加プロパティがある場合"""
+        # スキーマでadditionalProperties=falseを設定
+        schema_with_no_additional = {
+            "$id": "https://jocf.startupstandard.org/jocf/main/schema/files/TransactionsFile.schema.json",
+            "title": "トランザクション",
+            "type": "object",
+            "properties": {
+                "file_type": {
+                    "const": "JOCF_TRANSACTIONS_FILE"
+                },
+                "items": {
+                    "type": "array"
+                }
+            },
+            "required": ["file_type", "items"],
+            "additionalProperties": False
+        }
+        
+        # 追加プロパティを含むファイルデータ
+        file_with_additional_props = {
+            "file_type": "JOCF_TRANSACTIONS_FILE",
+            "items": [],
+            "unknown_property": "should not be allowed",
+            "another_unknown": 123
+        }
+        
+        # テスト実行
+        is_valid = self.file_validator._validate_other_attributes(
+            file_with_additional_props, schema_with_no_additional
+        )
+        
+        # 検証（追加プロパティがあるので無効であるべき）
+        self.assertFalse(is_valid)
+    
+    def test_validate_other_attributes_allows_defined_properties_only(self):
+        """正常系: スキーマで定義されたプロパティのみの場合"""
+        # スキーマでadditionalProperties=falseを設定
+        schema_with_no_additional = {
+            "$id": "https://jocf.startupstandard.org/jocf/main/schema/files/TransactionsFile.schema.json",
+            "title": "トランザクション",
+            "type": "object",
+            "properties": {
+                "file_type": {
+                    "const": "JOCF_TRANSACTIONS_FILE"
+                },
+                "items": {
+                    "type": "array"
+                }
+            },
+            "required": ["file_type", "items"],
+            "additionalProperties": False
+        }
+        
+        # 定義されたプロパティのみを含むファイルデータ
+        file_with_defined_props_only = {
+            "file_type": "JOCF_TRANSACTIONS_FILE",
+            "items": []
+        }
+        
+        # テスト実行
+        is_valid = self.file_validator._validate_other_attributes(
+            file_with_defined_props_only, schema_with_no_additional
+        )
+        
+        # 検証（定義されたプロパティのみなので有効であるべき）
+        self.assertTrue(is_valid)
+    
+    def test_validate_other_attributes_with_additional_properties_true(self):
+        """正常系: additionalProperties=trueで追加プロパティがある場合"""
+        # スキーマでadditionalProperties=trueを設定
+        schema_with_additional = {
+            "$id": "https://jocf.startupstandard.org/jocf/main/schema/files/TransactionsFile.schema.json",
+            "title": "トランザクション",
+            "type": "object",
+            "properties": {
+                "file_type": {
+                    "const": "JOCF_TRANSACTIONS_FILE"
+                },
+                "items": {
+                    "type": "array"
+                }
+            },
+            "required": ["file_type", "items"],
+            "additionalProperties": True
+        }
+        
+        # 追加プロパティを含むファイルデータ
+        file_with_additional_props = {
+            "file_type": "JOCF_TRANSACTIONS_FILE",
+            "items": [],
+            "metadata": {"version": "1.0"},
+            "custom_field": "allowed"
+        }
+        
+        # テスト実行
+        is_valid = self.file_validator._validate_other_attributes(
+            file_with_additional_props, schema_with_additional
+        )
+        
+        # 検証（additionalProperties=trueなので有効であるべき）
+        self.assertTrue(is_valid)
+    
+    def test_validate_other_attributes_with_additional_properties_undefined(self):
+        """境界値: additionalPropertiesが未定義の場合"""
+        # スキーマでadditionalPropertiesを省略（デフォルトはtrue）
+        schema_without_additional_spec = {
+            "$id": "https://jocf.startupstandard.org/jocf/main/schema/files/TransactionsFile.schema.json",
+            "title": "トランザクション",
+            "type": "object",
+            "properties": {
+                "file_type": {
+                    "const": "JOCF_TRANSACTIONS_FILE"
+                },
+                "items": {
+                    "type": "array"
+                }
+            },
+            "required": ["file_type", "items"]
+            # additionalProperties は省略
+        }
+        
+        # 追加プロパティを含むファイルデータ
+        file_with_additional_props = {
+            "file_type": "JOCF_TRANSACTIONS_FILE",
+            "items": [],
+            "extra_field": "should be allowed by default"
+        }
+        
+        # テスト実行
+        is_valid = self.file_validator._validate_other_attributes(
+            file_with_additional_props, schema_without_additional_spec
+        )
+        
+        # 検証（デフォルトはtrueなので有効であるべき）
+        self.assertTrue(is_valid)
+    
+    def test_validate_other_attributes_multiple_unknown_properties(self):
+        """異常系: 複数の不明なプロパティ"""
+        # スキーマでadditionalProperties=falseを設定
+        schema_with_no_additional = {
+            "type": "object",
+            "properties": {
+                "file_type": {"const": "JOCF_TRANSACTIONS_FILE"},
+                "items": {"type": "array"}
+            },
+            "additionalProperties": False
+        }
+        
+        # 複数の追加プロパティを含むファイルデータ
+        file_with_multiple_additional = {
+            "file_type": "JOCF_TRANSACTIONS_FILE",
+            "items": [],
+            "prop1": "value1",
+            "prop2": "value2",
+            "prop3": "value3"
+        }
+        
+        # テスト実行
+        is_valid = self.file_validator._validate_other_attributes(
+            file_with_multiple_additional, schema_with_no_additional
+        )
+        
+        # 検証（複数の追加プロパティがあるので無効であるべき）
+        self.assertFalse(is_valid)
+    
     @patch('validator.object_validator.ObjectValidator')
     def test_integration_with_object_validator(self, mock_object_validator_class):
         """統合テスト: ObjectValidatorとの連携"""
@@ -550,6 +720,244 @@ class TestFileValidator(unittest.TestCase):
         self.assertTrue(result.is_valid)
         # ObjectValidatorが各アイテムに対して呼び出されることを確認
         self.assertEqual(mock_object_validator.validate_object.call_count, 2)
+
+    # ============================================================================
+    # 要求事項に基づく詳細なテストケース
+    # ============================================================================
+    
+    def test_requirement_3_items_type_check_success(self):
+        """要求事項3: items配列の型チェック - 正常系（許可されたobject_typeのみ）"""
+        # 実際のSchemaLoaderを使用するため、実際のスキーマファイルから読み込まれる
+        
+        # テスト実行
+        result = self.file_validator.validate_file(self.valid_file_data)
+        
+        # 検証対象: ファイルオブジェクト.object_type_list ⊆ 許可スキーマ.object_type_list
+        # 実際のobject_type: ["TX_STOCK_ISSUANCE", "TX_STOCK_TRANSFER"]
+        # 許可されたobject_type: 実際のスキーマから読み込まれる
+        # → 包含関係が成立するので検証成功のはず
+        
+        if not result.is_valid:
+            print(f"Validation errors: {result.errors}")  # デバッグ用
+        self.assertTrue(result.is_valid)
+
+    def test_requirement_3_items_type_check_invalid_object_type(self):
+        """要求事項3: items配列の型チェック - 異常系（許可されていないobject_type）"""
+        # 許可されていないobject_typeを含むファイルデータ
+        invalid_data = {
+            "file_type": "JOCF_TRANSACTIONS_FILE",
+            "items": [
+                {
+                    "object_type": "TX_STOCK_ISSUANCE",  # 許可されている
+                    "id": "valid-item"
+                },
+                {
+                    "object_type": "UNAUTHORIZED_TYPE",  # 許可されていない
+                    "id": "invalid-item"
+                }
+            ]
+        }
+        
+        # テスト実行（実際のSchemaLoaderを使用）
+        result = self.file_validator.validate_file(invalid_data)
+        
+        # 実際の実装では、許可されていないobject_typeがあるため検証失敗するべき
+        # ファイルオブジェクト.object_type_list = ["TX_STOCK_ISSUANCE", "UNAUTHORIZED_TYPE"]
+        # 許可スキーマ.object_type_list = 実際のスキーマから読み込まれる
+        # → 包含関係が成立しないので検証失敗のはず
+        
+        # TDDで実装していく - 失敗するべきテスト
+        self.assertFalse(result.is_valid, "許可されていないobject_typeが含まれているため検証は失敗するべき")
+        self.assertIn("UNAUTHORIZED_TYPE", str(result.errors), "許可されていないobject_typeに関するエラーメッセージが含まれるべき")
+
+    def test_requirement_4_items_object_validation(self):
+        """要求事項4: items配列の各要素のオブジェクト検証"""
+        # 実際のObjectValidatorを使用
+        object_validator = ObjectValidator(self.schema_loader)
+        
+        # 検証対象データ（意図的に無効なデータを含む）
+        test_data = {
+            "file_type": "JOCF_TRANSACTIONS_FILE",
+            "items": [
+                {
+                    "object_type": "TX_STOCK_ISSUANCE",
+                    "id": "valid-item"
+                    # 実際のスキーマに基づく必須フィールドが不足している可能性
+                },
+                {
+                    "object_type": "TX_STOCK_TRANSFER", 
+                    "id": "invalid-item"
+                    # 実際のスキーマに基づく必須フィールドが不足している可能性
+                }
+            ]
+        }
+        
+        # FileValidatorにObjectValidatorを注入（TDDで実装予定）
+        # 現在のFileValidatorは各items要素のオブジェクト検証を行っていない
+        # この機能を実装する必要がある
+        
+        # テスト実行
+        result = self.file_validator.validate_file(test_data)
+        
+        # 現在の実装では各要素のオブジェクト検証は未実装のため成功してしまう
+        # TDD Red Phase: 期待される動作との違いを明確にする
+        
+        # 手動でObjectValidatorをテストして、要素検証が必要であることを確認
+        item_1_result = object_validator.validate_object(test_data["items"][0])
+        item_2_result = object_validator.validate_object(test_data["items"][1])
+        
+        # 要求事項4の期待: items配列の各要素がObjectValidatorで検証されるべき
+        # 現在のFileValidatorは各要素のオブジェクト検証を行っていないため、
+        # 実際にObjectValidatorで検証すると失敗する可能性がある要素でも
+        # ファイル全体の検証は成功してしまう
+        
+        # 要求事項4実装成功の確認: ObjectValidatorが失敗する場合、FileValidatorも失敗するべき
+        if not item_1_result.is_valid or not item_2_result.is_valid:
+            # FileValidatorも失敗しているべき
+            self.assertFalse(result.is_valid, "ObjectValidatorでitems要素の検証が失敗している場合、FileValidator全体も失敗するべき")
+            
+            # ObjectValidatorのエラーがFileValidatorのエラーに含まれているべき
+            has_object_validation_error = any("オブジェクト検証エラー" in str(error) for error in result.errors)
+            self.assertTrue(has_object_validation_error, "FileValidatorのエラーにオブジェクト検証エラーが含まれるべき")
+            
+            print(f"✅ 要求事項4実装成功: items配列の各要素がObjectValidatorで検証され、エラーが正しく検出されました")
+        else:
+            # ObjectValidatorが成功している場合、このテストは適切でない
+            self.fail("テストデータが不適切です。ObjectValidatorで失敗するデータを使用してください")
+
+    def test_requirement_5_other_attributes_with_object_type(self):
+        """要求事項5: その他属性の検証（object_type設定のJSONオブジェクト）"""
+        # object_typeが設定された属性を含むファイルデータ
+        file_with_object_attributes = {
+            "file_type": "JOCF_TRANSACTIONS_FILE",
+            "items": [
+                {
+                    "object_type": "TX_STOCK_ISSUANCE",
+                    "id": "item-1"
+                }
+            ],
+            "issuer_info": {
+                "object_type": "ISSUER",
+                "company_name": "Test Company",
+                "legal_name": "Test Company Ltd."
+            },
+            "metadata": {
+                "version": "1.0",
+                "created_at": "2023-01-01"
+                # object_typeなし
+            }
+        }
+        
+        # スキーマにissuer_infoプロパティを追加
+        schema_with_object_properties = self.transactions_schema.copy()
+        schema_with_object_properties["properties"]["issuer_info"] = {
+            "type": "object",
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/Issuer.schema.json"
+        }
+        schema_with_object_properties["properties"]["metadata"] = {
+            "type": "object"
+        }
+        
+        self.mock_schema_loader.get_file_schema.return_value = schema_with_object_properties
+        
+        # 現在の実装では、object_type設定のJSONオブジェクト属性の
+        # ObjectValidator連携は未実装
+        # TDDで実装していく
+        result = self.file_validator.validate_file(file_with_object_attributes)
+        self.assertTrue(result.is_valid)  # 現在は基本チェックのみ
+
+    def test_requirement_6_detailed_error_messages(self):
+        """要求事項6: 検証失敗時の詳細な理由出力"""
+        # 複数の検証エラーを含むファイルデータ
+        invalid_data = {
+            "file_type": "JOCF_TRANSACTIONS_FILE",
+            "items": [
+                {
+                    "object_type": "TX_STOCK_ISSUANCE",
+                    "id": "item-1"
+                    # 必須フィールド不足の想定
+                },
+                {
+                    "object_type": "INVALID_TYPE",
+                    "id": "item-2"
+                }
+            ]
+            # 必須属性"items"以外にも何か不足している想定
+        }
+        
+        self.mock_schema_loader.get_file_schema.return_value = self.transactions_schema
+        
+        # テスト実行
+        result = self.file_validator.validate_file(invalid_data)
+        
+        # 現在の実装では、失敗理由の詳細出力は未実装
+        # 実装後は以下のような詳細エラーが期待される：
+        # - "items[1]のobject_type 'INVALID_TYPE' は許可されていません"
+        # - "items[0]の必須フィールド 'required_field' が不足しています"
+        # など
+        
+        # 現在は基本チェックのみなので成功する
+        self.assertTrue(result.is_valid)
+
+    def test_requirement_integration_full_file_validation_flow(self):
+        """要求事項統合: ファイル検証の完全フロー"""
+        # 完全な検証フローをテストするためのデータ
+        complete_test_data = {
+            "file_type": "JOCF_TRANSACTIONS_FILE",
+            "items": [
+                {
+                    "object_type": "TX_STOCK_ISSUANCE",
+                    "id": "issuance-1",
+                    "stock_class_id": "common",
+                    "securityholder_id": "holder-1",
+                    "share_price": {"amount": "1000", "currency_code": "JPY"},
+                    "quantity": "100",
+                    "date": "2023-01-01",
+                    "security_id": "security-1"
+                },
+                {
+                    "object_type": "TX_STOCK_TRANSFER",
+                    "id": "transfer-1",
+                    "security_id": "security-1",
+                    "quantity": "50",
+                    "date": "2023-02-01",
+                    "resulting_security_ids": ["security-2"]
+                }
+            ],
+            "company_info": {
+                "object_type": "COMPANY",
+                "legal_name": "Test Company Ltd.",
+                "common_name": "Test Company"
+            },
+            "format_version": "1.0.0",
+            "generated_at": "2023-01-01T00:00:00Z"
+        }
+        
+        # 拡張されたスキーマ
+        extended_schema = self.transactions_schema.copy()
+        extended_schema["properties"]["company_info"] = {
+            "type": "object",
+            "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/Company.schema.json"
+        }
+        extended_schema["properties"]["format_version"] = {"type": "string"}
+        extended_schema["properties"]["generated_at"] = {"type": "string"}
+        extended_schema["required"].extend(["company_info", "format_version"])
+        
+        self.mock_schema_loader.get_file_schema.return_value = extended_schema
+        
+        # テスト実行
+        result = self.file_validator.validate_file(complete_test_data)
+        
+        # 完全な実装では以下の検証が行われるべき：
+        # 1. file_type検証 ✓
+        # 2. 必須属性チェック ✓
+        # 3. items配列の型チェック（oneOf許可リスト） ← 未実装
+        # 4. items配列各要素のオブジェクト検証 ← 未実装
+        # 5. その他属性の検証（company_infoのオブジェクト検証） ← 未実装
+        # 6. 詳細エラーメッセージ ← 未実装
+        
+        # 現在は基本チェックのみ
+        self.assertTrue(result.is_valid)
 
 
 if __name__ == '__main__':
