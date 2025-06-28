@@ -7,7 +7,7 @@ JSONバリデーションの結果を構造化して管理するクラスです�
 成功・失敗の状態、エラー情報を保持します。
 """
 
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 
 class ValidationResult:
@@ -67,3 +67,34 @@ class ValidationResult:
             bool: 検証が成功した場合True
         """
         return self.is_valid
+    
+    def get_summary(self) -> Dict[str, Any]:
+        """
+        エラーサマリー情報を取得
+        
+        Returns:
+            Dict[str, Any]: エラーサマリー情報
+        """
+        # エラーを分類
+        error_categories = {
+            'object_validation_errors': 0,
+            'type_check_errors': 0,
+            'schema_errors': 0,
+            'other_errors': 0
+        }
+        
+        for error in self.errors:
+            if 'オブジェクト検証エラー' in error:
+                error_categories['object_validation_errors'] += 1
+            elif 'object_type' in error and ('許可されていません' in error or '対応するスキーマが見つかりません' in error):
+                error_categories['type_check_errors'] += 1
+            elif 'JSONスキーマ検証エラー' in error:
+                error_categories['schema_errors'] += 1
+            else:
+                error_categories['other_errors'] += 1
+        
+        return {
+            'total_errors': len(self.errors),
+            'error_categories': error_categories,
+            'validation_success': self.is_valid
+        }
