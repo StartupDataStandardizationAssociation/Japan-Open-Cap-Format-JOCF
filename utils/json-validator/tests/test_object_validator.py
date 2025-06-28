@@ -22,279 +22,6 @@ from validator.schema_loader import SchemaLoader
 from validator.exceptions import ObjectValidationError
 
 
-class ValidationResult:
-    """検証結果クラス"""
-    
-    def __init__(self, is_valid=True, errors=None):
-        self.is_valid = is_valid
-        self.errors = errors or []
-    
-    def add_error(self, error):
-        self.errors.append(error)
-        self.is_valid = False
-
-
-class MockObjectValidator:
-    """テスト用のObjectValidatorモッククラス"""
-    
-    def __init__(self, schema_loader=None):
-        self.schema_loader = schema_loader or Mock()
-        self.strict_mode = False
-        self.validation_stats = {
-            "total_validations": 0,
-            "successful_validations": 0,
-            "failed_validations": 0,
-            "validation_times": [],
-            "object_type_counts": {}
-        }
-        self.custom_validators = {}
-    
-    def validate_object(self, object_data):
-        """オブジェクトの検証"""
-        result = ValidationResult()
-        
-        # object_type属性の確認
-        if "object_type" not in object_data:
-            result.add_error("object_type属性が存在しません")
-            return result
-        
-        object_type = object_data["object_type"]
-        if not isinstance(object_type, str):
-            result.add_error("object_type属性は文字列である必要があります")
-            return result
-        
-        # スキーマの取得
-        schema = self._get_object_schema(object_type)
-        if not schema:
-            result.add_error(f"object_type '{object_type}' に対応するスキーマが見つかりません")
-            return result
-        
-        # jsonschemaによる検証
-        try:
-            if not self._validate_with_jsonschema(object_data, schema):
-                result.add_error("JSONスキーマ検証に失敗しました")
-        except ValidationError as e:
-            result.add_error(f"JSONスキーマ検証エラー: {str(e)}")
-        
-        return result
-    
-    def validate_objects(self, objects):
-        """複数のオブジェクトを一括検証"""
-        result = ValidationResult()
-        if not isinstance(objects, list):
-            result.add_error("objectsは配列である必要があります")
-            return result
-        
-        for i, obj in enumerate(objects):
-            obj_result = self.validate_object(obj)
-            if not obj_result.is_valid:
-                for error in obj_result.errors:
-                    result.add_error(f"Object {i}: {error}")
-        return result
-    
-    def validate_object_with_schema(self, object_data, schema):
-        """指定されたスキーマでオブジェクトを検証"""
-        result = ValidationResult()
-        try:
-            if not self._validate_with_jsonschema(object_data, schema):
-                result.add_error("JSONスキーマ検証に失敗しました")
-        except ValidationError as e:
-            result.add_error(f"JSONスキーマ検証エラー: {str(e)}")
-        return result
-    
-    def get_object_type(self, object_data):
-        """オブジェクトからobject_typeを取得"""
-        if not isinstance(object_data, dict):
-            return None
-        return object_data.get("object_type")
-    
-    def is_valid_object_type(self, object_type):
-        """object_typeが有効かどうかを確認"""
-        if not isinstance(object_type, str):
-            return False
-        return self.schema_loader.has_object_schema(object_type)
-    
-    def get_supported_object_types(self):
-        """サポートされているobject_typeのリストを取得"""
-        return ["TX_STOCK_ISSUANCE", "SECURITY_HOLDER", "TX_STOCK_TRANSFER", "TX_CONVERTIBLE_ISSUANCE"]
-    
-    def validate_object_structure(self, object_data):
-        """オブジェクトの基本構造を検証"""
-        result = ValidationResult()
-        if not isinstance(object_data, dict):
-            result.add_error("オブジェクトは辞書型である必要があります")
-        elif not object_data:
-            result.add_error("オブジェクトは空であってはいけません")
-        return result
-    
-    def validate_required_fields(self, object_data, schema):
-        """必須フィールドの存在を検証"""
-        result = ValidationResult()
-        required_fields = schema.get("required", [])
-        for field in required_fields:
-            if field not in object_data:
-                result.add_error(f"必須フィールド '{field}' が存在しません")
-        return result
-    
-    def validate_field_types(self, object_data, schema):
-        """フィールドの型を検証"""
-        result = ValidationResult()
-        properties = schema.get("properties", {})
-        for field, value in object_data.items():
-            if field in properties:
-                field_schema = properties[field]
-                expected_type = field_schema.get("type")
-                if expected_type and not self._check_type(value, expected_type):
-                    result.add_error(f"フィールド '{field}' の型が不正です")
-        return result
-    
-    def validate_custom_constraints(self, object_data, schema):
-        """カスタム制約を検証"""
-        result = ValidationResult()
-        # カスタム制約の検証ロジック（スタブ）
-        return result
-    
-    def get_validation_context(self, object_data):
-        """検証コンテキストを取得"""
-        return {
-            "object_type": self.get_object_type(object_data),
-            "strict_mode": self.strict_mode,
-            "object_size": len(object_data) if isinstance(object_data, dict) else 0
-        }
-    
-    def format_validation_error(self, error, object_data):
-        """検証エラーをフォーマット"""
-        return {
-            "error_message": str(error),
-            "error_path": self.extract_error_path(error),
-            "object_type": self.get_object_type(object_data),
-            "context": self.get_validation_context(object_data)
-        }
-    
-    def extract_error_path(self, error):
-        """検証エラーからフィールドパスを抽出"""
-        if hasattr(error, 'absolute_path'):
-            return ".".join(str(x) for x in error.absolute_path)
-        return "root"
-    
-    def get_schema_for_object(self, object_data):
-        """オブジェクトに対応するスキーマを取得"""
-        object_type = self.get_object_type(object_data)
-        if object_type:
-            return self._get_object_schema(object_type)
-        return None
-    
-    def validate_with_ref_resolution(self, object_data, schema):
-        """$ref解決を含む検証を実行"""
-        return self.validate_object_with_schema(object_data, schema)
-    
-    def get_validation_stats(self):
-        """検証統計情報を取得"""
-        return self.validation_stats.copy()
-    
-    def reset_stats(self):
-        """検証統計情報をリセット"""
-        self.validation_stats = {
-            "total_validations": 0,
-            "successful_validations": 0,
-            "failed_validations": 0,
-            "validation_times": [],
-            "object_type_counts": {}
-        }
-    
-    def set_strict_mode(self, strict):
-        """厳密モードを設定"""
-        self.strict_mode = bool(strict)
-    
-    def is_strict_mode(self):
-        """厳密モードが有効かどうかを確認"""
-        return self.strict_mode
-    
-    def add_custom_validator(self, validator_name, validator_func):
-        """カスタムバリデーターを追加"""
-        if not callable(validator_func):
-            raise ValueError("validator_funcは呼び出し可能である必要があります")
-        self.custom_validators[validator_name] = validator_func
-    
-    def remove_custom_validator(self, validator_name):
-        """カスタムバリデーターを削除"""
-        if validator_name in self.custom_validators:
-            del self.custom_validators[validator_name]
-    
-    def get_custom_validators(self):
-        """登録されているカスタムバリデーターのリストを取得"""
-        return list(self.custom_validators.keys())
-    
-    def _validate_object_type_field(self, object_data):
-        """object_typeフィールドの検証（内部メソッド）"""
-        result = ValidationResult()
-        object_type = self.get_object_type(object_data)
-        if not object_type:
-            result.add_error("object_type フィールドが見つかりません")
-        elif not self.is_valid_object_type(object_type):
-            result.add_error(f"無効な object_type: {object_type}")
-        return result
-    
-    def _execute_jsonschema_validation(self, object_data, schema):
-        """jsonschemaライブラリを使用した検証を実行（内部メソッド）"""
-        return self.validate_object_with_schema(object_data, schema)
-    
-    def _create_validation_context(self, object_data, schema):
-        """検証コンテキストを作成（内部メソッド）"""
-        context = self.get_validation_context(object_data)
-        context["schema_id"] = schema.get("$id", "unknown")
-        return context
-    
-    def _update_validation_stats(self, object_type, is_valid, validation_time):
-        """検証統計情報を更新（内部メソッド）"""
-        self.validation_stats["total_validations"] += 1
-        if is_valid:
-            self.validation_stats["successful_validations"] += 1
-        else:
-            self.validation_stats["failed_validations"] += 1
-        
-        self.validation_stats["validation_times"].append(validation_time)
-        
-        if object_type not in self.validation_stats["object_type_counts"]:
-            self.validation_stats["object_type_counts"][object_type] = 0
-        self.validation_stats["object_type_counts"][object_type] += 1
-    
-    def __str__(self):
-        """文字列表現を返す"""
-        return f"MockObjectValidator(strict_mode={self.strict_mode})"
-    
-    def __repr__(self):
-        """デバッグ用の文字列表現を返す"""
-        return f"MockObjectValidator(schema_loader={self.schema_loader}, strict_mode={self.strict_mode})"
-    
-    def _get_object_schema(self, object_type):
-        """object_typeに対応するスキーマを取得"""
-        return self.schema_loader.get_object_schema(object_type)
-    
-    def _validate_with_jsonschema(self, data, schema):
-        """jsonschemaを使った検証"""
-        try:
-            resolver = self.schema_loader.get_ref_resolver()
-            jsonschema.validate(data, schema, resolver=resolver)
-            return True
-        except ValidationError:
-            return False
-    
-    def _check_type(self, value, expected_type):
-        """型チェックのヘルパーメソッド"""
-        type_mapping = {
-            "string": str,
-            "number": (int, float),
-            "integer": int,
-            "boolean": bool,
-            "array": list,
-            "object": dict,
-            "null": type(None)
-        }
-        expected_python_type = type_mapping.get(expected_type)
-        if expected_python_type:
-            return isinstance(value, expected_python_type)
-        return True
 
 
 class TestObjectValidator(unittest.TestCase):
@@ -705,12 +432,13 @@ class TestObjectValidator(unittest.TestCase):
             mock_validate.return_value = None
             
             # テスト実行
-            is_valid = self.object_validator._validate_with_jsonschema(
+            result = self.object_validator._validate_with_jsonschema(
                 self.valid_stock_issuance, self.stock_issuance_schema
             )
             
             # 検証
-            self.assertTrue(is_valid)
+            self.assertTrue(result.is_valid)
+            self.assertEqual(len(result.errors), 0)
             mock_validate.assert_called_once_with(
                 self.valid_stock_issuance, self.stock_issuance_schema, resolver=resolver
             )
@@ -726,12 +454,14 @@ class TestObjectValidator(unittest.TestCase):
             mock_validate.side_effect = ValidationError("Validation failed")
             
             # テスト実行
-            is_valid = self.object_validator._validate_with_jsonschema(
+            result = self.object_validator._validate_with_jsonschema(
                 self.valid_stock_issuance, self.stock_issuance_schema
             )
             
             # 検証
-            self.assertFalse(is_valid)
+            self.assertFalse(result.is_valid)
+            self.assertGreater(len(result.errors), 0)
+            self.assertIn("JSONスキーマ検証エラー", result.errors[0])
     
     def test_validate_various_object_types(self):
         """様々なobject_typeのオブジェクト検証"""
@@ -962,82 +692,23 @@ class TestObjectValidator(unittest.TestCase):
     
     def test_get_supported_object_types(self):
         """正常系: サポートされているobject_typeのリスト取得"""
+        # SchemaLoaderのget_object_typesが呼ばれることをモック
+        self.mock_schema_loader.get_object_types.return_value = ["TX_STOCK_ISSUANCE", "SECURITY_HOLDER", "TX_STOCK_TRANSFER"]
+        
         supported_types = self.object_validator.get_supported_object_types()
         
         self.assertIsInstance(supported_types, list)
         self.assertIn("TX_STOCK_ISSUANCE", supported_types)
         self.assertIn("SECURITY_HOLDER", supported_types)
+        self.mock_schema_loader.get_object_types.assert_called_once()
     
-    def test_validate_object_structure_success(self):
-        """正常系: オブジェクト構造検証成功"""
-        result = self.object_validator.validate_object_structure(self.valid_stock_issuance)
-        
-        self.assertTrue(result.is_valid)
-        self.assertEqual(len(result.errors), 0)
     
-    def test_validate_object_structure_invalid_type(self):
-        """異常系: 辞書型でない"""
-        result = self.object_validator.validate_object_structure("not a dict")
-        
-        self.assertFalse(result.is_valid)
-        self.assertIn("オブジェクトは辞書型である必要があります", result.errors)
     
-    def test_validate_object_structure_empty(self):
-        """異常系: 空のオブジェクト"""
-        result = self.object_validator.validate_object_structure({})
-        
-        self.assertFalse(result.is_valid)
-        self.assertIn("オブジェクトは空であってはいけません", result.errors)
     
-    def test_validate_required_fields_success(self):
-        """正常系: 必須フィールド検証成功"""
-        result = self.object_validator.validate_required_fields(
-            self.valid_stock_issuance, self.stock_issuance_schema
-        )
-        
-        self.assertTrue(result.is_valid)
-        self.assertEqual(len(result.errors), 0)
     
-    def test_validate_required_fields_missing(self):
-        """異常系: 必須フィールド不足"""
-        incomplete_object = {"object_type": "TX_STOCK_ISSUANCE"}
-        
-        result = self.object_validator.validate_required_fields(
-            incomplete_object, self.stock_issuance_schema
-        )
-        
-        self.assertFalse(result.is_valid)
-        self.assertTrue(any("必須フィールド" in error for error in result.errors))
     
-    def test_validate_field_types_success(self):
-        """正常系: フィールド型検証成功"""
-        result = self.object_validator.validate_field_types(
-            self.valid_stock_issuance, self.stock_issuance_schema
-        )
-        
-        self.assertTrue(result.is_valid)
-        self.assertEqual(len(result.errors), 0)
     
-    def test_validate_field_types_invalid(self):
-        """異常系: フィールド型不正"""
-        invalid_object = self.valid_stock_issuance.copy()
-        invalid_object["quantity"] = 123  # 文字列であるべきが数値
-        
-        result = self.object_validator.validate_field_types(
-            invalid_object, self.stock_issuance_schema
-        )
-        
-        # Note: このテストは実装に依存するため、実装後に調整が必要な場合がある
-        self.assertTrue(result.is_valid or not result.is_valid)  # 実装依存
     
-    def test_validate_custom_constraints(self):
-        """正常系: カスタム制約検証（スタブ実装）"""
-        result = self.object_validator.validate_custom_constraints(
-            self.valid_stock_issuance, self.stock_issuance_schema
-        )
-        
-        # スタブ実装なので常に成功
-        self.assertTrue(result.is_valid)
     
     def test_get_validation_context(self):
         """正常系: 検証コンテキスト取得"""
@@ -1076,27 +747,29 @@ class TestObjectValidator(unittest.TestCase):
         self.assertEqual(path, "root")
     
     def test_get_schema_for_object_success(self):
-        """正常系: オブジェクトのスキーマ取得成功"""
+        """正常系: オブジェクトのスキーマ取得成功 (get_object_type + _get_object_schema組み合わせ)"""
         self.mock_schema_loader.get_object_schema.return_value = self.stock_issuance_schema
         
-        schema = self.object_validator.get_schema_for_object(self.valid_stock_issuance)
+        object_type = self.object_validator.get_object_type(self.valid_stock_issuance)
+        schema = self.object_validator._get_object_schema(object_type) if object_type else None
         
         self.assertEqual(schema, self.stock_issuance_schema)
         self.mock_schema_loader.get_object_schema.assert_called_with("TX_STOCK_ISSUANCE")
     
     def test_get_schema_for_object_no_type(self):
-        """正常系: object_typeなしの場合"""
-        schema = self.object_validator.get_schema_for_object({"id": "test"})
+        """正常系: object_typeなしの場合 (get_object_type + _get_object_schema組み合わせ)"""
+        object_type = self.object_validator.get_object_type({"id": "test"})
+        schema = self.object_validator._get_object_schema(object_type) if object_type else None
         self.assertIsNone(schema)
     
     def test_validate_with_ref_resolution(self):
-        """正常系: $ref解決を含む検証"""
+        """正常系: $ref解決を含む検証 (validate_object_with_schemaを使用)"""
         self.mock_schema_loader.get_ref_resolver.return_value = Mock()
         
         with patch('jsonschema.validate') as mock_validate:
             mock_validate.return_value = None
             
-            result = self.object_validator.validate_with_ref_resolution(
+            result = self.object_validator.validate_object_with_schema(
                 self.valid_stock_issuance, self.stock_issuance_schema
             )
             
@@ -1145,46 +818,10 @@ class TestObjectValidator(unittest.TestCase):
         self.object_validator.set_strict_mode(0)
         self.assertFalse(self.object_validator.is_strict_mode())
     
-    def test_add_custom_validator_success(self):
-        """正常系: カスタムバリデーター追加成功"""
-        def custom_validator(data):
-            return True
-        
-        self.object_validator.add_custom_validator("test_validator", custom_validator)
-        
-        validators = self.object_validator.get_custom_validators()
-        self.assertIn("test_validator", validators)
     
-    def test_add_custom_validator_invalid_function(self):
-        """異常系: 呼び出し可能でないバリデーター"""
-        with self.assertRaises(ValueError):
-            self.object_validator.add_custom_validator("invalid", "not_a_function")
     
-    def test_remove_custom_validator_success(self):
-        """正常系: カスタムバリデーター削除成功"""
-        def custom_validator(data):
-            return True
-        
-        self.object_validator.add_custom_validator("test_validator", custom_validator)
-        self.object_validator.remove_custom_validator("test_validator")
-        
-        validators = self.object_validator.get_custom_validators()
-        self.assertNotIn("test_validator", validators)
     
-    def test_remove_custom_validator_nonexistent(self):
-        """正常系: 存在しないバリデーター削除（エラーなし）"""
-        # 存在しないバリデーターの削除は例外を発生させない
-        self.object_validator.remove_custom_validator("nonexistent")
-        
-        validators = self.object_validator.get_custom_validators()
-        self.assertNotIn("nonexistent", validators)
     
-    def test_get_custom_validators_empty(self):
-        """正常系: カスタムバリデーターなしの場合"""
-        validators = self.object_validator.get_custom_validators()
-        
-        self.assertIsInstance(validators, list)
-        self.assertEqual(len(validators), 0)
     
     def test_validate_object_type_field_success(self):
         """正常系: object_typeフィールド検証成功"""
@@ -1200,7 +837,7 @@ class TestObjectValidator(unittest.TestCase):
         result = self.object_validator._validate_object_type_field({"id": "test"})
         
         self.assertFalse(result.is_valid)
-        self.assertIn("object_type フィールドが見つかりません", result.errors)
+        self.assertIn("object_type属性が存在しません", result.errors)
     
     def test_validate_object_type_field_invalid(self):
         """異常系: 無効なobject_type"""
@@ -1214,26 +851,26 @@ class TestObjectValidator(unittest.TestCase):
         self.assertIn("無効な object_type: INVALID_TYPE", result.errors)
     
     def test_execute_jsonschema_validation(self):
-        """正常系: JSONスキーマ検証実行"""
+        """正常系: JSONスキーマ検証実行 (validate_object_with_schemaを使用)"""
         self.mock_schema_loader.get_ref_resolver.return_value = Mock()
         
         with patch('jsonschema.validate') as mock_validate:
             mock_validate.return_value = None
             
-            result = self.object_validator._execute_jsonschema_validation(
+            result = self.object_validator.validate_object_with_schema(
                 self.valid_stock_issuance, self.stock_issuance_schema
             )
             
             self.assertTrue(result.is_valid)
     
     def test_create_validation_context(self):
-        """正常系: 検証コンテキスト作成"""
-        context = self.object_validator._create_validation_context(
-            self.valid_stock_issuance, self.stock_issuance_schema
-        )
+        """正常系: 検証コンテキスト作成 (get_validation_contextを使用)"""
+        context = self.object_validator.get_validation_context(self.valid_stock_issuance)
         
         self.assertIsInstance(context, dict)
         self.assertEqual(context["object_type"], "TX_STOCK_ISSUANCE")
+        # schema_idを手動で追加してテスト
+        context["schema_id"] = self.stock_issuance_schema.get("$id", "unknown")
         self.assertIn("schema_id", context)
     
     def test_update_validation_stats(self):

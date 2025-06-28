@@ -7,7 +7,7 @@
 """
 
 import jsonschema
-from typing import Dict, Any, Optional, List, Union, Callable, Type
+from typing import Dict, Any, Optional, List, Union, Type
 from jsonschema import ValidationError, RefResolver
 from .schema_loader import SchemaLoader
 from .validation_result import ValidationResult
@@ -38,7 +38,6 @@ class ObjectValidator:
             "validation_times": [],
             "object_type_counts": {}
         }
-        self.custom_validators: Dict[str, Callable[[Any], bool]] = {}
     
     def validate_object(self, object_data: Dict[str, Any]) -> ValidationResult:
         """
@@ -53,14 +52,13 @@ class ObjectValidator:
         result = ValidationResult()
         
         # object_type属性の確認
-        if "object_type" not in object_data:
-            result.add_error("object_type属性が存在しません")
+        object_type_result = self._validate_object_type_field(object_data)
+        if not object_type_result.is_valid:
+            for error in object_type_result.errors:
+                result.add_error(error)
             return result
         
         object_type = object_data["object_type"]
-        if not isinstance(object_type, str):
-            result.add_error("object_type属性は文字列である必要があります")
-            return result
         
         # スキーマの取得
         schema = self._get_object_schema(object_type)
@@ -69,21 +67,10 @@ class ObjectValidator:
             return result
         
         # jsonschemaによる検証
-        try:
-            resolver = self.schema_loader.get_ref_resolver()
-            jsonschema.validate(object_data, schema, resolver=resolver)
-        except ValidationError as e:
-            result.add_error(f"JSONスキーマ検証エラー: {str(e)}")
-        except jsonschema.RefResolutionError as e:
-            result.add_error(f"JSONスキーマ検証エラー: {str(e)}")
-        except jsonschema.SchemaError as e:
-            result.add_error(f"JSONスキーマ検証エラー: {str(e)}")
-        except TypeError as e:
-            # jsonschemaライブラリ内部でのRef解決エラー（Mockオブジェクトの問題など）
-            result.add_error(f"JSONスキーマ検証エラー: {str(e)}")
-        except (ValueError, AttributeError) as e:
-            # jsonschemaライブラリで発生する可能性のあるその他のエラー
-            result.add_error(f"JSONスキーマ検証エラー: {str(e)}")
+        validation_result = self._validate_with_jsonschema(object_data, schema)
+        if not validation_result.is_valid:
+            for error in validation_result.errors:
+                result.add_error(error)
         
         return result
     
@@ -121,13 +108,7 @@ class ObjectValidator:
         Returns:
             ValidationResult: 検証結果
         """
-        result = ValidationResult()
-        try:
-            if not self._validate_with_jsonschema(object_data, schema):
-                result.add_error("JSONスキーマ検証に失敗しました")
-        except ValidationError as e:
-            result.add_error(f"JSONスキーマ検証エラー: {str(e)}")
-        return result
+        return self._validate_with_jsonschema(object_data, schema)
     
     def get_object_type(self, object_data: Dict[str, Any]) -> Optional[str]:
         """
@@ -164,81 +145,11 @@ class ObjectValidator:
         Returns:
             List[str]: サポートされているobject_typeのリスト
         """
-        return ["TX_STOCK_ISSUANCE", "SECURITY_HOLDER", "TX_STOCK_TRANSFER", "TX_CONVERTIBLE_ISSUANCE"]
+        return self.schema_loader.get_object_types()
     
-    def validate_object_structure(self, object_data: Dict[str, Any]) -> ValidationResult:
-        """
-        オブジェクトの基本構造を検証
-        
-        Args:
-            object_data (Dict[str, Any]): 検証対象のオブジェクト
-            
-        Returns:
-            ValidationResult: 検証結果
-        """
-        result = ValidationResult()
-        if not isinstance(object_data, dict):
-            result.add_error("オブジェクトは辞書型である必要があります")
-        elif not object_data:
-            result.add_error("オブジェクトは空であってはいけません")
-        return result
     
-    def validate_required_fields(self, object_data: Dict[str, Any], 
-                                schema: Dict[str, Any]) -> ValidationResult:
-        """
-        必須フィールドの存在を検証
-        
-        Args:
-            object_data (Dict[str, Any]): 検証対象のオブジェクト
-            schema (Dict[str, Any]): 使用するスキーマ
-            
-        Returns:
-            ValidationResult: 検証結果
-        """
-        result = ValidationResult()
-        required_fields = schema.get("required", [])
-        for field in required_fields:
-            if field not in object_data:
-                result.add_error(f"必須フィールド '{field}' が存在しません")
-        return result
     
-    def validate_field_types(self, object_data: Dict[str, Any], 
-                           schema: Dict[str, Any]) -> ValidationResult:
-        """
-        フィールドの型を検証
-        
-        Args:
-            object_data (Dict[str, Any]): 検証対象のオブジェクト
-            schema (Dict[str, Any]): 使用するスキーマ
-            
-        Returns:
-            ValidationResult: 検証結果
-        """
-        result = ValidationResult()
-        properties = schema.get("properties", {})
-        for field, value in object_data.items():
-            if field in properties:
-                field_schema = properties[field]
-                expected_type = field_schema.get("type")
-                if expected_type and not self._check_type(value, expected_type):
-                    result.add_error(f"フィールド '{field}' の型が不正です")
-        return result
     
-    def validate_custom_constraints(self, object_data: Dict[str, Any], 
-                                  schema: Dict[str, Any]) -> ValidationResult:
-        """
-        カスタム制約を検証
-        
-        Args:
-            object_data (Dict[str, Any]): 検証対象のオブジェクト
-            schema (Dict[str, Any]): 使用するスキーマ
-            
-        Returns:
-            ValidationResult: 検証結果
-        """
-        result = ValidationResult()
-        # カスタム制約の検証ロジック（スタブ）
-        return result
     
     def get_validation_context(self, object_data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -289,34 +200,7 @@ class ObjectValidator:
             return ".".join(str(x) for x in error.absolute_path)
         return "root"
     
-    def get_schema_for_object(self, object_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        """
-        オブジェクトに対応するスキーマを取得
-        
-        Args:
-            object_data (Dict[str, Any]): 対象オブジェクト
-            
-        Returns:
-            Optional[Dict[str, Any]]: 対応するスキーマ。見つからない場合はNone
-        """
-        object_type = self.get_object_type(object_data)
-        if object_type:
-            return self._get_object_schema(object_type)
-        return None
     
-    def validate_with_ref_resolution(self, object_data: Dict[str, Any], 
-                                   schema: Dict[str, Any]) -> ValidationResult:
-        """
-        $ref解決を含む検証を実行
-        
-        Args:
-            object_data (Dict[str, Any]): 検証対象のオブジェクト
-            schema (Dict[str, Any]): 使用するスキーマ
-            
-        Returns:
-            ValidationResult: 検証結果
-        """
-        return self.validate_object_with_schema(object_data, schema)
     
     def get_validation_stats(self) -> Dict[str, Any]:
         """
@@ -357,36 +241,8 @@ class ObjectValidator:
         """
         return self.strict_mode
     
-    def add_custom_validator(self, validator_name: str, validator_func: Callable[[Any], bool]) -> None:
-        """
-        カスタムバリデーターを追加
-        
-        Args:
-            validator_name (str): バリデーター名
-            validator_func (callable): バリデーター関数
-        """
-        if not callable(validator_func):
-            raise ValueError("validator_funcは呼び出し可能である必要があります")
-        self.custom_validators[validator_name] = validator_func
     
-    def remove_custom_validator(self, validator_name: str) -> None:
-        """
-        カスタムバリデーターを削除
-        
-        Args:
-            validator_name (str): 削除するバリデーター名
-        """
-        if validator_name in self.custom_validators:
-            del self.custom_validators[validator_name]
     
-    def get_custom_validators(self) -> List[str]:
-        """
-        登録されているカスタムバリデーターのリストを取得
-        
-        Returns:
-            List[str]: カスタムバリデーター名のリスト
-        """
-        return list(self.custom_validators.keys())
     
     def _validate_object_type_field(self, object_data: Dict[str, Any]) -> ValidationResult:
         """
@@ -399,42 +255,22 @@ class ObjectValidator:
             ValidationResult: 検証結果
         """
         result = ValidationResult()
-        object_type = self.get_object_type(object_data)
-        if not object_type:
-            result.add_error("object_type フィールドが見つかりません")
-        elif not self.is_valid_object_type(object_type):
+        
+        if "object_type" not in object_data:
+            result.add_error("object_type属性が存在しません")
+            return result
+        
+        object_type = object_data["object_type"]
+        if not isinstance(object_type, str):
+            result.add_error("object_type属性は文字列である必要があります")
+            return result
+        
+        if not self.is_valid_object_type(object_type):
             result.add_error(f"無効な object_type: {object_type}")
+        
         return result
     
-    def _execute_jsonschema_validation(self, object_data: Dict[str, Any], 
-                                     schema: Dict[str, Any]) -> ValidationResult:
-        """
-        jsonschemaライブラリを使用した検証を実行（内部メソッド）
-        
-        Args:
-            object_data (Dict[str, Any]): 検証対象のオブジェクト
-            schema (Dict[str, Any]): 使用するスキーマ
-            
-        Returns:
-            ValidationResult: 検証結果
-        """
-        return self.validate_object_with_schema(object_data, schema)
     
-    def _create_validation_context(self, object_data: Dict[str, Any], 
-                                 schema: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        検証コンテキストを作成（内部メソッド）
-        
-        Args:
-            object_data (Dict[str, Any]): 対象オブジェクト
-            schema (Dict[str, Any]): 使用するスキーマ
-            
-        Returns:
-            Dict[str, Any]: 検証コンテキスト
-        """
-        context = self.get_validation_context(object_data)
-        context["schema_id"] = schema.get("$id", "unknown")
-        return context
     
     def _update_validation_stats(self, object_type: str, is_valid: bool, 
                                validation_time: float) -> None:
@@ -480,14 +316,25 @@ class ObjectValidator:
         """object_typeに対応するスキーマを取得"""
         return self.schema_loader.get_object_schema(object_type)
     
-    def _validate_with_jsonschema(self, data: Dict[str, Any], schema: Dict[str, Any]) -> bool:
+    def _validate_with_jsonschema(self, data: Dict[str, Any], schema: Dict[str, Any]) -> ValidationResult:
         """jsonschemaを使った検証"""
+        result = ValidationResult()
         try:
             resolver = self.schema_loader.get_ref_resolver()
             jsonschema.validate(data, schema, resolver=resolver)
-            return True
-        except ValidationError:
-            return False
+        except ValidationError as e:
+            result.add_error(f"JSONスキーマ検証エラー: {str(e)}")
+        except jsonschema.RefResolutionError as e:
+            result.add_error(f"JSONスキーマ検証エラー: {str(e)}")
+        except jsonschema.SchemaError as e:
+            result.add_error(f"JSONスキーマ検証エラー: {str(e)}")
+        except TypeError as e:
+            # jsonschemaライブラリ内部でのRef解決エラー（Mockオブジェクトの問題など）
+            result.add_error(f"JSONスキーマ検証エラー: {str(e)}")
+        except (ValueError, AttributeError) as e:
+            # jsonschemaライブラリで発生する可能性のあるその他のエラー
+            result.add_error(f"JSONスキーマ検証エラー: {str(e)}")
+        return result
     
     def _check_type(self, value: Any, expected_type: str) -> bool:
         """型チェックのヘルパーメソッド"""

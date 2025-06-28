@@ -202,7 +202,7 @@ class TestObjectValidatorSpecs(unittest.TestCase):
         
         result = self.validator.validate_object(invalid_object_unknown_type)
         self.assertFalse(result.is_valid)
-        self.assertIn("に対応するスキーマが見つかりません", result.errors[0])
+        self.assertIn("無効な object_type: UNKNOWN_OBJECT_TYPE", result.errors[0])
         
         print(f"""
         ❌ エラーケース2 - 無効なobject_type:
@@ -335,13 +335,13 @@ class TestObjectValidatorSpecs(unittest.TestCase):
         self.assertIsInstance(supported_types, list)
         self.assertIn("TX_STOCK_ISSUANCE", supported_types)
         
-        # === オブジェクト構造の基本チェック ===
-        structure_result = self.validator.validate_object_structure(test_object)
-        self.assertTrue(structure_result.is_valid)
+        # === object_typeの有効性チェック ===
+        is_valid_type = self.validator.is_valid_object_type("TX_STOCK_ISSUANCE")
+        self.assertTrue(is_valid_type)
         
-        # === 空オブジェクトの構造チェック ===
-        empty_structure_result = self.validator.validate_object_structure({})
-        self.assertFalse(empty_structure_result.is_valid)
+        # === 無効なobject_typeのチェック ===
+        is_invalid_type = self.validator.is_valid_object_type("INVALID_TYPE")
+        self.assertFalse(is_invalid_type)
         
         print(f"""
         🔧 ユーティリティメソッドの活用:
@@ -357,8 +357,8 @@ class TestObjectValidatorSpecs(unittest.TestCase):
         types = validator.get_supported_object_types()  
         # => ["TX_STOCK_ISSUANCE", "SECURITY_HOLDER", ...]
         
-        # 4. 基本構造チェック（辞書型か、空でないかなど）
-        structure_result = validator.validate_object_structure(obj)
+        # 4. 検証コンテキストの取得
+        context = validator.get_validation_context(obj)
         
         実用的な活用例:
         - データ処理前の事前チェック
@@ -378,7 +378,8 @@ class TestObjectValidatorSpecs(unittest.TestCase):
         }
         
         # === オブジェクトに対応するスキーマの取得 ===
-        schema = self.validator.get_schema_for_object(test_object)
+        object_type = self.validator.get_object_type(test_object)
+        schema = self.validator._get_object_schema(object_type) if object_type else None
         self.assertIsNotNone(schema)
         self.assertEqual(schema["title"], "株式発行トランザクション")
         
@@ -390,21 +391,22 @@ class TestObjectValidatorSpecs(unittest.TestCase):
             self.assertTrue(result.is_valid)
         
         # === $ref解決を含む検証 ===
-        ref_result = self.validator.validate_with_ref_resolution(test_object, schema)
+        ref_result = self.validator.validate_object_with_schema(test_object, schema)
         self.assertIsInstance(ref_result, ValidationResult)
         
         print(f"""
         📄 スキーマ操作:
         
         # 1. オブジェクトに対応するスキーマを自動取得
-        schema = validator.get_schema_for_object(obj)
+        object_type = validator.get_object_type(obj)
+        schema = validator._get_object_schema(object_type) if object_type else None
         # => {{"title": "株式発行トランザクション", "type": "object", ...}}
         
         # 2. 指定したスキーマで直接検証
         result = validator.validate_object_with_schema(obj, custom_schema)
         
         # 3. $ref解決を含む検証（複雑なスキーマ参照に対応）
-        result = validator.validate_with_ref_resolution(obj, schema_with_refs)
+        result = validator.validate_object_with_schema(obj, schema_with_refs)
         
         実用的な活用例:
         - カスタムスキーマでの検証
