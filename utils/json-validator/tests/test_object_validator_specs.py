@@ -19,6 +19,7 @@ from validator.object_validator import ObjectValidator
 from validator.schema_loader import SchemaLoader
 from validator.config_manager import ConfigManager
 from validator.validation_result import ValidationResult
+from validator.types import ObjectType
 
 
 class TestObjectValidatorSpecs(unittest.TestCase):
@@ -82,10 +83,10 @@ class TestObjectValidatorSpecs(unittest.TestCase):
             "additionalProperties": False
         }
         
-        # スキーマを手動で登録
+        # スキーマを手動で登録（型安全化でObjectTypeキーを使用）
         self.schema_loader.object_type_map = {
-            "TX_STOCK_ISSUANCE": stock_issuance_schema,
-            "SECURITY_HOLDER": security_holder_schema
+            ObjectType("TX_STOCK_ISSUANCE"): stock_issuance_schema,
+            ObjectType("SECURITY_HOLDER"): security_holder_schema
         }
 
     def test_basic_usage_single_object_validation(self):
@@ -321,13 +322,16 @@ class TestObjectValidatorSpecs(unittest.TestCase):
         # === object_typeの取得 ===
         test_object = {"object_type": "TX_STOCK_ISSUANCE", "id": "test"}
         object_type = self.validator.get_object_type(test_object)
-        self.assertEqual(object_type, "TX_STOCK_ISSUANCE")
+        expected_object_type = ObjectType("TX_STOCK_ISSUANCE")
+        self.assertEqual(object_type, expected_object_type)
         
         # === object_typeの有効性確認 ===
-        is_valid = self.validator.is_valid_object_type("TX_STOCK_ISSUANCE")
+        object_type_obj = ObjectType("TX_STOCK_ISSUANCE")
+        is_valid = self.validator.is_valid_object_type(object_type_obj)
         self.assertTrue(is_valid)
         
-        is_invalid = self.validator.is_valid_object_type("UNKNOWN_TYPE")
+        unknown_object_type = ObjectType("UNKNOWN_TYPE")
+        is_invalid = self.validator.is_valid_object_type(unknown_object_type)
         self.assertFalse(is_invalid)
         
         # === サポートされているobject_typeの一覧取得 ===
@@ -336,11 +340,13 @@ class TestObjectValidatorSpecs(unittest.TestCase):
         self.assertIn("TX_STOCK_ISSUANCE", supported_types)
         
         # === object_typeの有効性チェック ===
-        is_valid_type = self.validator.is_valid_object_type("TX_STOCK_ISSUANCE")
+        valid_object_type = ObjectType("TX_STOCK_ISSUANCE")
+        is_valid_type = self.validator.is_valid_object_type(valid_object_type)
         self.assertTrue(is_valid_type)
         
         # === 無効なobject_typeのチェック ===
-        is_invalid_type = self.validator.is_valid_object_type("INVALID_TYPE")
+        invalid_object_type = ObjectType("INVALID_TYPE")
+        is_invalid_type = self.validator.is_valid_object_type(invalid_object_type)
         self.assertFalse(is_invalid_type)
         
         print(f"""

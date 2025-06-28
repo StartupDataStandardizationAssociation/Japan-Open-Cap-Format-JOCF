@@ -11,6 +11,7 @@ from .schema_loader import SchemaLoader
 from .object_validator import ObjectValidator
 from .validation_result import ValidationResult
 from .exceptions import FileValidationError, SchemaNotFoundError
+from .types import FileType
 
 
 class FileValidator:
@@ -51,10 +52,15 @@ class FileValidator:
             return result
         
         # スキーマ取得
-        file_type = file_data.get("file_type")
-        schema = self.schema_loader.get_file_schema(file_type)
+        file_type_str = file_data.get("file_type")
+        try:
+            file_type = FileType(file_type_str)
+            schema = self.schema_loader.get_file_schema(file_type)
+        except (TypeError, ValueError):
+            schema = None
+        
         if not schema:
-            result.add_error(f"file_type '{file_type}' に対応するスキーマが見つかりません")
+            result.add_error(f"file_type '{file_type_str}' に対応するスキーマが見つかりません")
             return result
         
         # 必須属性チェック

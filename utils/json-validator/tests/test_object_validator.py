@@ -20,6 +20,7 @@ from jsonschema import ValidationError, RefResolver
 from validator.object_validator import ObjectValidator
 from validator.schema_loader import SchemaLoader
 from validator.exceptions import ObjectValidationError
+from validator.types import ObjectType
 
 
 
@@ -149,7 +150,9 @@ class TestObjectValidator(unittest.TestCase):
             # 検証
             self.assertTrue(result.is_valid)
             self.assertEqual(len(result.errors), 0)
-            self.mock_schema_loader.get_object_schema.assert_called_once_with("TX_STOCK_ISSUANCE")
+            # 型安全化でObjectType型で呼び出されることを確認
+            expected_call = ObjectType("TX_STOCK_ISSUANCE")
+            self.mock_schema_loader.get_object_schema.assert_called_once_with(expected_call)
             mock_validate.assert_called_once()
     
     def test_validate_object_success_security_holder(self):
@@ -168,7 +171,9 @@ class TestObjectValidator(unittest.TestCase):
             # 検証
             self.assertTrue(result.is_valid)
             self.assertEqual(len(result.errors), 0)
-            self.mock_schema_loader.get_object_schema.assert_called_once_with("SECURITY_HOLDER")
+            # 型安全化でObjectType型で呼び出されることを確認
+            expected_call = ObjectType("SECURITY_HOLDER")
+            self.mock_schema_loader.get_object_schema.assert_called_once_with(expected_call)
     
     def test_validate_object_missing_object_type(self):
         """異常系: object_type属性が存在しない"""
@@ -415,11 +420,14 @@ class TestObjectValidator(unittest.TestCase):
         self.mock_schema_loader.get_object_schema.return_value = self.stock_issuance_schema
         
         # テスト実行
-        schema = self.object_validator._get_object_schema("TX_STOCK_ISSUANCE")
+        object_type = ObjectType("TX_STOCK_ISSUANCE")
+        schema = self.object_validator._get_object_schema(object_type)
         
         # 検証
         self.assertEqual(schema, self.stock_issuance_schema)
-        self.mock_schema_loader.get_object_schema.assert_called_once_with("TX_STOCK_ISSUANCE")
+        # 型安全化でObjectType型で呼び出されることを確認
+        expected_call = ObjectType("TX_STOCK_ISSUANCE")
+        self.mock_schema_loader.get_object_schema.assert_called_once_with(expected_call)
     
     def test_validate_with_jsonschema_success(self):
         """_validate_with_jsonschemaメソッドの成功テスト"""
@@ -599,11 +607,11 @@ class TestObjectValidator(unittest.TestCase):
         """正常系: 複数オブジェクトの一括検証成功"""
         objects = [self.valid_stock_issuance, self.valid_security_holder]
         
-        # モックの設定
+        # モックの設定（型安全化でObjectType型で渡される）
         def mock_get_schema(object_type):
-            if object_type == "TX_STOCK_ISSUANCE":
+            if str(object_type) == "TX_STOCK_ISSUANCE":
                 return self.stock_issuance_schema
-            elif object_type == "SECURITY_HOLDER":
+            elif str(object_type) == "SECURITY_HOLDER":
                 return self.security_holder_schema
             return None
         
@@ -624,7 +632,7 @@ class TestObjectValidator(unittest.TestCase):
         objects = [self.valid_stock_issuance, invalid_object]
         
         def mock_get_schema(object_type):
-            if object_type == "TX_STOCK_ISSUANCE":
+            if str(object_type) == "TX_STOCK_ISSUANCE":
                 return self.stock_issuance_schema
             return None
         
@@ -659,7 +667,8 @@ class TestObjectValidator(unittest.TestCase):
     def test_get_object_type_success(self):
         """正常系: object_type取得成功"""
         object_type = self.object_validator.get_object_type(self.valid_stock_issuance)
-        self.assertEqual(object_type, "TX_STOCK_ISSUANCE")
+        expected_object_type = ObjectType("TX_STOCK_ISSUANCE")
+        self.assertEqual(object_type, expected_object_type)
     
     def test_get_object_type_missing(self):
         """正常系: object_type存在しない場合"""
@@ -675,18 +684,20 @@ class TestObjectValidator(unittest.TestCase):
         """正常系: 有効なobject_type"""
         self.mock_schema_loader.has_object_schema.return_value = True
         
-        is_valid = self.object_validator.is_valid_object_type("TX_STOCK_ISSUANCE")
+        object_type = ObjectType("TX_STOCK_ISSUANCE")
+        is_valid = self.object_validator.is_valid_object_type(object_type)
         self.assertTrue(is_valid)
     
     def test_is_valid_object_type_invalid(self):
         """異常系: 無効なobject_type"""
         self.mock_schema_loader.has_object_schema.return_value = False
         
-        is_valid = self.object_validator.is_valid_object_type("INVALID_TYPE")
+        object_type = ObjectType("INVALID_TYPE")
+        is_valid = self.object_validator.is_valid_object_type(object_type)
         self.assertFalse(is_valid)
     
     def test_is_valid_object_type_non_string(self):
-        """異常系: 文字列でないobject_type"""
+        """異常系: ObjectTypeでないobject_type"""
         is_valid = self.object_validator.is_valid_object_type(123)
         self.assertFalse(is_valid)
     
@@ -715,7 +726,8 @@ class TestObjectValidator(unittest.TestCase):
         context = self.object_validator.get_validation_context(self.valid_stock_issuance)
         
         self.assertIsInstance(context, dict)
-        self.assertEqual(context["object_type"], "TX_STOCK_ISSUANCE")
+        expected_object_type = ObjectType("TX_STOCK_ISSUANCE")
+        self.assertEqual(context["object_type"], expected_object_type)
         self.assertIn("strict_mode", context)
         self.assertIn("object_size", context)
     
@@ -754,7 +766,9 @@ class TestObjectValidator(unittest.TestCase):
         schema = self.object_validator._get_object_schema(object_type) if object_type else None
         
         self.assertEqual(schema, self.stock_issuance_schema)
-        self.mock_schema_loader.get_object_schema.assert_called_with("TX_STOCK_ISSUANCE")
+        # 型安全化でObjectType型で呼び出されることを確認
+        expected_call = ObjectType("TX_STOCK_ISSUANCE")
+        self.mock_schema_loader.get_object_schema.assert_called_with(expected_call)
     
     def test_get_schema_for_object_no_type(self):
         """正常系: object_typeなしの場合 (get_object_type + _get_object_schema組み合わせ)"""
@@ -868,7 +882,8 @@ class TestObjectValidator(unittest.TestCase):
         context = self.object_validator.get_validation_context(self.valid_stock_issuance)
         
         self.assertIsInstance(context, dict)
-        self.assertEqual(context["object_type"], "TX_STOCK_ISSUANCE")
+        expected_object_type = ObjectType("TX_STOCK_ISSUANCE")
+        self.assertEqual(context["object_type"], expected_object_type)
         # schema_idを手動で追加してテスト
         context["schema_id"] = self.stock_issuance_schema.get("$id", "unknown")
         self.assertIn("schema_id", context)

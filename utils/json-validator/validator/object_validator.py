@@ -12,6 +12,7 @@ from jsonschema import ValidationError, RefResolver
 from .schema_loader import SchemaLoader
 from .validation_result import ValidationResult
 from .exceptions import ObjectValidationError, SchemaNotFoundError, RefResolutionError
+from .types import ObjectType
 
 
 class ObjectValidator:
@@ -58,12 +59,15 @@ class ObjectValidator:
                 result.add_error(error)
             return result
         
-        object_type = object_data["object_type"]
+        object_type_obj = self.get_object_type(object_data)
+        if not object_type_obj:
+            result.add_error("有効なobject_typeを取得できませんでした")
+            return result
         
         # スキーマの取得
-        schema = self._get_object_schema(object_type)
+        schema = self._get_object_schema(object_type_obj)
         if not schema:
-            result.add_error(f"object_type '{object_type}' に対応するスキーマが見つかりません")
+            result.add_error(f"object_type '{object_type_obj}' に対応するスキーマが見つかりません")
             return result
         
         # jsonschemaによる検証
@@ -110,7 +114,7 @@ class ObjectValidator:
         """
         return self._validate_with_jsonschema(object_data, schema)
     
-    def get_object_type(self, object_data: Dict[str, Any]) -> Optional[str]:
+    def get_object_type(self, object_data: Dict[str, Any]) -> Optional[ObjectType]:
         """
         オブジェクトからobject_typeを取得
         
@@ -118,23 +122,32 @@ class ObjectValidator:
             object_data (Dict[str, Any]): 対象オブジェクト
             
         Returns:
-            Optional[str]: object_type。見つからない場合はNone
+            Optional[ObjectType]: object_type。見つからない場合はNone
         """
         if not isinstance(object_data, dict):
             return None
-        return object_data.get("object_type")
+        
+        object_type_str = object_data.get("object_type")
+        if object_type_str is None:
+            return None
+        
+        try:
+            return ObjectType(object_type_str)
+        except (TypeError, ValueError):
+            # 無効な文字列の場合はNoneを返す
+            return None
     
-    def is_valid_object_type(self, object_type: str) -> bool:
+    def is_valid_object_type(self, object_type: ObjectType) -> bool:
         """
         object_typeが有効かどうかを確認
         
         Args:
-            object_type (str): 確認するobject_type
+            object_type (ObjectType): 確認するobject_type
             
         Returns:
             bool: 有効な場合True
         """
-        if not isinstance(object_type, str):
+        if not isinstance(object_type, ObjectType):
             return False
         return self.schema_loader.has_object_schema(object_type)
     
@@ -145,7 +158,8 @@ class ObjectValidator:
         Returns:
             List[str]: サポートされているobject_typeのリスト
         """
-        return self.schema_loader.get_object_types()
+        object_types = self.schema_loader.get_object_types()
+        return [str(obj_type) for obj_type in object_types]
     
     
     
@@ -265,20 +279,24 @@ class ObjectValidator:
             result.add_error("object_type属性は文字列である必要があります")
             return result
         
-        if not self.is_valid_object_type(object_type):
+        try:
+            object_type_obj = ObjectType(object_type)
+            if not self.is_valid_object_type(object_type_obj):
+                result.add_error(f"無効な object_type: {object_type}")
+        except (TypeError, ValueError):
             result.add_error(f"無効な object_type: {object_type}")
         
         return result
     
     
     
-    def _update_validation_stats(self, object_type: str, is_valid: bool, 
+    def _update_validation_stats(self, object_type: ObjectType, is_valid: bool, 
                                validation_time: float) -> None:
         """
         検証統計情報を更新（内部メソッド）
         
         Args:
-            object_type (str): オブジェクトタイプ
+            object_type (ObjectType): オブジェクトタイプ
             is_valid (bool): 検証結果
             validation_time (float): 検証時間
         """
@@ -290,9 +308,10 @@ class ObjectValidator:
         
         self.validation_stats["validation_times"].append(validation_time)
         
-        if object_type not in self.validation_stats["object_type_counts"]:
-            self.validation_stats["object_type_counts"][object_type] = 0
-        self.validation_stats["object_type_counts"][object_type] = self.validation_stats["object_type_counts"][object_type] + 1
+        object_type_str = str(object_type)
+        if object_type_str not in self.validation_stats["object_type_counts"]:
+            self.validation_stats["object_type_counts"][object_type_str] = 0
+        self.validation_stats["object_type_counts"][object_type_str] = self.validation_stats["object_type_counts"][object_type_str] + 1
     
     def __str__(self) -> str:
         """
@@ -312,7 +331,7 @@ class ObjectValidator:
         """
         return f"ObjectValidator(schema_loader={self.schema_loader}, strict_mode={self.strict_mode})"
     
-    def _get_object_schema(self, object_type: str) -> Optional[Dict[str, Any]]:
+    def _get_object_schema(self, object_type: ObjectType) -> Optional[Dict[str, Any]]:
         """object_typeに対応するスキーマを取得"""
         return self.schema_loader.get_object_schema(object_type)
     
