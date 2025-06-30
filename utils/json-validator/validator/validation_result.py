@@ -98,3 +98,65 @@ class ValidationResult:
             'error_categories': error_categories,
             'validation_success': self.is_valid
         }
+
+
+class AggregatedValidationResult:
+    """
+    複数ファイルの検証結果を集約するクラス
+    """
+    
+    def __init__(self, results: Optional[List[ValidationResult]] = None):
+        """
+        集約検証結果の初期化
+        
+        Args:
+            results (List[ValidationResult], optional): 個別の検証結果リスト
+        """
+        self.results = results or []
+        self.total_files = len(self.results)
+        self.valid_files = len([r for r in self.results if r.is_valid])
+        self.invalid_files = self.total_files - self.valid_files
+        self.is_valid = self.invalid_files == 0
+    
+    def add_result(self, result: ValidationResult) -> None:
+        """
+        検証結果を追加
+        
+        Args:
+            result (ValidationResult): 追加する検証結果
+        """
+        self.results.append(result)
+        self.total_files = len(self.results)
+        self.valid_files = len([r for r in self.results if r.is_valid])
+        self.invalid_files = self.total_files - self.valid_files
+        self.is_valid = self.invalid_files == 0
+    
+    def get_all_errors(self) -> List[str]:
+        """
+        全エラーメッセージを取得
+        
+        Returns:
+            List[str]: 全エラーメッセージのリスト
+        """
+        all_errors = []
+        for result in self.results:
+            all_errors.extend(result.errors)
+        return all_errors
+    
+    def __str__(self) -> str:
+        """
+        文字列表現を返す
+        
+        Returns:
+            str: 集約結果の文字列表現
+        """
+        return f"AggregatedValidationResult(total={self.total_files}, valid={self.valid_files}, invalid={self.invalid_files})"
+    
+    def __repr__(self) -> str:
+        """
+        デバッグ用の文字列表現を返す
+        
+        Returns:
+            str: デバッグ用の文字列表現
+        """
+        return f"AggregatedValidationResult(results={len(self.results)}, is_valid={self.is_valid})"
