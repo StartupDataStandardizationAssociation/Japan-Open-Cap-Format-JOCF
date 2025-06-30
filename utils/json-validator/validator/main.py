@@ -76,7 +76,18 @@ class JSONValidator:
         Returns:
             AggregatedValidationResult: 集約された検証結果
         """
-        raise NotImplementedError("JSONValidator.validate_multiple() is not implemented yet")
+        results = []
+        
+        for file_path in file_paths:
+            try:
+                result = self.validate(file_path)
+                results.append(result)
+            except Exception as e:
+                # ファイル検証でエラーが発生した場合も結果に含める
+                error_result = ValidationResult(is_valid=False, errors=[str(e)])
+                results.append(error_result)
+        
+        return AggregatedValidationResult(results)
     
     def validate_directory(self, directory_path: str, 
                          pattern: str = "*.jocf.json") -> AggregatedValidationResult:
@@ -89,8 +100,57 @@ class JSONValidator:
             
         Returns:
             AggregatedValidationResult: 集約された検証結果
+            
+        Raises:
+            ValidationError: 入力パラメータが無効な場合
         """
-        raise NotImplementedError("JSONValidator.validate_directory() is not implemented yet")
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        # 入力検証
+        if not directory_path or not directory_path.strip():
+            error_result = ValidationResult(is_valid=False, errors=["ディレクトリパスが空です"])
+            return AggregatedValidationResult([error_result])
+        
+        if not pattern or not pattern.strip():
+            error_result = ValidationResult(is_valid=False, errors=["ファイルパターンが空です"])
+            return AggregatedValidationResult([error_result])
+        
+        try:
+            # ディレクトリパスをPathオブジェクトに変換
+            directory = Path(directory_path).resolve()
+            logger.debug(f"Validating directory: {directory}")
+            
+            # ディレクトリが存在しない場合は空の結果を返す
+            if not directory.exists():
+                logger.debug(f"Directory does not exist: {directory}")
+                return AggregatedValidationResult([])
+            
+            if not directory.is_dir():
+                logger.debug(f"Path is not a directory: {directory}")
+                error_result = ValidationResult(is_valid=False, errors=[f"指定されたパスはディレクトリではありません: {directory}"])
+                return AggregatedValidationResult([error_result])
+            
+            # パターンに一致するファイルを検索
+            logger.debug(f"Searching for files with pattern: {pattern}")
+            file_paths = list(directory.glob(pattern))
+            logger.debug(f"Found {len(file_paths)} files matching pattern")
+            
+            # ファイルパスを文字列に変換（ファイルのみを対象）
+            file_path_strings = [str(file_path) for file_path in file_paths if file_path.is_file()]
+            logger.debug(f"Processing {len(file_path_strings)} files for validation")
+            
+            # validate_multipleを使用して一括検証
+            return self.validate_multiple(file_path_strings)
+            
+        except PermissionError as e:
+            logger.error(f"Permission denied accessing directory {directory_path}: {e}")
+            error_result = ValidationResult(is_valid=False, errors=[f"ディレクトリアクセス権限がありません: {directory_path}"])
+            return AggregatedValidationResult([error_result])
+        except Exception as e:
+            logger.error(f"Unexpected error during directory validation: {e}")
+            error_result = ValidationResult(is_valid=False, errors=[f"ディレクトリ検証エラー: {str(e)}"])
+            return AggregatedValidationResult([error_result])
     
     def _load_json_file(self, file_path: str) -> Dict[str, Any]:
         """
