@@ -1273,5 +1273,76 @@ class TestNumericTypeValidation(unittest.TestCase):
         self.assertTrue(result.is_valid, "正しい文字列形式のseniorityは検証に通るべき")
 
 
+class TestConversionMechanismValidation(unittest.TestCase):
+    """conversion_mechanismのスキーマ準拠テスト"""
+    
+    def setUp(self):
+        """テスト前の準備"""
+        self.mock_schema_loader = Mock()
+        self.file_validator = FileValidator(self.mock_schema_loader)
+    
+    def test_ratio_field_should_be_object_not_string(self):
+        """ratio フィールドは文字列ではなくオブジェクトであるべき - 現在失敗する"""
+        # 問題のあるconversion_mechanismデータ（文字列形式のratio）
+        conversion_mechanism_data = {
+            "type": "RATIO_CONVERSION",
+            "description": "転換価額が調整された同数のA種優先株への転換(払込不要)",
+            "conversion_price": {
+                "amount": "0",
+                "currency": "JPY"
+            },
+            "ratio": "1",  # 問題: 文字列形式
+            "rounding_type": "FLOOR"
+        }
+        
+        # モックのObjectValidatorを設定
+        mock_object_validator = Mock()
+        self.file_validator.object_validator = mock_object_validator
+        
+        # Ratio型検証でエラーが発生することを期待
+        validation_result = ValidationResult()
+        validation_result.add_error("not valid under any of the given schemas")
+        mock_object_validator.validate_object.return_value = validation_result
+        
+        # テスト実行
+        result = self.file_validator.object_validator.validate_object(conversion_mechanism_data, "RATIO_CONVERSION")
+        
+        # 検証（現在は文字列形式でエラーになる）
+        self.assertFalse(result.is_valid, "文字列形式のratioはエラーになるべき")
+        self.assertTrue(any("not valid under any of the given schemas" in error for error in result.errors), 
+                       "oneOf検証エラーが発生するべき")
+    
+    def test_ratio_field_correct_object_format(self):
+        """正しいオブジェクト形式のratio型は検証に通るべき"""
+        # 正しいconversion_mechanismデータ（オブジェクト形式のratio）
+        conversion_mechanism_data = {
+            "type": "RATIO_CONVERSION",
+            "description": "転換価額が調整された同数のA種優先株への転換(払込不要)",
+            "conversion_price": {
+                "amount": "0",
+                "currency": "JPY"
+            },
+            "ratio": {  # 正しい: オブジェクト形式
+                "numerator": "1",
+                "denominator": "1"
+            },
+            "rounding_type": "FLOOR"
+        }
+        
+        # モックのObjectValidatorを設定
+        mock_object_validator = Mock()
+        self.file_validator.object_validator = mock_object_validator
+        
+        # Ratio型検証が成功することを期待
+        validation_result = ValidationResult()
+        mock_object_validator.validate_object.return_value = validation_result
+        
+        # テスト実行
+        result = self.file_validator.object_validator.validate_object(conversion_mechanism_data, "RATIO_CONVERSION")
+        
+        # 検証（オブジェクト形式は成功するべき）
+        self.assertTrue(result.is_valid, "正しいオブジェクト形式のratioは検証に通るべき")
+
+
 if __name__ == '__main__':
     unittest.main()

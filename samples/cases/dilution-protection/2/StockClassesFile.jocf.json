@@ -28,7 +28,10 @@
                                     "amount" : "0",
                                     "currency": "JPY"
                                 },
-                                "ratio": "1",
+                                "ratio": {
+                                    "numerator": "1",
+                                    "denominator": "1"
+                                },
                                 "rounding_type": "FLOOR"
                             },
                             "converts_to_future_round": true
