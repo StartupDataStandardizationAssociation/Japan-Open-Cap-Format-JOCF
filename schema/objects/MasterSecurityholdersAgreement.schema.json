@@ -15,24 +15,26 @@
         "securityholders_who_agreed": {
             "type": "array",
             "description": "証券保有者間基本契約に合意する証券保有者の一覧",
-            "oneOf": [
-                {
-                    "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/SecurityHolder.schema.json"
-                },
-                {
-                    "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/SecurityholderGroup.schema.json"
-                }
-            ]
+            "items": {
+                "oneOf": [
+                    {
+                        "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/SecurityHolder.schema.json"
+                    },
+                    {
+                        "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/SecurityHolderGroup.schema.json"
+                    }
+                ]
+            }
         },
         "parties_and_authority_attributes": {
             "type": "array",
             "description": "証券保有者間同意における当事者の一覧とその権限属性",
             "properties": {
                 "securityholder_group": {
-                    "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/SecurityholderGroup.schema.json"
+                    "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/SecurityHolderGroup.schema.json"
                 },
                 "securityholder": {
-                    "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/Securityholder.schema.json"
+                    "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/Securityolder.schema.json"
                 },
                 "number_of_electable_directors": {
                     "description": "取締役選任可能人数",

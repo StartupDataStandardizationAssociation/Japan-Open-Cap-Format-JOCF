@@ -198,40 +198,67 @@ class FileValidator:
         allowed_types = []
         self.logger.debug(f"Getting allowed object types from schema: {schema.get('$id', 'unknown')}")
         
-        # schema["properties"]["items"]["items"]["oneOf"]から$refを取得
         try:
             items_schema = schema.get("properties", {}).get("items", {}).get("items", {})
             self.logger.debug(f"Items schema structure: {items_schema}")
             
-            one_of_schemas = items_schema.get("oneOf", [])
-            self.logger.debug(f"Found {len(one_of_schemas)} oneOf schemas")
-            
             resolver = self.schema_loader.get_ref_resolver()
             
-            for i, ref_schema in enumerate(one_of_schemas):
-                if "$ref" in ref_schema:
-                    ref_url = ref_schema["$ref"]
-                    self.logger.debug(f"Resolving $ref {i}: {ref_url}")
-                    try:
-                        _, resolved_schema = resolver.resolve(ref_url)
-                        self.logger.debug(f"Resolved schema keys: {list(resolved_schema.keys())}")
-                        
-                        # object_typeはproperties.object_type.constに定義されている
-                        properties = resolved_schema.get("properties", {})
-                        object_type_prop = properties.get("object_type", {})
-                        if "const" in object_type_prop:
-                            object_type = object_type_prop["const"]
+            # oneOf構造をチェック（複数オブジェクトタイプ）
+            one_of_schemas = items_schema.get("oneOf", [])
+            if one_of_schemas:
+                self.logger.debug(f"Found {len(one_of_schemas)} oneOf schemas")
+                
+                for i, ref_schema in enumerate(one_of_schemas):
+                    if "$ref" in ref_schema:
+                        ref_url = ref_schema["$ref"]
+                        self.logger.debug(f"Resolving $ref {i}: {ref_url}")
+                        object_type = self._extract_object_type_from_ref(resolver, ref_url)
+                        if object_type:
                             allowed_types.append(object_type)
-                            self.logger.debug(f"Added object_type: {object_type}")
-                        else:
-                            self.logger.debug(f"No object_type.const found in resolved schema: {resolved_schema.get('$id', 'unknown')}")
-                    except Exception as e:
-                        self.logger.debug(f"Failed to resolve $ref {ref_url}: {str(e)}")
+            
+            # 直接$ref構造をチェック（単一オブジェクトタイプ）
+            elif "$ref" in items_schema:
+                ref_url = items_schema["$ref"]
+                self.logger.debug(f"Found direct $ref: {ref_url}")
+                object_type = self._extract_object_type_from_ref(resolver, ref_url)
+                if object_type:
+                    allowed_types.append(object_type)
+            
         except Exception as e:
             self.logger.debug(f"Error in _get_allowed_object_types: {str(e)}")
         
         self.logger.debug(f"Final allowed_types: {allowed_types}")
         return allowed_types
+    
+    def _extract_object_type_from_ref(self, resolver, ref_url: str) -> Optional[str]:
+        """
+        $refを解決してobject_typeを抽出する共通処理
+        
+        Args:
+            resolver: RefResolverインスタンス
+            ref_url (str): 解決する$ref URL
+            
+        Returns:
+            Optional[str]: 抽出されたobject_type、取得できない場合はNone
+        """
+        try:
+            _, resolved_schema = resolver.resolve(ref_url)
+            self.logger.debug(f"Resolved schema keys: {list(resolved_schema.keys())}")
+            
+            # object_typeはproperties.object_type.constに定義されている
+            properties = resolved_schema.get("properties", {})
+            object_type_prop = properties.get("object_type", {})
+            if "const" in object_type_prop:
+                object_type = object_type_prop["const"]
+                self.logger.debug(f"Added object_type: {object_type}")
+                return object_type
+            else:
+                self.logger.debug(f"No object_type.const found in resolved schema: {resolved_schema.get('$id', 'unknown')}")
+                return None
+        except Exception as e:
+            self.logger.debug(f"Failed to resolve $ref {ref_url}: {str(e)}")
+            return None
     
     def _validate_items_elements_detailed(self, file_data: Dict[str, Any], schema: Dict[str, Any]) -> ValidationResult:
         """

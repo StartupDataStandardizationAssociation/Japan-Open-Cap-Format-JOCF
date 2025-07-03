@@ -1033,5 +1033,245 @@ class TestFileValidator(unittest.TestCase):
         self.assertFalse(result.is_valid, "items内のオブジェクトに必須フィールドが不足している可能性があるため")
 
 
+class TestGetAllowedObjectTypes(unittest.TestCase):
+    """_get_allowed_object_types メソッドの単体テスト"""
+    
+    def setUp(self):
+        """テスト前の準備"""
+        self.mock_schema_loader = Mock()
+        self.file_validator = FileValidator(self.mock_schema_loader)
+        
+        # RefResolverのモック設定
+        self.mock_resolver = Mock()
+        self.mock_schema_loader.get_ref_resolver.return_value = self.mock_resolver
+    
+    def test_get_allowed_object_types_with_direct_ref_structure(self):
+        """直接$ref構造（単一オブジェクトタイプ）のケース - 現在失敗する"""
+        # SecurityHoldersFileのような直接$ref構造のスキーマ
+        schema = {
+            "$id": "https://jocf.startupstandard.org/jocf/main/schema/files/SecurityHoldersFile.schema.json",
+            "properties": {
+                "items": {
+                    "items": {
+                        "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/SecurityHolder.schema.json"
+                    }
+                }
+            }
+        }
+        
+        # 解決されるSecurityHolderスキーマ
+        resolved_schema = {
+            "$id": "https://jocf.startupstandard.org/jocf/main/schema/objects/SecurityHolder.schema.json",
+            "properties": {
+                "object_type": {
+                    "const": "SECURITY_HOLDER"
+                }
+            }
+        }
+        
+        # RefResolverのモック設定
+        self.mock_resolver.resolve.return_value = (None, resolved_schema)
+        
+        # テスト実行
+        result = self.file_validator._get_allowed_object_types(schema)
+        
+        # 検証（SECURITY_HOLDERが取得できるべき）
+        self.assertEqual(result, ["SECURITY_HOLDER"], "直接$ref構造からobject_typeが取得できるべき")
+    
+    def test_get_allowed_object_types_with_oneOf_structure(self):
+        """oneOf構造（複数オブジェクトタイプ）のケース - 既存動作の回帰テスト"""
+        # TransactionsFileのようなoneOf構造のスキーマ
+        schema = {
+            "$id": "https://jocf.startupstandard.org/jocf/main/schema/files/TransactionsFile.schema.json",
+            "properties": {
+                "items": {
+                    "items": {
+                        "oneOf": [
+                            {"$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/StockIssuance.schema.json"},
+                            {"$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/StockTransfer.schema.json"}
+                        ]
+                    }
+                }
+            }
+        }
+        
+        # 解決されるスキーマ
+        stock_issuance_schema = {
+            "properties": {
+                "object_type": {"const": "TX_STOCK_ISSUANCE"}
+            }
+        }
+        stock_transfer_schema = {
+            "properties": {
+                "object_type": {"const": "TX_STOCK_TRANSFER"}
+            }
+        }
+        
+        # RefResolverのモック設定（呼び出し順序を保証）
+        self.mock_resolver.resolve.side_effect = [
+            (None, stock_issuance_schema),
+            (None, stock_transfer_schema)
+        ]
+        
+        # テスト実行
+        result = self.file_validator._get_allowed_object_types(schema)
+        
+        # 検証（両方のobject_typeが取得できるべき）
+        self.assertEqual(set(result), {"TX_STOCK_ISSUANCE", "TX_STOCK_TRANSFER"}, "oneOf構造から全てのobject_typeが取得できるべき")
+
+
+class TestNameTypeValidation(unittest.TestCase):
+    """Name型のスキーマ準拠テスト"""
+    
+    def setUp(self):
+        """テスト前の準備"""
+        self.mock_schema_loader = Mock()
+        self.file_validator = FileValidator(self.mock_schema_loader)
+        
+        # 実際のName型スキーマ
+        self.name_schema = {
+            "$id": "https://jocf.startupstandard.org/jocf/main/schema/types/Name.schema.json",
+            "title": "名前",
+            "type": "object",
+            "properties": {
+                "legal_name": {"type": "string"},
+                "first_name": {"type": "string"},
+                "last_name": {"type": "string"}
+            },
+            "required": ["legal_name"],
+            "additionalProperties": False
+        }
+    
+    def test_name_field_should_be_object_not_string(self):
+        """Name型フィールドは文字列ではなくオブジェクトであるべき - 現在失敗する"""
+        # 問題のあるSecurityHolderデータ（文字列形式のname）
+        security_holder_data = {
+            "object_type": "SECURITY_HOLDER",
+            "id": "test-securityholder-investor-a", 
+            "name": "創業者 A(移転元)",  # 問題: 文字列形式
+            "security_holder_type": "INDIVIDUAL"
+        }
+        
+        # モックのObjectValidatorを設定
+        mock_object_validator = Mock()
+        self.file_validator.object_validator = mock_object_validator
+        
+        # Name型検証でエラーが発生することを期待
+        validation_result = ValidationResult()
+        validation_result.add_error("JSONスキーマ検証エラー: '創業者 A(移転元)' is not of type 'object'")
+        mock_object_validator.validate_object.return_value = validation_result
+        
+        # テスト実行
+        result = self.file_validator.object_validator.validate_object(security_holder_data, "SECURITY_HOLDER")
+        
+        # 検証（現在は文字列形式でエラーになる）
+        self.assertFalse(result.is_valid, "文字列形式のnameはエラーになるべき")
+        self.assertTrue(any("is not of type 'object'" in error for error in result.errors), 
+                       "Name型の型エラーが発生するべき")
+    
+    def test_name_field_correct_object_format(self):
+        """正しいオブジェクト形式のName型は検証に通るべき"""
+        # 正しいSecurityHolderデータ（オブジェクト形式のname）
+        security_holder_data = {
+            "object_type": "SECURITY_HOLDER",
+            "id": "test-securityholder-investor-a",
+            "name": {  # 正しい: オブジェクト形式
+                "legal_name": "創業者 A(移転元)"
+            },
+            "security_holder_type": "INDIVIDUAL"
+        }
+        
+        # モックのObjectValidatorを設定
+        mock_object_validator = Mock()
+        self.file_validator.object_validator = mock_object_validator
+        
+        # Name型検証が成功することを期待
+        validation_result = ValidationResult()
+        mock_object_validator.validate_object.return_value = validation_result
+        
+        # テスト実行
+        result = self.file_validator.object_validator.validate_object(security_holder_data, "SECURITY_HOLDER")
+        
+        # 検証（オブジェクト形式は成功するべき）
+        self.assertTrue(result.is_valid, "正しいオブジェクト形式のnameは検証に通るべき")
+
+
+class TestNumericTypeValidation(unittest.TestCase):
+    """Numeric型のスキーマ準拠テスト"""
+    
+    def setUp(self):
+        """テスト前の準備"""
+        self.mock_schema_loader = Mock()
+        self.file_validator = FileValidator(self.mock_schema_loader)
+        
+        # 実際のNumeric型スキーマ
+        self.numeric_schema = {
+            "$id": "https://jocf.startupstandard.org/jocf/main/schema/types/Numeric.schema.json",
+            "title": "Type - Numeric",
+            "description": "固定小数点の実数(小数点以下最大10桁)",
+            "type": "string",
+            "pattern": "^[+-]?[0-9]+(\\.[0-9]{1,10})?$"
+        }
+    
+    def test_numeric_field_should_be_string_not_number(self):
+        """Numeric型フィールドは数値ではなく文字列であるべき - 現在失敗する"""
+        # 問題のあるStockClassデータ（数値形式のseniority）
+        stock_class_data = {
+            "object_type": "STOCK_CLASS",
+            "id": "test-stock-class-A",
+            "name": "A種優先株",
+            "preffered_stock_attributes": {
+                "liquidation_preference_attributes": {
+                    "seniority": 3  # 問題: 数値形式
+                }
+            }
+        }
+        
+        # モックのObjectValidatorを設定
+        mock_object_validator = Mock()
+        self.file_validator.object_validator = mock_object_validator
+        
+        # Numeric型検証でエラーが発生することを期待
+        validation_result = ValidationResult()
+        validation_result.add_error("JSONスキーマ検証エラー: 3 is not of type 'string'")
+        mock_object_validator.validate_object.return_value = validation_result
+        
+        # テスト実行
+        result = self.file_validator.object_validator.validate_object(stock_class_data, "STOCK_CLASS")
+        
+        # 検証（現在は数値形式でエラーになる）
+        self.assertFalse(result.is_valid, "数値形式のseniorityはエラーになるべき")
+        self.assertTrue(any("is not of type 'string'" in error for error in result.errors), 
+                       "Numeric型の型エラーが発生するべき")
+    
+    def test_numeric_field_correct_string_format(self):
+        """正しい文字列形式のNumeric型は検証に通るべき"""
+        # 正しいStockClassデータ（文字列形式のseniority）
+        stock_class_data = {
+            "object_type": "STOCK_CLASS",
+            "id": "test-stock-class-A",
+            "name": "A種優先株",
+            "preffered_stock_attributes": {
+                "liquidation_preference_attributes": {
+                    "seniority": "3"  # 正しい: 文字列形式
+                }
+            }
+        }
+        
+        # モックのObjectValidatorを設定
+        mock_object_validator = Mock()
+        self.file_validator.object_validator = mock_object_validator
+        
+        # Numeric型検証が成功することを期待
+        validation_result = ValidationResult()
+        mock_object_validator.validate_object.return_value = validation_result
+        
+        # テスト実行
+        result = self.file_validator.object_validator.validate_object(stock_class_data, "STOCK_CLASS")
+        
+        # 検証（文字列形式は成功するべき）
+        self.assertTrue(result.is_valid, "正しい文字列形式のseniorityは検証に通るべき")
+
+
 if __name__ == '__main__':
     unittest.main()

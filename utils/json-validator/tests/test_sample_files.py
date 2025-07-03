@@ -10,90 +10,15 @@ import unittest
 import json
 import os
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 from parameterized import parameterized
 
-# テスト対象のクラス（実装予定）
-# from validator.main import JSONValidator
-# from validator.schema_loader import SchemaLoader
-# from validator.validation_result import ValidationResult
+# テスト対象のクラス
+from validator.main import JSONValidator
+from validator.schema_loader import SchemaLoader
+from validator.validation_result import ValidationResult
 from validator.config import get_config
 
-
-class MockJSONValidator:
-    """テスト用のJSONValidatorモッククラス"""
-    
-    def __init__(self):
-        self.schema_loader = Mock()
-        self.file_validator = Mock()
-        self.object_validator = Mock()
-    
-    def validate(self, file_path):
-        """ファイルの検証"""
-        try:
-            # JSONファイルの読み込み
-            with open(file_path, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-            
-            # 基本的な構造チェック
-            if "file_type" not in data:
-                return {
-                    "is_valid": False,
-                    "errors": ["file_type属性が存在しません"],
-                    "file_path": file_path
-                }
-            
-            if "items" not in data:
-                return {
-                    "is_valid": False,
-                    "errors": ["items配列が存在しません"],
-                    "file_path": file_path
-                }
-            
-            # items配列の各要素をチェック
-            errors = []
-            validated_objects = 0
-            
-            for i, item in enumerate(data.get("items", [])):
-                if "object_type" not in item:
-                    errors.append(f"items[{i}]: object_type属性が存在しません")
-                else:
-                    validated_objects += 1
-                    
-                    # 実際のファイルに含まれる典型的なエラーをチェック
-                    if item.get("object_type") == "TX_STOCK_ISSUANCE":
-                        share_price = item.get("share_price", {})
-                        if "ammount" in share_price:  # 典型的な誤字
-                            errors.append(f"items[{i}].share_price: 'ammount'は'amount'の誤字の可能性があります")
-                        if "cuurency_code" in share_price:  # 典型的な誤字
-                            errors.append(f"items[{i}].share_price: 'cuurency_code'は'currency_code'の誤字の可能性があります")
-                    
-                    elif item.get("object_type") == "TX_CONVERTIBLE_ISSUANCE":
-                        investment_amount = item.get("investment_amount", {})
-                        if "ammount" in investment_amount:
-                            errors.append(f"items[{i}].investment_amount: 'ammount'は'amount'の誤字の可能性があります")
-                        if "cuurency_code" in investment_amount:
-                            errors.append(f"items[{i}].investment_amount: 'cuurency_code'は'currency_code'の誤字の可能性があります")
-            
-            return {
-                "is_valid": len(errors) == 0,
-                "errors": errors,
-                "file_path": file_path,
-                "validated_objects": validated_objects
-            }
-            
-        except FileNotFoundError:
-            return {
-                "is_valid": False,
-                "errors": ["ファイルが存在しません"],
-                "file_path": file_path
-            }
-        except json.JSONDecodeError as e:
-            return {
-                "is_valid": False,
-                "errors": [f"JSONパースエラー: {str(e)}"],
-                "file_path": file_path
-            }
 
 
 class TestRealWorldFiles(unittest.TestCase):
@@ -120,11 +45,18 @@ class TestRealWorldFiles(unittest.TestCase):
             project_root = project_root.parent
         
         self.samples_dir = project_root / samples_dir_name
-        self.validator = MockJSONValidator()
+        self.validator = JSONValidator()
         
         # サンプルディレクトリが存在するかチェック
         self.assertTrue(self.samples_dir.exists(), 
                        f"サンプルディレクトリが存在しません: {self.samples_dir}")
+        
+        # スキーマローダーの初期化
+        try:
+            self.validator.schema_loader.load_all_schemas()
+        except Exception as e:
+            # スキーマローダーでエラーが発生した場合はログに記録
+            print(f"Warning: スキーマの読み込みでエラーが発生しました: {e}")
     
     @parameterized.expand([
         ("TransactionsFile.jocf.json",),
@@ -142,20 +74,14 @@ class TestRealWorldFiles(unittest.TestCase):
         result = self.validator.validate(str(file_path))
         
         # 基本的な検証
-        self.assertIsInstance(result, dict)
-        self.assertIn("is_valid", result)
-        self.assertIn("file_path", result)
-        self.assertEqual(result["file_path"], str(file_path))
-        
-        # ファイル固有の検証
-        if "transactions" in filename.lower():
-            self.assertGreater(result["validated_objects"], 0, 
-                             "TransactionFileには1つ以上のトランザクションが含まれているべきです")
+        self.assertIsInstance(result, ValidationResult)
+        self.assertIsInstance(result.is_valid, bool)
+        self.assertIsInstance(result.errors, list)
         
         # エラーがある場合の詳細チェック
-        if not result["is_valid"]:
+        if not result.is_valid:
             print(f"\n{filename} validation errors:")
-            for error in result.get("errors", []):
+            for error in result.errors:
                 print(f"  - {error}")
     
     def test_validate_case_files(self):
@@ -181,18 +107,225 @@ class TestRealWorldFiles(unittest.TestCase):
         for case_file in case_files:
             result = self.validator.validate(str(case_file))
             
-            if result["is_valid"]:
+            if result.is_valid:
                 valid_files += 1
             else:
                 invalid_files += 1
                 print(f"\nCase file {case_file.name} errors:")
-                for error in result.get("errors", []):
+                for error in result.errors:
                     print(f"  - {error}")
         
         print(f"\nCase files summary: {valid_files} valid, {invalid_files} invalid")
         
-        # 少なくとも一部のケースファイルは有効であることを期待
-        self.assertGreater(valid_files, 0, "有効なケースファイルが1つも見つかりませんでした")
+        # すべてのケースファイルでバリデーションエラーが発生していないことを確認
+        self.assertEqual(invalid_files, 0, f"ケースファイルでバリデーションエラーが発生しています: {invalid_files}個のファイルでエラー")
+        self.assertEqual(valid_files, len(case_files), "すべてのケースファイルが有効である必要があります")
+    
+    def test_validate_j_kiss_files(self):
+        """j-kiss_2ディレクトリ内のファイルをテスト"""
+        j_kiss_dir = self.samples_dir / "j-kiss_2"
+        
+        if not j_kiss_dir.exists():
+            self.skipTest("j-kiss_2 directory not found")
+        
+        j_kiss_files = []
+        for numbered_dir in j_kiss_dir.iterdir():
+            if numbered_dir.is_dir():
+                for jocf_file in numbered_dir.glob("*.jocf.json"):
+                    j_kiss_files.append(jocf_file)
+        
+        self.assertGreater(len(j_kiss_files), 0, "J-KISSファイルが見つかりませんでした")
+        
+        valid_files = 0
+        invalid_files = 0
+        
+        for j_kiss_file in j_kiss_files:
+            result = self.validator.validate(str(j_kiss_file))
+            
+            if result.is_valid:
+                valid_files += 1
+            else:
+                invalid_files += 1
+                print(f"\nJ-KISS file {j_kiss_file.name} errors:")
+                for error in result.errors:
+                    print(f"  - {error}")
+        
+        print(f"\nJ-KISS files summary: {valid_files} valid, {invalid_files} invalid")
+        
+        # すべてのJ-KISSファイルでバリデーションエラーが発生していないことを確認
+        self.assertEqual(invalid_files, 0, f"J-KISSファイルでバリデーションエラーが発生しています: {invalid_files}個のファイルでエラー")
+        self.assertEqual(valid_files, len(j_kiss_files), "すべてのJ-KISSファイルが有効である必要があります")
+    
+    def test_validate_seeds_files(self):
+        """seedsディレクトリ内のファイルをテスト"""
+        seeds_dir = self.samples_dir / "seeds"
+        
+        if not seeds_dir.exists():
+            self.skipTest("seeds directory not found")
+        
+        seeds_files = list(seeds_dir.glob("*.jocf.json"))
+        
+        self.assertGreater(len(seeds_files), 0, "Seedsファイルが見つかりませんでした")
+        
+        valid_files = 0
+        invalid_files = 0
+        
+        for seeds_file in seeds_files:
+            result = self.validator.validate(str(seeds_file))
+            
+            if result.is_valid:
+                valid_files += 1
+            else:
+                invalid_files += 1
+                print(f"\nSeeds file {seeds_file.name} errors:")
+                for error in result.errors:
+                    print(f"  - {error}")
+        
+        print(f"\nSeeds files summary: {valid_files} valid, {invalid_files} invalid")
+        
+        # ネットワークエラー（外部スキーマアクセス）が発生していないことを確認
+        all_errors = []
+        for seeds_file in seeds_files:
+            result = self.validator.validate(str(seeds_file))
+            all_errors.extend(result.errors)
+        network_errors = [error for error in all_errors if 'HTTPSConnectionPool' in error or 'Failed to resolve' in error]
+        self.assertEqual(len(network_errors), 0, "ネットワークエラーが発生しています - スキーマの$ref解決に問題があります")
+        
+        # すべてのSEEDSファイルでバリデーションエラーが発生していないことを確認
+        self.assertEqual(invalid_files, 0, f"SEEDSファイルでバリデーションエラーが発生しています: {invalid_files}個のファイルでエラー")
+        self.assertEqual(valid_files, len(seeds_files), "すべてのSEEDSファイルが有効である必要があります")
+    
+    def test_validate_stock_repurchase_files(self):
+        """stock_repurchaseディレクトリ内のファイルをテスト"""
+        stock_repurchase_dir = self.samples_dir / "stock_repurchase"
+        
+        if not stock_repurchase_dir.exists():
+            self.skipTest("stock_repurchase directory not found")
+        
+        stock_repurchase_files = list(stock_repurchase_dir.glob("*.jocf.json"))
+        
+        self.assertGreater(len(stock_repurchase_files), 0, "Stock repurchaseファイルが見つかりませんでした")
+        
+        valid_files = 0
+        invalid_files = 0
+        
+        for repurchase_file in stock_repurchase_files:
+            result = self.validator.validate(str(repurchase_file))
+            
+            if result.is_valid:
+                valid_files += 1
+            else:
+                invalid_files += 1
+                print(f"\nStock repurchase file {repurchase_file.name} errors:")
+                for error in result.errors:
+                    print(f"  - {error}")
+        
+        print(f"\nStock repurchase files summary: {valid_files} valid, {invalid_files} invalid")
+        
+        # すべてのStock repurchaseファイルでバリデーションエラーが発生していないことを確認
+        self.assertEqual(invalid_files, 0, f"Stock repurchaseファイルでバリデーションエラーが発生しています: {invalid_files}個のファイルでエラー")
+        self.assertEqual(valid_files, len(stock_repurchase_files), "すべてのStock repurchaseファイルが有効である必要があります")
+    
+    def test_validate_stocktransfer_files(self):
+        """stocktransferディレクトリ内のファイルをテスト"""
+        stocktransfer_dir = self.samples_dir / "stocktransfer"
+        
+        if not stocktransfer_dir.exists():
+            self.skipTest("stocktransfer directory not found")
+        
+        stocktransfer_files = list(stocktransfer_dir.glob("*.jocf.json"))
+        
+        self.assertGreater(len(stocktransfer_files), 0, "Stock transferファイルが見つかりませんでした")
+        
+        valid_files = 0
+        invalid_files = 0
+        
+        for transfer_file in stocktransfer_files:
+            result = self.validator.validate(str(transfer_file))
+            
+            if result.is_valid:
+                valid_files += 1
+            else:
+                invalid_files += 1
+                print(f"\nStock transfer file {transfer_file.name} errors:")
+                for error in result.errors:
+                    print(f"  - {error}")
+        
+        print(f"\nStock transfer files summary: {valid_files} valid, {invalid_files} invalid")
+        
+        # すべてのStock transferファイルでバリデーションエラーが発生していないことを確認
+        self.assertEqual(invalid_files, 0, f"Stock transferファイルでバリデーションエラーが発生しています: {invalid_files}個のファイルでエラー")
+        self.assertEqual(valid_files, len(stocktransfer_files), "すべてのStock transferファイルが有効である必要があります")
+    
+    def test_validate_all_sample_directories(self):
+        """すべてのサンプルディレクトリを網羅的にテスト"""
+        sample_directories = [
+            ("cases", "ケース"),
+            ("j-kiss_2", "J-KISS"),
+            ("seeds", "シード"),
+            ("stock_repurchase", "株式買い戻し"),
+            ("stocktransfer", "株式譲渡")
+        ]
+        
+        total_files = 0
+        total_valid = 0
+        total_invalid = 0
+        
+        print(f"\n{'='*60}")
+        print("全サンプルディレクトリの検証結果:")
+        print(f"{'='*60}")
+        
+        for dir_name, display_name in sample_directories:
+            sample_dir = self.samples_dir / dir_name
+            
+            if not sample_dir.exists():
+                print(f"{display_name}ディレクトリ ({dir_name}) が存在しません - スキップ")
+                continue
+            
+            # ディレクトリ内のJOCFファイルを検索
+            if dir_name in ["cases", "j-kiss_2"]:
+                # サブディレクトリ構造を持つディレクトリ
+                files = []
+                for subdir in sample_dir.iterdir():
+                    if subdir.is_dir():
+                        for numbered_dir in subdir.iterdir():
+                            if numbered_dir.is_dir():
+                                files.extend(numbered_dir.glob("*.jocf.json"))
+                            else:
+                                files.extend([numbered_dir] if numbered_dir.suffix == ".json" and "jocf" in numbered_dir.name else [])
+            else:
+                # 直接JOCFファイルを持つディレクトリ
+                files = list(sample_dir.glob("*.jocf.json"))
+            
+            if not files:
+                print(f"{display_name}: ファイルが見つかりませんでした")
+                continue
+                
+            valid_files = 0
+            invalid_files = 0
+            
+            for file_path in files:
+                result = self.validator.validate(str(file_path))
+                if result.is_valid:
+                    valid_files += 1
+                else:
+                    invalid_files += 1
+            
+            total_files += len(files)
+            total_valid += valid_files
+            total_invalid += invalid_files
+            
+            print(f"{display_name}: {len(files)}ファイル (有効: {valid_files}, 無効: {invalid_files})")
+        
+        print(f"{'='*60}")
+        print(f"合計: {total_files}ファイル (有効: {total_valid}, 無効: {total_invalid})")
+        print(f"成功率: {(total_valid/total_files*100):.1f}%" if total_files > 0 else "成功率: N/A")
+        print(f"{'='*60}")
+        
+        # すべてのサンプルファイルでバリデーションエラーが発生していないことを確認
+        self.assertGreater(total_files, 0, "サンプルファイルが1つも見つかりませんでした")
+        self.assertEqual(total_invalid, 0, f"サンプルファイルでバリデーションエラーが発生しています: {total_invalid}個のファイルでエラー")
+        self.assertEqual(total_valid, total_files, "すべてのサンプルファイルが有効である必要があります")
     
     def test_config_based_sample_directory(self):
         """設定ベースのサンプルディレクトリテスト"""

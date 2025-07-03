@@ -4,7 +4,9 @@
         {
             "object_type": "SECURITY_HOLDER",
             "id": "test-securityholder-investor-a",
-            "name": "創業者 A(移転元)",
+            "name": {
+                "legal_name": "創業者 A(移転元)"
+            },
             "contact_info": [
                 {
                     "phone_numbers": [
@@ -25,7 +27,9 @@
         {
             "object_type": "SECURITY_HOLDER",
             "id": "test-securityholder-investor-x",
-            "name": "株式会社 X(移転先)",
+            "name": {
+                "legal_name": "株式会社 X(移転先)"
+            },
             "contact_info": [
                 {
                     "phone_numbers": [
