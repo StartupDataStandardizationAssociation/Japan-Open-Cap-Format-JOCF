@@ -27,7 +27,8 @@
                     { "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/agreement/SecurityholdersAgreementExecution.schema.json"},
                     { "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/agreement/SecurityholdersAgreementModification.schema.json"},
                     { "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/agreement/SecurityholdersAgreementTermination.schema.json"},
-                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/adjustment/StockClassConversionRatioAdjustment.schema.json"}
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/adjustment/StockClassConversionRatioAdjustment.schema.json"},
+                    { "$ref": "https://jocf.startupstandard.org/jocf/main/schema/objects/transactions/repurchase/StockRepurchase.schema.json"}
                 ]
             }
         },
