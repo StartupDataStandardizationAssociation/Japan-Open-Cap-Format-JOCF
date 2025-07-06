@@ -13,6 +13,7 @@
             "id": "test-stock-class-A",
             "name": "優先株 A",
             "description": "普通株への任意転換および希薄化防止条項を持つ優先株",
+            "class_type": "PREFERRED",
             "preffered_stock_attributes": {
                 "conversion_triggers": [
                     {
