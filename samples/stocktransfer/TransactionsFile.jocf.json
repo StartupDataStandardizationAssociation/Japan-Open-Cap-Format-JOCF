@@ -5,7 +5,7 @@
             "object_type": "TX_STOCK_ISSUANCE",
             "id": "test-initial-stock-issuance-1",
             "stock_class_id": "test-stock-class-common",
-            "security_holder_id": "test-securityholder-investor-a",
+            "securityholder_id": "test-securityholder-investor-a",
             "share_price": {
                 "ammount": "100",
                 "cuurency_code": "JPY"
@@ -31,7 +31,7 @@
             "object_type": "TX_STOCK_ISSUANCE",
             "id": "test-initial-stock-issuance-2",
             "stock_class_id": "test-stock-class-common",
-            "security_holder_id": "test-securityholder-investor-a",
+            "securityholder_id": "test-securityholder-investor-a",
             "share_price": {
                 "ammount": "10000",
                 "cuurency_code": "JPY"
@@ -45,7 +45,7 @@
             "object_type": "TX_STOCK_ISSUANCE",
             "id": "test-initial-stock-issuance-3",
             "stock_class_id": "test-stock-class-common",
-            "security_holder_id": "test-securityholder-investor-x",
+            "securityholder_id": "test-securityholder-investor-x",
             "share_price": {
                 "ammount": "10000",
                 "cuurency_code": "JPY"

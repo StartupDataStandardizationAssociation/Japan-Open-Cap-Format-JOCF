@@ -5,7 +5,7 @@
             "object_type": "TX_STOCK_ISSUANCE",
             "id": "test-initial-stock-issuance-1",
             "stock_class_id": "test-stock-class-common",
-            "security_holder_id": "test-securityholder-investor-x",
+            "securityholder_id": "test-securityholder-investor-x",
             "share_price": {
                 "amount": "1000",
                 "currency_code": "JPY"
@@ -38,7 +38,7 @@
             "object_type": "TX_STOCK_ISSUANCE",
             "id": "test-stock-issuance-after-repurchase",
             "stock_class_id": "test-stock-class-common",
-            "security_holder_id": "test-securityholder-investor-x",
+            "securityholder_id": "test-securityholder-investor-x",
             "share_price": {
                 "amount": "1000",
                 "currency_code": "JPY"

@@ -19,7 +19,7 @@
             "description" : "J-KISS型新株予約権の転換に起因して、投資家Xに普通株Aを発行",
             "security_id" : "test-security-stock-1",
             "stock_class_id" : "test-stock-class-A",
-            "security_holder_id" : "test-securityholder-investor-x",
+            "securityholder_id" : "test-securityholder-investor-x",
             "share_price" : {
                 "currency" : "JPY",
                 "amount" : "1000"
