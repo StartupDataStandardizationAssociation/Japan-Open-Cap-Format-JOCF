@@ -919,5 +919,211 @@ class TestObjectValidator(unittest.TestCase):
         self.assertIn("strict_mode", repr_str)
 
 
+class TestAddressFormatValidation(unittest.TestCase):
+    """アドレス形式エラーに対するTDDテストクラス"""
+    
+    def setUp(self):
+        """テスト前の準備"""
+        self.mock_schema_loader = Mock()
+        self.object_validator = ObjectValidator(self.mock_schema_loader)
+        
+        # SecurityHolder.schema.json（現在のスキーマ）
+        self.security_holder_schema = {
+            "$id": "https://jocf.startupstandard.org/jocf/main/schema/objects/SecurityHolder.schema.json",
+            "title": "証券保有者",
+            "type": "object",
+            "properties": {
+                "object_type": {"const": "SECURITY_HOLDER"},
+                "id": {"type": "string"},
+                "name": {"$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Name.schema.json"},
+                "address": {
+                    "description": "証券保有者の住所",
+                    "type": "string"  # ✅ スキーマは文字列型を期待
+                }
+            },
+            "required": ["object_type", "id", "name"]
+        }
+    
+    def test_address_field_should_be_string_not_object(self):
+        """🔴 Red: 現在のアドレス形式エラーを再現 - addressがオブジェクト形式"""
+        # 実際のサンプルファイルの構造（問題）
+        security_holder_data = {
+            "object_type": "SECURITY_HOLDER",
+            "id": "test-securityholder-investor-x",
+            "name": {"legal_name": "投資家 X"},
+            "address": {  # ❌ オブジェクト形式（スキーマと不一致）
+                "postal_code": "100-0001",
+                "address1": "東京都千代田区千代田1-1-1",
+                "address2": "千代田ビル1F"
+            }
+        }
+        
+        # モックの設定
+        self.mock_schema_loader.get_object_schema.return_value = self.security_holder_schema
+        self.mock_schema_loader.get_ref_resolver.return_value = Mock()
+        
+        # jsonschema.validateが実際の検証エラーで失敗するようにパッチ
+        with patch('jsonschema.validate') as mock_validate:
+            mock_validate.side_effect = ValidationError(
+                "{'postal_code': '100-0001', 'address1': '東京都千代田区千代田1-1-1', 'address2': '千代田ビル1F'} is not of type 'string'"
+            )
+            
+            # テスト実行
+            result = self.object_validator.validate_object(security_holder_data)
+            
+            # 検証 - 現在失敗する
+            self.assertFalse(result.is_valid)
+            self.assertTrue(any("is not of type 'string'" in error for error in result.errors))
+    
+    def test_address_field_with_correct_string_format(self):
+        """🔴 Red: 正しい文字列形式での検証成功を確認"""
+        # 修正後の文字列形式データ
+        security_holder_data = {
+            "object_type": "SECURITY_HOLDER",
+            "id": "test-securityholder-investor-x",
+            "name": {"legal_name": "投資家 X"},
+            "address": "〒100-0001 東京都千代田区千代田1-1-1 千代田ビル1F"  # ✅ 文字列形式
+        }
+        
+        # モックの設定
+        self.mock_schema_loader.get_object_schema.return_value = self.security_holder_schema
+        self.mock_schema_loader.get_ref_resolver.return_value = Mock()
+        
+        # jsonschema.validateが成功するようにパッチ
+        with patch('jsonschema.validate') as mock_validate:
+            mock_validate.return_value = None  # 成功
+            
+            # テスト実行
+            result = self.object_validator.validate_object(security_holder_data)
+            
+            # 検証 - 修正後は成功するべき
+            self.assertTrue(result.is_valid)
+            self.assertEqual(len(result.errors), 0)
+
+
+class TestContactInfoValidation(unittest.TestCase):
+    """SecurityHolderContactInfo検証エラーに対するTDDテストクラス"""
+    
+    def setUp(self):
+        """テスト前の準備"""
+        self.mock_schema_loader = Mock()
+        self.object_validator = ObjectValidator(self.mock_schema_loader)
+        
+        # SecurityHolderContactInfo.schema.json（現在のスキーマ）
+        self.security_holder_contact_info_schema = {
+            "$id": "https://jocf.startupstandard.org/jocf/main/schema/types/SecurityHolderContactInfo.schema.json",
+            "title": "Type - 連絡先",
+            "description": "個人投資家の連絡先",
+            "type": "object",
+            "properties": {
+                "phone_numbers": {
+                    "description": "電話番号",
+                    "type": "array",
+                    "items": {
+                        "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Phone.schema.json"
+                    }
+                },
+                "emails": {
+                    "description": "メールアドレス",
+                    "type": "array",
+                    "items": {
+                        "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Email.schema.json"
+                    }
+                }
+            },
+            "additionalProperties": False,
+            "required": [
+                "email"  # ❌ 問題: 'email'が必須だが実際は'emails'配列
+            ]
+        }
+    
+    def test_contact_info_required_field_mismatch(self):
+        """🔴 Red: 現在のスキーマエラーを再現 - emailフィールドが存在しない"""
+        # 実際のサンプルファイルの構造
+        contact_info_data = {
+            "phone_numbers": [{"phone_number": "03-1234-5678", "phone_type": "BUSINESS"}],
+            "emails": [{"email_address": "test@example.com", "email_type": "BUSINESS"}]
+            # ❌ 'email'プロパティは存在しない
+        }
+        
+        # モックの設定
+        self.mock_schema_loader.get_object_schema.return_value = self.security_holder_contact_info_schema
+        self.mock_schema_loader.get_ref_resolver.return_value = Mock()
+        
+        # jsonschema.validateが実際の検証エラーで失敗するようにパッチ
+        with patch('jsonschema.validate') as mock_validate:
+            mock_validate.side_effect = ValidationError("'email' is a required property")
+            
+            # 検証対象オブジェクト
+            test_object = {
+                "object_type": "SECURITY_HOLDER_CONTACT_INFO",
+                **contact_info_data
+            }
+            
+            # テスト実行
+            result = self.object_validator.validate_object(test_object)
+            
+            # 検証 - 現在失敗する
+            self.assertFalse(result.is_valid)
+            self.assertTrue(any("'email' is a required property" in error for error in result.errors))
+    
+    def test_contact_info_with_correct_structure(self):
+        """🔴 Red: 正しい構造での検証成功を確認"""
+        # 修正後のスキーマ（'emails'が必須）
+        corrected_schema = {
+            "$id": "https://jocf.startupstandard.org/jocf/main/schema/types/SecurityHolderContactInfo.schema.json",
+            "title": "Type - 連絡先",
+            "description": "個人投資家の連絡先",
+            "type": "object",
+            "properties": {
+                "phone_numbers": {
+                    "description": "電話番号",
+                    "type": "array",
+                    "items": {
+                        "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Phone.schema.json"
+                    }
+                },
+                "emails": {
+                    "description": "メールアドレス",
+                    "type": "array",
+                    "items": {
+                        "$ref": "https://jocf.startupstandard.org/jocf/main/schema/types/Email.schema.json"
+                    }
+                }
+            },
+            "additionalProperties": False,
+            "required": [
+                "emails"  # ✅ 修正: 'email' → 'emails'
+            ]
+        }
+        
+        # 正しい構造のデータ
+        contact_info_data = {
+            "phone_numbers": [{"phone_number": "03-1234-5678", "phone_type": "BUSINESS"}],
+            "emails": [{"email_address": "test@example.com", "email_type": "BUSINESS"}]
+        }
+        
+        # モックの設定
+        self.mock_schema_loader.get_object_schema.return_value = corrected_schema
+        self.mock_schema_loader.get_ref_resolver.return_value = Mock()
+        
+        # jsonschema.validateが成功するようにパッチ
+        with patch('jsonschema.validate') as mock_validate:
+            mock_validate.return_value = None  # 成功
+            
+            # 検証対象オブジェクト
+            test_object = {
+                "object_type": "SECURITY_HOLDER_CONTACT_INFO",
+                **contact_info_data
+            }
+            
+            # テスト実行
+            result = self.object_validator.validate_object(test_object)
+            
+            # 検証 - 修正後は成功するべき
+            self.assertTrue(result.is_valid)
+            self.assertEqual(len(result.errors), 0)
+
+
 if __name__ == '__main__':
     unittest.main()

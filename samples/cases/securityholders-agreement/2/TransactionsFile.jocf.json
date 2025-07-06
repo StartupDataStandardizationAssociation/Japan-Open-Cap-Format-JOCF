@@ -2,7 +2,7 @@
     "file_type": "JOCF_TRANSACTIONS_FILE",
     "items": [
         {
-            "object_type": "JOCF_SECURITYHOLDERS_AGREEMENT_MODIFICATION",
+            "object_type": "TX_SECURITYHOLDERS_AGREEMENT_MODIFICATION",
             "reason_text": "証券保有者構成の変更に伴う、証券保有者間基本契約の合意者の追加と、権限の改定",
             "id": "test-securityholders-agreement-modification-1",
             "date": "2022-01-01",
