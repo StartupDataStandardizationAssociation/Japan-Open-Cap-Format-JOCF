@@ -1,5 +1,5 @@
 {
-    "filetype": "JOCF_TRANSACTIONS_FILE",
+    "file_type": "JOCF_TRANSACTIONS_FILE",
     "items": [
         {
             "object_type": "TX_STOCK_ISSUANCE",
@@ -8,7 +8,7 @@
             "securityholder_id": "test-securityholder-investor-x",
             "share_price": {
                 "amount": "1000",
-                "currency_code": "JPY"
+                "currency": "JPY"
             },
             "quantity": "1000",
             "description": "株式会社Xに対して株式を発行",
@@ -21,10 +21,9 @@
             "security_id": "test-security-of-x-1",
             "price": {
                 "amount": "10000",
-                "currency_code": "JPY"
+                "currency": "JPY"
             },
             "quantity": "100",
-            "description": "株式会社Xが保有する株式の一部を、発行会社が買取り",
             "date": "2013-11-18",
             "consideration_text": "JSONスキーマで表現されない事項を記載する項目",
             "balance_security_id": "test-security-of-x-2",
@@ -41,7 +40,7 @@
             "securityholder_id": "test-securityholder-investor-x",
             "share_price": {
                 "amount": "1000",
-                "currency_code": "JPY"
+                "currency": "JPY"
             },
             "quantity": "900",
             "description": "自社株買いの後に残った、株式会社Xの残高",
