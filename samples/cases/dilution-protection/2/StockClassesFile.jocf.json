@@ -53,7 +53,10 @@
                                     "amount" : "100",
                                     "currency": "JPY"
                                 },
-                                "ratio": "1.8",
+                                "ratio": {
+                                    "numerator": "18",
+                                    "denominator": "10"
+                                },
                                 "rounding_type": "FLOOR"
                             },
                             "converts_to_stock_class_id": "test-stock-class-B"
