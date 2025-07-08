@@ -23,13 +23,15 @@ on:
       - 'schema/**'
       - 'samples/**'
       - 'requirements.txt'
+      - '.github/workflows/json-validator.yml'
   push:
-    branches: [ main ]
+    branches: [ main, feature/* ]
     paths:
       - 'utils/json-validator/**'
       - 'schema/**'
       - 'samples/**'
       - 'requirements.txt'
+      - '.github/workflows/json-validator.yml'
 
 jobs:
   test:
