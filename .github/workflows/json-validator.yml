@@ -1,0 +1,107 @@
+# GitHub Actions Workflow for JSON Validator Testing
+# This workflow maintains 100% test success rate (303 tests) achieved in TDD Phase 2
+# Triggers on PR/push to main branch when JSON Validator related files are modified
+
+name: JSON Validator Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_type:
+        description: 'Test type to run'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+        - all
+        - unit-tests
+        - coverage
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'utils/json-validator/**'
+      - 'schema/**'
+      - 'samples/**'
+      - 'requirements.txt'
+  push:
+    branches: [ main ]
+    paths:
+      - 'utils/json-validator/**'
+      - 'schema/**'
+      - 'samples/**'
+      - 'requirements.txt'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.13'
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Create virtual environment and install dependencies
+      run: |
+        python3 -m venv .venv
+        source .venv/bin/activate
+        pip install -r requirements.txt
+    
+    - name: Run JSON Validator Tests with Coverage
+      run: |
+        source .venv/bin/activate
+        cd utils/json-validator
+        echo "🧪 Running JSON Validator Tests..."
+        python -m pytest tests/ -v --tb=short --cov=validator --cov-report=xml --cov-report=term
+    
+    - name: Verify 100% Success Rate
+      run: |
+        source .venv/bin/activate
+        cd utils/json-validator
+        echo "🔍 Verifying 100% success rate..."
+        python -c "
+        import subprocess
+        result = subprocess.run(['python', '-m', 'pytest', 'tests/', '--tb=no', '-q'], 
+                              capture_output=True, text=True)
+        if result.returncode != 0:
+            print('❌ Tests failed - 100% success rate not maintained')
+            print('STDOUT:', result.stdout)
+            print('STDERR:', result.stderr)
+            exit(1)
+        else:
+            print('✅ 100% success rate maintained')
+            lines = result.stdout.split('\n')
+            for line in lines:
+                if 'passed' in line or 'failed' in line:
+                    print(f'📊 Result: {line.strip()}')
+        "
+    
+    - name: Upload test results on failure
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results-failure
+        path: |
+          utils/json-validator/coverage.xml
+          utils/json-validator/pytest.log
+        if-no-files-found: ignore
+    
+    - name: Upload coverage to codecov
+      if: success()
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./utils/json-validator/coverage.xml
+        flags: json-validator
+        name: codecov-json-validator
+        fail_ci_if_error: false
