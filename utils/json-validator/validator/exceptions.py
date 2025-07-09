@@ -11,7 +11,7 @@ from typing import Any, Optional, List, Dict
 
 class JSONValidatorError(Exception):
     """JSONバリデーターの基底例外クラス"""
-    
+
     def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
         """
         Args:
@@ -25,10 +25,15 @@ class JSONValidatorError(Exception):
 
 class ValidationError(JSONValidatorError):
     """検証処理全般のエラー"""
-    
-    def __init__(self, message: str, field_path: Optional[str] = None, 
-                 expected: Optional[str] = None, actual: Optional[str] = None, 
-                 details: Optional[Dict[str, Any]] = None):
+
+    def __init__(
+        self,
+        message: str,
+        field_path: Optional[str] = None,
+        expected: Optional[str] = None,
+        actual: Optional[str] = None,
+        details: Optional[Dict[str, Any]] = None,
+    ):
         """
         Args:
             message (str): エラーメッセージ
@@ -45,9 +50,14 @@ class ValidationError(JSONValidatorError):
 
 class SchemaError(JSONValidatorError):
     """スキーマ関連のエラー"""
-    
-    def __init__(self, message: str, schema_path: Optional[str] = None, 
-                 schema_type: Optional[str] = None, details: Optional[Dict[str, Any]] = None):
+
+    def __init__(
+        self,
+        message: str,
+        schema_path: Optional[str] = None,
+        schema_type: Optional[str] = None,
+        details: Optional[Dict[str, Any]] = None,
+    ):
         """
         Args:
             message (str): エラーメッセージ
@@ -62,10 +72,15 @@ class SchemaError(JSONValidatorError):
 
 class FileValidationError(ValidationError):
     """ファイル検証のエラー"""
-    
-    def __init__(self, message: str, file_path: Optional[str] = None, 
-                 file_type: Optional[str] = None, line_number: Optional[int] = None, 
-                 details: Optional[Dict[str, Any]] = None):
+
+    def __init__(
+        self,
+        message: str,
+        file_path: Optional[str] = None,
+        file_type: Optional[str] = None,
+        line_number: Optional[int] = None,
+        details: Optional[Dict[str, Any]] = None,
+    ):
         """
         Args:
             message (str): エラーメッセージ
@@ -82,10 +97,15 @@ class FileValidationError(ValidationError):
 
 class ObjectValidationError(ValidationError):
     """オブジェクト検証のエラー"""
-    
-    def __init__(self, message: str, object_type: Optional[str] = None, 
-                 object_id: Optional[str] = None, field_path: Optional[str] = None, 
-                 details: Optional[Dict[str, Any]] = None):
+
+    def __init__(
+        self,
+        message: str,
+        object_type: Optional[str] = None,
+        object_id: Optional[str] = None,
+        field_path: Optional[str] = None,
+        details: Optional[Dict[str, Any]] = None,
+    ):
         """
         Args:
             message (str): エラーメッセージ
@@ -101,9 +121,14 @@ class ObjectValidationError(ValidationError):
 
 class ConfigError(JSONValidatorError):
     """設定関連のエラー"""
-    
-    def __init__(self, message: str, config_path: Optional[str] = None, 
-                 config_key: Optional[str] = None, details: Optional[Dict[str, Any]] = None):
+
+    def __init__(
+        self,
+        message: str,
+        config_path: Optional[str] = None,
+        config_key: Optional[str] = None,
+        details: Optional[Dict[str, Any]] = None,
+    ):
         """
         Args:
             message (str): エラーメッセージ
@@ -118,9 +143,14 @@ class ConfigError(JSONValidatorError):
 
 class SchemaLoadError(SchemaError):
     """スキーマ読み込みのエラー"""
-    
-    def __init__(self, message: str, schema_path: Optional[str] = None, 
-                 parse_error: Optional[Exception] = None, details: Optional[Dict[str, Any]] = None):
+
+    def __init__(
+        self,
+        message: str,
+        schema_path: Optional[str] = None,
+        parse_error: Optional[Exception] = None,
+        details: Optional[Dict[str, Any]] = None,
+    ):
         """
         Args:
             message (str): エラーメッセージ
@@ -134,9 +164,14 @@ class SchemaLoadError(SchemaError):
 
 class SchemaNotFoundError(SchemaError):
     """スキーマが見つからないエラー"""
-    
-    def __init__(self, message: str, schema_identifier: Optional[str] = None, 
-                 schema_type: Optional[str] = None, details: Optional[Dict[str, Any]] = None):
+
+    def __init__(
+        self,
+        message: str,
+        schema_identifier: Optional[str] = None,
+        schema_type: Optional[str] = None,
+        details: Optional[Dict[str, Any]] = None,
+    ):
         """
         Args:
             message (str): エラーメッセージ
@@ -150,9 +185,14 @@ class SchemaNotFoundError(SchemaError):
 
 class RefResolutionError(SchemaError):
     """$ref解決のエラー"""
-    
-    def __init__(self, message: str, ref_uri: Optional[str] = None, 
-                 context_schema: Optional[str] = None, details: Optional[Dict[str, Any]] = None):
+
+    def __init__(
+        self,
+        message: str,
+        ref_uri: Optional[str] = None,
+        context_schema: Optional[str] = None,
+        details: Optional[Dict[str, Any]] = None,
+    ):
         """
         Args:
             message (str): エラーメッセージ
@@ -167,10 +207,15 @@ class RefResolutionError(SchemaError):
 
 class PerformanceError(JSONValidatorError):
     """パフォーマンス関連のエラー"""
-    
-    def __init__(self, message: str, operation: Optional[str] = None, 
-                 elapsed_time: Optional[float] = None, threshold: Optional[float] = None, 
-                 details: Optional[Dict[str, Any]] = None):
+
+    def __init__(
+        self,
+        message: str,
+        operation: Optional[str] = None,
+        elapsed_time: Optional[float] = None,
+        threshold: Optional[float] = None,
+        details: Optional[Dict[str, Any]] = None,
+    ):
         """
         Args:
             message (str): エラーメッセージ
@@ -188,10 +233,10 @@ class PerformanceError(JSONValidatorError):
 def format_validation_error(error: ValidationError) -> Dict[str, Any]:
     """
     ValidationErrorを構造化された辞書形式に変換
-    
+
     Args:
         error (ValidationError): 変換するエラー
-        
+
     Returns:
         Dict[str, Any]: 構造化されたエラー情報
     """
@@ -201,10 +246,10 @@ def format_validation_error(error: ValidationError) -> Dict[str, Any]:
 def collect_validation_errors(errors: List[Exception]) -> Dict[str, Any]:
     """
     複数の検証エラーを集約して構造化された形式に変換
-    
+
     Args:
         errors (List[Exception]): エラーのリスト
-        
+
     Returns:
         Dict[str, Any]: 集約されたエラー情報
     """

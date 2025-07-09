@@ -15,3 +15,6 @@ rich>=13.0.0
 # mypy関連依存関係
 mypy>=1.16.0
 types-jsonschema
+
+# コードフォーマッター
+black>=25.1.0
