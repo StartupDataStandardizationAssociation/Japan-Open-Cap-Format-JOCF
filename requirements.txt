@@ -5,6 +5,7 @@ mkdocs-awesome-nav>=3.1.1
 
 # JSONバリデーター依存関係
 jsonschema>=4.24.0
+referencing>=0.35.0
 parameterized>=0.8.1
 pytest>=8.4.0
 pytest-cov>=6.2.0

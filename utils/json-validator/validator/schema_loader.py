@@ -10,7 +10,8 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, List, cast
-from jsonschema import RefResolver
+from referencing import Registry
+from referencing.jsonschema import DRAFT202012
 from .config_manager import ConfigManager
 from .types import ObjectType, FileType, SchemaId
 
@@ -35,7 +36,7 @@ class SchemaLoader:
         self.schema_root_path = config_manager.get_schema_root_path()
         self.file_type_map: Dict[FileType, Dict[str, Any]] = {}
         self.object_type_map: Dict[ObjectType, Dict[str, Any]] = {}
-        self.ref_resolver: Optional[RefResolver] = None
+        self.registry: Optional[Registry] = None
         
         self.logger.debug(f"SchemaLoader initialized with root path: {self.schema_root_path}")
     
@@ -143,20 +144,20 @@ class SchemaLoader:
         """
         return self.object_type_map.get(object_type)
     
-    def get_ref_resolver(self) -> RefResolver:
+    def get_registry(self) -> Registry:
         """
-        $ref解決のためのRefResolverを取得
+        $ref解決のためのRegistryを取得
         
         Returns:
-            RefResolver: 構築されたRefResolver
+            Registry: 構築されたRegistry
         """
-        if self.ref_resolver is None:
-            self.logger.debug("Building RefResolver")
-            self.ref_resolver = self._build_ref_resolver()
-            self.logger.debug("RefResolver built successfully")
-        # この時点でself.ref_resolverは確実にRefResolverインスタンス
-        assert self.ref_resolver is not None
-        return self.ref_resolver
+        if self.registry is None:
+            self.logger.debug("Building Registry")
+            self.registry = self._build_registry()
+            self.logger.debug("Registry built successfully")
+        # この時点でself.registryは確実にRegistryインスタンス
+        assert self.registry is not None
+        return self.registry
     
     def get_schema_by_id(self, schema_id: SchemaId) -> Optional[Dict[str, Any]]:
         """
@@ -168,14 +169,13 @@ class SchemaLoader:
         Returns:
             Optional[Dict[str, Any]]: 対応するスキーマ。見つからない場合はNone
         """
-        # RefResolverのストアから検索（全スキーマが含まれている）
-        resolver = self.get_ref_resolver()
-        result = resolver.store.get(schema_id.value)
-        # resolver.storeの値はDict[str, Any]型のスキーマか、存在しない場合はNone
-        if isinstance(result, dict):
-            return result
-        # Dict[str, Any]型でない場合はNoneを返す
-        return None
+        # Registryから検索（全スキーマが含まれている）
+        registry = self.get_registry()
+        try:
+            resource = registry.get_or_retrieve(schema_id.value)
+            return resource.value.contents
+        except Exception:
+            return None
     
     def get_file_types(self) -> List[FileType]:
         """
@@ -233,7 +233,7 @@ class SchemaLoader:
         """
         スキーマキャッシュをクリア
         """
-        self.ref_resolver = None
+        self.registry = None
     
     def _load_schema_file(self, schema_path: Path) -> Dict[str, Any]:
         """
@@ -290,45 +290,43 @@ class SchemaLoader:
         else:
             self.logger.debug(f"Could not extract object_type from schema: {schema.get('$id', 'unknown')}")
     
-    def _build_ref_resolver(self) -> RefResolver:
+    def _build_registry(self) -> Registry:
         """
-        RefResolverを構築する（内部メソッド）
+        Registryを構築する（内部メソッド）
         
         Returns:
-            RefResolver: 構築されたRefResolver
+            Registry: 構築されたRegistry
         """
-        self.logger.debug("Building RefResolver store")
+        self.logger.debug("Building Registry")
         
-        # スキーマストアを構築（全てのスキーマを$idをキーとして格納）
-        store = {}
+        # Registryを作成
+        registry = Registry()
         
-        # ファイルスキーマをストアに追加
+        # ファイルスキーマをRegistryに追加
         file_schema_count = 0
         for schema in self.file_type_map.values():
             schema_id = schema.get("$id")
             if schema_id:
-                store[schema_id] = schema
+                resource = DRAFT202012.create_resource(schema)
+                registry = registry.with_resource(schema_id, resource)
                 file_schema_count += 1
-                self.logger.debug(f"Added file schema to store: {schema_id}")
+                self.logger.debug(f"Added file schema to registry: {schema_id}")
         
-        # オブジェクトスキーマをストアに追加
+        # オブジェクトスキーマをRegistryに追加
         object_schema_count = 0
         for schema in self.object_type_map.values():
             schema_id = schema.get("$id")
             if schema_id:
-                store[schema_id] = schema
+                resource = DRAFT202012.create_resource(schema)
+                registry = registry.with_resource(schema_id, resource)
                 object_schema_count += 1
-                self.logger.debug(f"Added object schema to store: {schema_id}")
+                self.logger.debug(f"Added object schema to registry: {schema_id}")
                 
         # その他のスキーマファイル（types, primitives, enums）も読み込む
-        self._load_additional_schemas_for_resolver(store)
+        registry = self._load_additional_schemas_for_registry(registry)
         
-        # RefResolverを作成
-        base_uri = "https://jocf.startupstandard.org/jocf/main/"
-        resolver = RefResolver(base_uri, {}, store=store)
-        
-        self.logger.debug(f"RefResolver created with {len(store)} schemas in store (files: {file_schema_count}, objects: {object_schema_count})")
-        return resolver
+        self.logger.debug(f"Registry created with {file_schema_count} file schemas and {object_schema_count} object schemas")
+        return registry
     
     def _extract_file_type(self, schema: Dict[str, Any]) -> Optional[str]:
         """
@@ -399,12 +397,15 @@ class SchemaLoader:
             return []
         return list(directory.rglob(pattern))
     
-    def _load_additional_schemas_for_resolver(self, store: Dict[str, Dict[str, Any]]) -> None:
+    def _load_additional_schemas_for_registry(self, registry: Registry) -> Registry:
         """
-        RefResolver用に追加のスキーマ（types, primitives, enums）を読み込む
+        Registry用に追加のスキーマ（types, primitives, enums）を読み込む
         
         Args:
-            store (Dict[str, Dict[str, Any]]): スキーマストア
+            registry (Registry): スキーマRegistry
+            
+        Returns:
+            Registry: 更新されたRegistry
         """
         # types, primitives, enumsディレクトリからスキーマを読み込み
         additional_dirs = ["types", "primitives", "enums"]
@@ -423,13 +424,16 @@ class SchemaLoader:
                         schema = self._load_schema_file(schema_file)
                         schema_id = schema.get("$id")
                         if schema_id:
-                            store[schema_id] = schema
-                            self.logger.debug(f"Added additional schema to store: {schema_id}")
+                            resource = DRAFT202012.create_resource(schema)
+                            registry = registry.with_resource(schema_id, resource)
+                            self.logger.debug(f"Added additional schema to registry: {schema_id}")
                     except Exception as e:
                         self.logger.debug(f"Failed to load additional schema {schema_file}: {e}")
                         continue
             else:
                 self.logger.debug(f"Additional schema directory does not exist: {schema_dir}")
+        
+        return registry
     
     def __str__(self) -> str:
         """

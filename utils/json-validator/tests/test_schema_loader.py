@@ -20,7 +20,8 @@ import tempfile
 import os
 from pathlib import Path
 from unittest.mock import Mock, patch, mock_open
-from jsonschema import RefResolver
+from referencing import Registry
+from referencing.jsonschema import DRAFT202012
 
 # テスト対象のクラス
 from validator.schema_loader import SchemaLoader
@@ -35,7 +36,7 @@ class MockSchemaLoader:
     def __init__(self, config_manager=None):
         self.file_type_map = {}
         self.object_type_map = {}
-        self.ref_resolver = None
+        self.registry = None
         
         # 設定管理システムから取得
         if config_manager:
@@ -256,27 +257,37 @@ class TestSchemaLoader(unittest.TestCase):
         self.assertIn("TX_STOCK_TRANSFER", self.schema_loader.object_type_map)
         self.assertIn("SECURITY_HOLDER", self.schema_loader.object_type_map)
     
-    def test_ref_resolver_setup(self):
-        """RefResolverの適切な設定テスト"""
-        # RefResolverの設定をシミュレート
-        store = {
-            "https://jocf.startupstandard.org/jocf/main/schema/files/TransactionsFile.schema.json": self.valid_file_schema,
-            "https://jocf.startupstandard.org/jocf/main/schema/objects/TestObject.schema.json": self.valid_object_schema
-        }
+    def test_registry_setup(self):
+        """Registryの適切な設定テスト"""
+        # Registryの設定をシミュレート
+        registry = Registry()
         
-        base_uri = "https://jocf.startupstandard.org/jocf/main/"
-        resolver = RefResolver(base_uri, None, store=store)
-        self.schema_loader.ref_resolver = resolver
+        # スキーマリソースを追加
+        file_resource = DRAFT202012.create_resource(self.valid_file_schema)
+        object_resource = DRAFT202012.create_resource(self.valid_object_schema)
+        
+        registry = registry.with_resource(
+            "https://jocf.startupstandard.org/jocf/main/schema/files/TransactionsFile.schema.json", 
+            file_resource
+        )
+        registry = registry.with_resource(
+            "https://jocf.startupstandard.org/jocf/main/schema/objects/TestObject.schema.json", 
+            object_resource
+        )
+        
+        self.schema_loader.registry = registry
         
         # 検証
-        self.assertIsNotNone(self.schema_loader.ref_resolver)
-        self.assertEqual(self.schema_loader.ref_resolver.resolution_scope, base_uri)
+        self.assertIsNotNone(self.schema_loader.registry)
         
         # $ref解決のテスト
-        resolved_url, resolved_schema = resolver.resolve(
-            "https://jocf.startupstandard.org/jocf/main/schema/files/TestFile.schema.json"
-        )
-        self.assertEqual(resolved_schema, self.valid_file_schema)
+        try:
+            resolved_resource = registry.get_or_retrieve(
+                "https://jocf.startupstandard.org/jocf/main/schema/files/TransactionsFile.schema.json"
+            )
+            self.assertEqual(resolved_resource.value.contents, self.valid_file_schema)
+        except Exception as e:
+            self.fail(f"Registry resolution failed: {e}")
     
     @patch('builtins.open', mock_open(read_data='{"invalid": json}'))
     def test_load_schema_file_parse_error(self):
@@ -713,35 +724,35 @@ class TestSchemaLoaderCacheManagement(unittest.TestCase):
         self.config_manager = ConfigManager()
         self.loader = SchemaLoader(self.config_manager)
     
-    def test_clear_cache_clears_ref_resolver(self):
-        """clear_cache()がRefResolverキャッシュをクリアする"""
-        # Given: RefResolverが作成されている
+    def test_clear_cache_clears_registry(self):
+        """clear_cache()がRegistryキャッシュをクリアする"""
+        # Given: Registryが作成されている
         self.loader.load_all_schemas()
-        resolver = self.loader.get_ref_resolver()
-        self.assertIsNotNone(resolver, "RefResolverが存在する")
+        registry = self.loader.get_registry()
+        self.assertIsNotNone(registry, "Registryが存在する")
         
         # When: clear_cache()を呼び出し
         self.loader.clear_cache()
         
-        # Then: RefResolverがクリアされる
-        self.assertIsNone(self.loader.ref_resolver, "RefResolverがクリアされる")
+        # Then: Registryがクリアされる
+        self.assertIsNone(self.loader.registry, "Registryがクリアされる")
     
     def test_clear_cache_when_already_none(self):
-        """境界値: RefResolverが未初期化の状態でclear_cache()"""
-        # Given: RefResolverが未初期化
-        self.assertIsNone(self.loader.ref_resolver, "RefResolverが未初期化")
+        """境界値: Registryが未初期化の状態でclear_cache()"""
+        # Given: Registryが未初期化
+        self.assertIsNone(self.loader.registry, "Registryが未初期化")
         
         # When: clear_cache()を呼び出し（例外が発生しないことを確認）
         self.loader.clear_cache()
         
         # Then: 例外が発生せずNoneのまま
-        self.assertIsNone(self.loader.ref_resolver, "RefResolverはNoneのまま")
+        self.assertIsNone(self.loader.registry, "RegistryはNoneのまま")
     
     def test_clear_cache_multiple_times(self):
         """境界値: clear_cache()を複数回連続実行"""
-        # Given: RefResolverが作成されている
+        # Given: Registryが作成されている
         self.loader.load_all_schemas()
-        self.loader.get_ref_resolver()
+        self.loader.get_registry()
         
         # When: clear_cache()を複数回実行
         self.loader.clear_cache()
@@ -749,7 +760,7 @@ class TestSchemaLoaderCacheManagement(unittest.TestCase):
         self.loader.clear_cache()
         
         # Then: 例外が発生せずNoneのまま
-        self.assertIsNone(self.loader.ref_resolver, "RefResolverがクリアされている")
+        self.assertIsNone(self.loader.registry, "Registryがクリアされている")
     
     def test_preload_schemas_loads_specified_schemas(self):
         """preload_schemas()が指定されたスキーマをロードする"""

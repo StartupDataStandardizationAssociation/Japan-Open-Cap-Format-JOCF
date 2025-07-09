@@ -156,7 +156,7 @@ class TestJSONValidatorValidateMethod(unittest.TestCase):
             },
             "required": ["file_type", "items"]
         }
-        mock_schema_loader.get_ref_resolver.return_value = Mock()
+        mock_schema_loader.get_registry.return_value = Mock()
         mock_schema_loader_class.return_value = mock_schema_loader
         
         # 有効なJSONファイル
@@ -207,10 +207,7 @@ class TestJSONValidatorValidateMethod(unittest.TestCase):
                 "items": {
                     "type": "array",
                     "items": {
-                        "oneOf": [
-                            {"$ref": "#/definitions/object1"},
-                            {"$ref": "#/definitions/object2"}
-                        ]
+                        "$ref": "https://test.example.com/test-schema.json"
                     }
                 }
             },
@@ -218,16 +215,24 @@ class TestJSONValidatorValidateMethod(unittest.TestCase):
         }
         
         # ObjectValidatorのために必要なモック設定
-        mock_resolver = Mock()
-        mock_resolver.resolve.return_value = (None, {
+        # Registryは実際のインスタンスを作成（Mockだと iteration エラーになる）
+        from referencing import Registry
+        from referencing.jsonschema import DRAFT202012
+        
+        registry = Registry()
+        test_schema = {
+            "$id": "https://test.example.com/test-schema.json",
             "type": "object",
             "properties": {
                 "object_type": {"type": "string", "const": "TEST_OBJECT"},
                 "id": {"type": "string"}
             },
             "required": ["object_type", "id"]
-        })
-        mock_schema_loader.get_ref_resolver.return_value = mock_resolver
+        }
+        resource = DRAFT202012.create_resource(test_schema)
+        registry = registry.with_resource("https://test.example.com/test-schema.json", resource)
+        
+        mock_schema_loader.get_registry.return_value = registry
         mock_schema_loader.get_object_schema.return_value = {
             "type": "object",
             "properties": {
@@ -236,6 +241,14 @@ class TestJSONValidatorValidateMethod(unittest.TestCase):
             },
             "required": ["object_type", "id"]
         }
+        
+        # FileValidatorが使用するメソッドもモック
+        from validator.types import FileType, ObjectType
+        file_type = FileType("JOCF_TRANSACTIONS_FILE")
+        object_type = ObjectType("TEST_OBJECT")
+        mock_schema_loader.get_allowed_object_types.return_value = [object_type]
+        mock_schema_loader.has_object_schema.return_value = True
+        
         mock_schema_loader_class.return_value = mock_schema_loader
         
         # items配列にオブジェクトを含むJSONファイル

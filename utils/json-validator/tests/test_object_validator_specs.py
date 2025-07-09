@@ -12,7 +12,8 @@ ObjectValidatorクラスの使い方を実際のコード例で説明するテ�
 
 import unittest
 from unittest.mock import Mock, patch
-from jsonschema import ValidationError, RefResolver
+from jsonschema import ValidationError
+from referencing import Registry
 
 # テスト対象のクラス
 from validator.object_validator import ObjectValidator
@@ -37,15 +38,14 @@ class TestObjectValidatorSpecs(unittest.TestCase):
         self.schema_loader.schema_root_path = Mock()
         self.schema_loader.file_type_map = {}
         self.schema_loader.object_type_map = {}
-        self.schema_loader.ref_resolver = None
+        self.schema_loader.registry = None
         
         # テスト用スキーマを手動で設定（実際のファイル読み込みの代わり）
         self.setup_test_schemas()
         
-        # RefResolverのモックを設定（Path操作を回避）
-        mock_resolver = Mock(spec=RefResolver)
-        mock_resolver.store = {}
-        self.schema_loader.get_ref_resolver = Mock(return_value=mock_resolver)
+        # Registryのモックを設定（Path操作を回避）
+        mock_registry = Mock(spec=Registry)
+        self.schema_loader.get_registry = Mock(return_value=mock_registry)
         
         # ObjectValidatorのインスタンスを作成
         self.validator = ObjectValidator(self.schema_loader)

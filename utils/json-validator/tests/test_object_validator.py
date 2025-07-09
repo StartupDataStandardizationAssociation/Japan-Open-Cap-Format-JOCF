@@ -14,7 +14,8 @@ import unittest
 import json
 from unittest.mock import Mock, patch, MagicMock
 import jsonschema
-from jsonschema import ValidationError, RefResolver
+from jsonschema import ValidationError
+from referencing import Registry
 
 # テスト対象のクラス（実装予定）
 from validator.object_validator import ObjectValidator
@@ -138,7 +139,7 @@ class TestObjectValidator(unittest.TestCase):
         """正常系: 株式発行オブジェクトの検証成功"""
         # モックの設定
         self.mock_schema_loader.get_object_schema.return_value = self.stock_issuance_schema
-        self.mock_schema_loader.get_ref_resolver.return_value = Mock()
+        self.mock_schema_loader.get_registry.return_value = Mock()
         
         # jsonschema.validateが成功するようにパッチ
         with patch('jsonschema.validate') as mock_validate:
@@ -159,7 +160,7 @@ class TestObjectValidator(unittest.TestCase):
         """正常系: 証券保有者オブジェクトの検証成功"""
         # モックの設定
         self.mock_schema_loader.get_object_schema.return_value = self.security_holder_schema
-        self.mock_schema_loader.get_ref_resolver.return_value = Mock()
+        self.mock_schema_loader.get_registry.return_value = Mock()
         
         # jsonschema.validateが成功するようにパッチ
         with patch('jsonschema.validate') as mock_validate:
@@ -221,7 +222,7 @@ class TestObjectValidator(unittest.TestCase):
         """異常系: JSONスキーマ検証エラー"""
         # モックの設定
         self.mock_schema_loader.get_object_schema.return_value = self.stock_issuance_schema
-        self.mock_schema_loader.get_ref_resolver.return_value = Mock()
+        self.mock_schema_loader.get_registry.return_value = Mock()
         
         # jsonschema.validateが失敗するようにパッチ
         with patch('jsonschema.validate') as mock_validate:
@@ -242,7 +243,7 @@ class TestObjectValidator(unittest.TestCase):
         
         # モックの設定
         self.mock_schema_loader.get_object_schema.return_value = self.stock_issuance_schema
-        self.mock_schema_loader.get_ref_resolver.return_value = Mock()
+        self.mock_schema_loader.get_registry.return_value = Mock()
         
         # jsonschema.validateが失敗するようにパッチ
         with patch('jsonschema.validate') as mock_validate:
@@ -263,7 +264,7 @@ class TestObjectValidator(unittest.TestCase):
         
         # モックの設定
         self.mock_schema_loader.get_object_schema.return_value = self.stock_issuance_schema
-        self.mock_schema_loader.get_ref_resolver.return_value = Mock()
+        self.mock_schema_loader.get_registry.return_value = Mock()
         
         # jsonschema.validateが失敗するようにパッチ
         with patch('jsonschema.validate') as mock_validate:
@@ -284,7 +285,7 @@ class TestObjectValidator(unittest.TestCase):
         
         # モックの設定
         self.mock_schema_loader.get_object_schema.return_value = self.stock_issuance_schema
-        self.mock_schema_loader.get_ref_resolver.return_value = Mock()
+        self.mock_schema_loader.get_registry.return_value = Mock()
         
         # jsonschema.validateが失敗するようにパッチ
         with patch('jsonschema.validate') as mock_validate:
@@ -340,19 +341,21 @@ class TestObjectValidator(unittest.TestCase):
             }
         }
         
-        # RefResolverの設定
-        store = {
+        # Registryの設定
+        from referencing.jsonschema import DRAFT202012
+        
+        registry = Registry()
+        schemas = {
             "https://jocf.startupstandard.org/jocf/main/schema/types/Monetary.schema.json": monetary_schema
         }
-        resolver = RefResolver(
-            "https://jocf.startupstandard.org/jocf/main/",
-            schema_with_ref,
-            store=store
-        )
+        
+        for schema_id, schema in schemas.items():
+            resource = DRAFT202012.create_resource(schema)
+            registry = registry.with_resource(schema_id, resource)
         
         # モックの設定
         self.mock_schema_loader.get_object_schema.return_value = schema_with_ref
-        self.mock_schema_loader.get_ref_resolver.return_value = resolver
+        self.mock_schema_loader.get_registry.return_value = registry
         
         # 実際のjsonschema.validateを使用してテスト
         with patch('jsonschema.validate', wraps=jsonschema.validate) as mock_validate:
@@ -362,7 +365,7 @@ class TestObjectValidator(unittest.TestCase):
             # 検証
             self.assertTrue(result.is_valid)
             self.assertEqual(len(result.errors), 0)
-            mock_validate.assert_called_once_with(test_data, schema_with_ref, resolver=resolver)
+            mock_validate.assert_called_once_with(test_data, schema_with_ref, registry=registry)
     
     def test_validate_object_nested_ref_resolution_error(self):
         """異常系: ネストした$ref解決エラー"""
@@ -392,20 +395,17 @@ class TestObjectValidator(unittest.TestCase):
             "invalid_ref": {"some": "value"}
         }
         
-        # 空のストアを持つRefResolver
-        resolver = RefResolver(
-            "https://jocf.startupstandard.org/jocf/main/",
-            schema_with_invalid_ref,
-            store={}
-        )
+        # 空のストアを持つRegistry
+        registry = Registry()
         
         # モックの設定
         self.mock_schema_loader.get_object_schema.return_value = schema_with_invalid_ref
-        self.mock_schema_loader.get_ref_resolver.return_value = resolver
+        self.mock_schema_loader.get_registry.return_value = registry
         
         # jsonschema.validateが$ref解決エラーで失敗するようにパッチ
+        from referencing.exceptions import Unresolvable
         with patch('jsonschema.validate') as mock_validate:
-            mock_validate.side_effect = jsonschema.RefResolutionError("Unable to resolve reference")
+            mock_validate.side_effect = Unresolvable("Unable to resolve reference")
             
             # テスト実行
             result = self.object_validator.validate_object(test_data)
@@ -432,8 +432,8 @@ class TestObjectValidator(unittest.TestCase):
     def test_validate_with_jsonschema_success(self):
         """_validate_with_jsonschemaメソッドの成功テスト"""
         # モックの設定
-        resolver = Mock()
-        self.mock_schema_loader.get_ref_resolver.return_value = resolver
+        registry = Mock()
+        self.mock_schema_loader.get_registry.return_value = registry
         
         # jsonschema.validateが成功するようにパッチ
         with patch('jsonschema.validate') as mock_validate:
@@ -448,14 +448,14 @@ class TestObjectValidator(unittest.TestCase):
             self.assertTrue(result.is_valid)
             self.assertEqual(len(result.errors), 0)
             mock_validate.assert_called_once_with(
-                self.valid_stock_issuance, self.stock_issuance_schema, resolver=resolver
+                self.valid_stock_issuance, self.stock_issuance_schema, registry=registry
             )
     
     def test_validate_with_jsonschema_failure(self):
         """_validate_with_jsonschemaメソッドの失敗テスト"""
         # モックの設定
-        resolver = Mock()
-        self.mock_schema_loader.get_ref_resolver.return_value = resolver
+        registry = Mock()
+        self.mock_schema_loader.get_registry.return_value = registry
         
         # jsonschema.validateが失敗するようにパッチ
         with patch('jsonschema.validate') as mock_validate:
@@ -504,7 +504,7 @@ class TestObjectValidator(unittest.TestCase):
                 
                 # モックの設定
                 self.mock_schema_loader.get_object_schema.return_value = schema
-                self.mock_schema_loader.get_ref_resolver.return_value = Mock()
+                self.mock_schema_loader.get_registry.return_value = Mock()
                 
                 # jsonschema.validateが成功するようにパッチ
                 with patch('jsonschema.validate') as mock_validate:
@@ -549,7 +549,7 @@ class TestObjectValidator(unittest.TestCase):
         
         # モックの設定
         self.mock_schema_loader.get_object_schema.return_value = self.stock_issuance_schema
-        self.mock_schema_loader.get_ref_resolver.return_value = Mock()
+        self.mock_schema_loader.get_registry.return_value = Mock()
         
         # jsonschema.validateが成功するようにパッチ
         with patch('jsonschema.validate') as mock_validate:
@@ -588,7 +588,7 @@ class TestObjectValidator(unittest.TestCase):
         
         # モックの設定
         self.mock_schema_loader.get_object_schema.return_value = self.stock_issuance_schema
-        self.mock_schema_loader.get_ref_resolver.return_value = Mock()
+        self.mock_schema_loader.get_registry.return_value = Mock()
         
         # jsonschema.validateがnull値で失敗するようにパッチ
         with patch('jsonschema.validate') as mock_validate:
@@ -616,7 +616,7 @@ class TestObjectValidator(unittest.TestCase):
             return None
         
         self.mock_schema_loader.get_object_schema.side_effect = mock_get_schema
-        self.mock_schema_loader.get_ref_resolver.return_value = Mock()
+        self.mock_schema_loader.get_registry.return_value = Mock()
         
         with patch('jsonschema.validate') as mock_validate:
             mock_validate.return_value = None
@@ -652,7 +652,7 @@ class TestObjectValidator(unittest.TestCase):
     
     def test_validate_object_with_schema_success(self):
         """正常系: 指定スキーマでの検証成功"""
-        self.mock_schema_loader.get_ref_resolver.return_value = Mock()
+        self.mock_schema_loader.get_registry.return_value = Mock()
         
         with patch('jsonschema.validate') as mock_validate:
             mock_validate.return_value = None
@@ -778,7 +778,7 @@ class TestObjectValidator(unittest.TestCase):
     
     def test_validate_with_ref_resolution(self):
         """正常系: $ref解決を含む検証 (validate_object_with_schemaを使用)"""
-        self.mock_schema_loader.get_ref_resolver.return_value = Mock()
+        self.mock_schema_loader.get_registry.return_value = Mock()
         
         with patch('jsonschema.validate') as mock_validate:
             mock_validate.return_value = None
@@ -866,7 +866,7 @@ class TestObjectValidator(unittest.TestCase):
     
     def test_execute_jsonschema_validation(self):
         """正常系: JSONスキーマ検証実行 (validate_object_with_schemaを使用)"""
-        self.mock_schema_loader.get_ref_resolver.return_value = Mock()
+        self.mock_schema_loader.get_registry.return_value = Mock()
         
         with patch('jsonschema.validate') as mock_validate:
             mock_validate.return_value = None
@@ -960,7 +960,7 @@ class TestAddressFormatValidation(unittest.TestCase):
         
         # モックの設定
         self.mock_schema_loader.get_object_schema.return_value = self.security_holder_schema
-        self.mock_schema_loader.get_ref_resolver.return_value = Mock()
+        self.mock_schema_loader.get_registry.return_value = Mock()
         
         # jsonschema.validateが実際の検証エラーで失敗するようにパッチ
         with patch('jsonschema.validate') as mock_validate:
@@ -987,7 +987,7 @@ class TestAddressFormatValidation(unittest.TestCase):
         
         # モックの設定
         self.mock_schema_loader.get_object_schema.return_value = self.security_holder_schema
-        self.mock_schema_loader.get_ref_resolver.return_value = Mock()
+        self.mock_schema_loader.get_registry.return_value = Mock()
         
         # jsonschema.validateが成功するようにパッチ
         with patch('jsonschema.validate') as mock_validate:
@@ -1048,7 +1048,7 @@ class TestContactInfoValidation(unittest.TestCase):
         
         # モックの設定
         self.mock_schema_loader.get_object_schema.return_value = self.security_holder_contact_info_schema
-        self.mock_schema_loader.get_ref_resolver.return_value = Mock()
+        self.mock_schema_loader.get_registry.return_value = Mock()
         
         # jsonschema.validateが実際の検証エラーで失敗するようにパッチ
         with patch('jsonschema.validate') as mock_validate:
@@ -1105,7 +1105,7 @@ class TestContactInfoValidation(unittest.TestCase):
         
         # モックの設定
         self.mock_schema_loader.get_object_schema.return_value = corrected_schema
-        self.mock_schema_loader.get_ref_resolver.return_value = Mock()
+        self.mock_schema_loader.get_registry.return_value = Mock()
         
         # jsonschema.validateが成功するようにパッチ
         with patch('jsonschema.validate') as mock_validate:

@@ -202,7 +202,7 @@ class FileValidator:
             items_schema = schema.get("properties", {}).get("items", {}).get("items", {})
             self.logger.debug(f"Items schema structure: {items_schema}")
             
-            resolver = self.schema_loader.get_ref_resolver()
+            registry = self.schema_loader.get_registry()
             
             # oneOf構造をチェック（複数オブジェクトタイプ）
             one_of_schemas = items_schema.get("oneOf", [])
@@ -213,7 +213,7 @@ class FileValidator:
                     if "$ref" in ref_schema:
                         ref_url = ref_schema["$ref"]
                         self.logger.debug(f"Resolving $ref {i}: {ref_url}")
-                        object_type = self._extract_object_type_from_ref(resolver, ref_url)
+                        object_type = self._extract_object_type_from_ref(registry, ref_url)
                         if object_type:
                             allowed_types.append(object_type)
             
@@ -221,7 +221,7 @@ class FileValidator:
             elif "$ref" in items_schema:
                 ref_url = items_schema["$ref"]
                 self.logger.debug(f"Found direct $ref: {ref_url}")
-                object_type = self._extract_object_type_from_ref(resolver, ref_url)
+                object_type = self._extract_object_type_from_ref(registry, ref_url)
                 if object_type:
                     allowed_types.append(object_type)
             
@@ -231,19 +231,20 @@ class FileValidator:
         self.logger.debug(f"Final allowed_types: {allowed_types}")
         return allowed_types
     
-    def _extract_object_type_from_ref(self, resolver, ref_url: str) -> Optional[str]:
+    def _extract_object_type_from_ref(self, registry, ref_url: str) -> Optional[str]:
         """
         $refを解決してobject_typeを抽出する共通処理
         
         Args:
-            resolver: RefResolverインスタンス
+            registry: Registryインスタンス
             ref_url (str): 解決する$ref URL
             
         Returns:
             Optional[str]: 抽出されたobject_type、取得できない場合はNone
         """
         try:
-            _, resolved_schema = resolver.resolve(ref_url)
+            resource = registry.get_or_retrieve(ref_url)
+            resolved_schema = resource.value.contents
             self.logger.debug(f"Resolved schema keys: {list(resolved_schema.keys())}")
             
             # object_typeはproperties.object_type.constに定義されている

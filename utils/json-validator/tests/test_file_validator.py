@@ -1041,9 +1041,9 @@ class TestGetAllowedObjectTypes(unittest.TestCase):
         self.mock_schema_loader = Mock()
         self.file_validator = FileValidator(self.mock_schema_loader)
         
-        # RefResolverのモック設定
-        self.mock_resolver = Mock()
-        self.mock_schema_loader.get_ref_resolver.return_value = self.mock_resolver
+        # Registryのモック設定
+        self.mock_registry = Mock()
+        self.mock_schema_loader.get_registry.return_value = self.mock_registry
     
     def test_get_allowed_object_types_with_direct_ref_structure(self):
         """直接$ref構造（単一オブジェクトタイプ）のケース - 現在失敗する"""
@@ -1069,8 +1069,10 @@ class TestGetAllowedObjectTypes(unittest.TestCase):
             }
         }
         
-        # RefResolverのモック設定
-        self.mock_resolver.resolve.return_value = (None, resolved_schema)
+        # Registryのモック設定
+        mock_resource = Mock()
+        mock_resource.value.contents = resolved_schema
+        self.mock_registry.get_or_retrieve.return_value = mock_resource
         
         # テスト実行
         result = self.file_validator._get_allowed_object_types(schema)
@@ -1107,10 +1109,14 @@ class TestGetAllowedObjectTypes(unittest.TestCase):
             }
         }
         
-        # RefResolverのモック設定（呼び出し順序を保証）
-        self.mock_resolver.resolve.side_effect = [
-            (None, stock_issuance_schema),
-            (None, stock_transfer_schema)
+        # Registryのモック設定（呼び出し順序を保証）
+        mock_resource1 = Mock()
+        mock_resource1.value.contents = stock_issuance_schema
+        mock_resource2 = Mock()
+        mock_resource2.value.contents = stock_transfer_schema
+        self.mock_registry.get_or_retrieve.side_effect = [
+            mock_resource1,
+            mock_resource2
         ]
         
         # テスト実行

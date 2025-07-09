@@ -10,7 +10,9 @@ import logging
 import time
 import jsonschema
 from typing import Dict, Any, Optional, List, Union, Type
-from jsonschema import ValidationError, RefResolver
+from jsonschema import ValidationError
+from referencing import Registry
+from referencing.exceptions import Unresolvable
 from .schema_loader import SchemaLoader
 from .validation_result import ValidationResult
 from .exceptions import ObjectValidationError, SchemaNotFoundError, RefResolutionError
@@ -425,11 +427,11 @@ class ObjectValidator:
         
         result = ValidationResult()
         try:
-            resolver = self.schema_loader.get_ref_resolver()
-            self.logger.debug("RefResolverを取得しました")
+            registry = self.schema_loader.get_registry()
+            self.logger.debug("Registryを取得しました")
             
             # 検証実行
-            jsonschema.validate(data, schema, resolver=resolver)
+            jsonschema.validate(data, schema, registry=registry)
             self.logger.debug("JSONSchema検証が成功しました")
             
         except ValidationError as e:
@@ -437,7 +439,7 @@ class ObjectValidator:
             self.logger.warning(f"{error_msg} (パス: {'.'.join(str(x) for x in e.absolute_path) if e.absolute_path else 'root'})")
             result.add_error(error_msg)
             
-        except jsonschema.RefResolutionError as e:
+        except Unresolvable as e:
             error_msg = f"JSONスキーマ検証エラー: {str(e)}"
             self.logger.error(f"スキーマ参照解決エラー: {error_msg}")
             result.add_error(error_msg)
