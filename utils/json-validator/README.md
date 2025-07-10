@@ -48,36 +48,7 @@ python -m pytest tests/ --cov=validator
 
 設定は `config/validator_config.json` で管理されます：
 
-```json
-{
-  "schema": {
-    "root_path": "schema"
-  },
-  "validation": {
-    "strict_mode": true,
-    "max_errors_per_object": 100
-  },
-  "output": {
-    "format": "json",
-    "log_level": "INFO"
-  }
-}
-```
-
-## アーキテクチャ決定記録
-
-重要な設計決定は [Architecture Decision Records (ADR)](./adr/) で文書化されています。
-
-## 開発状況
-
-- ✅ ConfigManager: 完了・テスト済み
-- ✅ SchemaLoader: 完了・テスト済み (15テストケース)
-- 🚧 FileValidator: 開発中
-- 🚧 ObjectValidator: 開発中
-- 🚧 統合テスト: 開発中
-
 ## 依存関係
 
-- jsonschema >= 4.24.0
-- pytest >= 7.0.0 (テスト用)
-- その他詳細は requirements.txt を参照
+- Python3.13
+- 詳細は requirements.txt を参照
