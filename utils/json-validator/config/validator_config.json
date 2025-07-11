@@ -1,24 +1,13 @@
 {
   "schema": {
     "root_path": "schema",
-    "cache_enabled": true,
-    "cache_ttl": 3600,
-    "auto_reload": false
+    "cache_enabled": true
   },
   "validation": {
     "strict_mode": true,
-    "allow_additional_properties": false,
-    "max_errors_per_object": 100,
-    "chunk_size": 100
-  },
-  "output": {
-    "format": "json",
-    "include_warnings": true,
-    "detailed_errors": true,
-    "report_output_dir": "reports"
+    "max_errors_per_object": 100
   },
   "testing": {
-    "samples_dir": "samples",
-    "test_data_dir": "test_data"
+    "samples_dir": "samples"
   }
 }
