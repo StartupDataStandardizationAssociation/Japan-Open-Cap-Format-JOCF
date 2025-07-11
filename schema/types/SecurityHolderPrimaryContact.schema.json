@@ -26,6 +26,6 @@
   "additionalProperties": false,
   "required": [
     "name",
-    "email"
+    "emails"
   ]
 }

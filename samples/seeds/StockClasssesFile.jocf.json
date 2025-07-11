@@ -8,7 +8,7 @@
             "description": "任意転換の対象となる普通株",
             "class_type": "COMMON",
             "votes_per_share": "1",
-            "vote_per_share_at_class_meeting": "1",
+            "votes_per_share_at_class_meeting": "1",
             "initial_shares_authorized": "1000000"
         },
         {
@@ -18,7 +18,7 @@
             "description": "普通株への任意転換および希薄化防止条項を持つ優先株",
             "class_type": "PREFERRED",
             "votes_per_share": "1",
-            "vote_per_share_at_class_meeting": "1",
+            "votes_per_share_at_class_meeting": "1",
             "initial_shares_authorized": "1000000",
             "preffered_stock_attributes": {
                 "conversion_triggers": [
@@ -36,7 +36,10 @@
                                     "amount": "250",
                                     "currency": "JPY"
                                 },
-                                "ratio": "1",
+                                "ratio": {
+                                    "numerator": "1",
+                                    "denominator": "1"
+                                },
                                 "rounding_type": "FLOOR"
                             },
                             "converts_to_stock_class_id": "test-stock-class-common"
@@ -60,7 +63,10 @@
                                     "amount": "0",
                                     "currency": "JPY"
                                 },
-                                "ratio": "1",
+                                "ratio": {
+                                    "numerator": "1",
+                                    "denominator": "1"
+                                },
                                 "rounding_type": "FLOOR"
                             },
                             "converts_to_future_round": true
@@ -83,7 +89,10 @@
                                     "amount": "0",
                                     "currency": "JPY"
                                 },
-                                "ratio": "1",
+                                "ratio": {
+                                    "numerator": "1",
+                                    "denominator": "1"
+                                },
                                 "rounding_type": "FLOOR"
                             },
                             "converts_to_future_round": true
@@ -92,13 +101,13 @@
                 ],
                 "dividend_attributes": {
                     "dividend_rate": "0.08",
-                    "participation_category": "FULL_PARTICIPATING",
+                    "participation_category": "FULL_PARTICIPATION",
                     "cumulative_category": "NON_CUMULATIVE",
-                    "seniority": "3"
+                    "seniority": 3
                 },
                 "liquidation_preference_attributes": {
                     "liquidation_preference_multiple": "1.0",
-                    "participation_category": "FULL_PARTICIPATING",
+                    "participation_category": "FULL_PARTICIPATION",
                     "cumulative_category": "NON_CUMULATIVE",
                     "seniority": "3"
                 },
