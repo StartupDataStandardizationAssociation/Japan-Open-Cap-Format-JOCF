@@ -21,6 +21,6 @@
   },
   "additionalProperties": false,
   "required": [
-    "email"
+    "emails"
   ]
 }

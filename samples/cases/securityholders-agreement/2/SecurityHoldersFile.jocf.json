@@ -38,7 +38,9 @@
             "address": "東京都1-2-3",
             "primary_contact": [
                 {
-                    "name": "鈴木 一郎",
+                    "name": {
+                        "legal_name": "鈴木 一郎"
+                    },
                     "phone_numbers": [
                         {
                             "phone_number": "050-1234-5678",
@@ -64,7 +66,9 @@
             "address": "東京都4-5-6",
             "primary_contact": [
                 {
-                    "name": "佐藤 五郎",
+                    "name": {
+                        "legal_name": "佐藤 五郎"
+                    },
                     "phone_numbers": [
                         {
                             "phone_number": "03-1234-5678",

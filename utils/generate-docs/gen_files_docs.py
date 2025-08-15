@@ -4,10 +4,11 @@ import os
 import glob
 from schema_to_md.file_schema_to_md import generate
 
+
 def main():
     # schema/files/配下の全ての.schema.jsonファイルを取得
-    schema_dir = os.path.join(os.path.dirname(__file__), '../../schema/files')
-    schema_files = glob.glob(os.path.join(schema_dir, '*.schema.json'))
+    schema_dir = os.path.join(os.path.dirname(__file__), "../../schema/files")
+    schema_files = glob.glob(os.path.join(schema_dir, "*.schema.json"))
 
     # 各スキーマファイルに対してgenerate()を実行
     for schema_file in schema_files:
@@ -19,6 +20,7 @@ def main():
             print(f"Error processing {schema_file}:")
             print(f"Error: {str(e)}")
             continue
+
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,2 @@
+I'd like you to add unit tests to communicate the usage and specifications of @/utils/json-validator/validator/config_manager.py.
+Please create a new file test_config_manager_specs.py and add the unit tests there.

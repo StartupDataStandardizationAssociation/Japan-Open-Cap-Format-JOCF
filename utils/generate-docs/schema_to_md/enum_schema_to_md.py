@@ -8,45 +8,48 @@ from typing import Dict, Any
 import schema_config
 from schema_to_md.schema_id_util import generate_output_path
 
+
 def validate_json_schema(schema: Dict[str, Any]) -> bool:
     """
     JSONスキーマの基本的な妥当性をチェックする
     """
-    required_fields = ['title', 'enum', '$id']
+    required_fields = ["title", "enum", "$id"]
     return all(field in schema for field in required_fields)
+
 
 def generate_markdown(schema: Dict[str, Any]) -> str:
     """
     JSONスキーマからMarkdown形式のドキュメントを生成する
     """
     md_lines = []
-    
+
     # Schema Name
     md_lines.append(f"# {schema.get('title', 'Untitled Schema')}")
     md_lines.append("")
-    
+
     # Schema ID
-    if '$id' in schema:
+    if "$id" in schema:
         md_lines.append(f"ID = `{schema['$id']}`")
         md_lines.append("")
-    
+
     # Description
-    description = schema.get('description')
+    description = schema.get("description")
     if description:
         md_lines.append("## Description")
         md_lines.append("")
         md_lines.append(description)
         md_lines.append("")
-    
+
     # Enum Values
-    if 'enum' in schema:
+    if "enum" in schema:
         md_lines.append("## One Of")
         md_lines.append("")
-        for value in schema['enum']:
+        for value in schema["enum"]:
             md_lines.append(f"- `{value}`")
         md_lines.append("")
-    
+
     return "\n".join(md_lines)
+
 
 def generate(input_file_path: str) -> None:
     """
@@ -57,57 +60,64 @@ def generate(input_file_path: str) -> None:
     """
     # 入力ファイルの存在確認
     if not os.path.exists(input_file_path):
-        print(f"エラー: 入力ファイル '{input_file_path}' が存在しません", file=sys.stderr)
+        print(
+            f"エラー: 入力ファイル '{input_file_path}' が存在しません", file=sys.stderr
+        )
         sys.exit(1)
-    
+
     # JSONスキーマの読み込み
     try:
-        with open(input_file_path, 'r', encoding='utf-8') as f:
+        with open(input_file_path, "r", encoding="utf-8") as f:
             schema = json.load(f)
     except json.JSONDecodeError as e:
         print(f"エラー: JSONの解析に失敗しました: {e}", file=sys.stderr)
         sys.exit(1)
-    
+
     # スキーマの妥当性チェック
     if not validate_json_schema(schema):
-        print("エラー: 無効なJSONスキーマです。必須フィールド(title, enum)が不足しています", file=sys.stderr)
+        print(
+            "エラー: 無効なJSONスキーマです。必須フィールド(title, enum)が不足しています",
+            file=sys.stderr,
+        )
         sys.exit(1)
-    
+
     # Markdownの生成
     markdown_content = generate_markdown(schema)
-    
+
     # スキーマIDから出力パスを生成
     try:
-        output_path = generate_output_path(schema['$id'])
+        output_path = generate_output_path(schema["$id"])
     except (KeyError, ValueError) as e:
         print(f"エラー: 出力パスの生成に失敗しました: {e}", file=sys.stderr)
         sys.exit(1)
-    
+
     # 出力ディレクトリの作成（必要な場合）
     output_dir = os.path.dirname(output_path)
     if output_dir and not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    
+
     # Markdownファイルの出力
     try:
-        with open(output_path, 'w', encoding='utf-8') as f:
+        with open(output_path, "w", encoding="utf-8") as f:
             f.write(markdown_content)
     except IOError as e:
         print(f"エラー: Markdownファイルの書き込みに失敗しました: {e}", file=sys.stderr)
         sys.exit(1)
 
+
 def main():
     parser = argparse.ArgumentParser(
-        description='Convert JSON Schema to Markdown documentation',
-        epilog='出力パスはスキーマの$idから自動的に生成されます'
+        description="Convert JSON Schema to Markdown documentation",
+        epilog="出力パスはスキーマの$idから自動的に生成されます",
     )
-    parser.add_argument('input_file_path', help='JSONスキーマファイルへのパス')
-    
+    parser.add_argument("input_file_path", help="JSONスキーマファイルへのパス")
+
     if len(sys.argv) > 2:
-        parser.error('出力パスは指定不要です。スキーマの$idから自動的に生成されます。')
-    
+        parser.error("出力パスは指定不要です。スキーマの$idから自動的に生成されます。")
+
     args = parser.parse_args()
     generate(args.input_file_path)
+
 
 if __name__ == "__main__":
     main()

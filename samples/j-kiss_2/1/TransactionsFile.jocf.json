@@ -92,8 +92,12 @@
             "payment_due_date": "2022-01-01",
             "issuance_date": "2022-01-01",
             "mandatory_redemption_attributes": {
+                "has_mandatory_redemption_trigger": true,
                 "mandatory_redemption_trigger": "(7) 金銭を対価とする本新株予約権の取得条項 (a) 当会社が支配権移転取引等を行うことを決定した場合、当該取引の実行日までの日であって当会社の株主総会（当会社が取締役会設置会社である場合には取締役会）が別に定める日において、その前日までに行使されなかった本新株予約権を全て取得するのと引換えに、各本新株予約権につき本新株予約権の発行価額の2倍に相当する金銭を交付する。 (b) 当会社は、前(a)号に基づき本新株予約権を取得する日（当該日を定めなかった場合には支配権移転取引等の実行日）の2週間前までに本新株予約権の保有者に対して、支配権移転取引等の条件を書面で通知するものとする。",
-                "mandatory_redemption_multiple": "2"
+                "mandatory_redemption_multiple": {
+                    "numerator": "2",
+                    "denominator": "1"
+                }
             }
         }
     ]

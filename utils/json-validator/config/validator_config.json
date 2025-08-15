@@ -1,0 +1,13 @@
+{
+  "schema": {
+    "root_path": "schema",
+    "cache_enabled": true
+  },
+  "validation": {
+    "strict_mode": true,
+    "max_errors_per_object": 100
+  },
+  "testing": {
+    "samples_dir": "samples"
+  }
+}

@@ -47,12 +47,16 @@
                 "securityholders_who_agreed": [
                     {
                         "object_type": "SECURITY_HOLDER",
-                        "name": "投資家 X",
+                        "name": {
+                            "legal_name": "投資家 X"
+                        },
                         "id": "test-securityholder-investor-x"
                     },
                     {
                         "object_type": "SECURITY_HOLDER",
-                        "name": "創業者 O",
+                        "name": {
+                            "legal_name": "創業者 O"
+                        },
                         "id": "test-securityholder-founder-o"
                     }
                 ],
@@ -60,7 +64,9 @@
                     {
                         "securityholder": {
                             "object_type": "SECURITY_HOLDER",
-                            "name": "投資家 X",
+                            "name": {
+                                "legal_name": "投資家 X"
+                            },
                             "id": "test-securityholder-investor-x"
                         },
                         "number_of_electable_directors": "1",
@@ -87,7 +93,9 @@
                     {
                         "securityholder": {
                             "object_type": "SECURITY_HOLDER",
-                            "name": "創業者 O",
+                            "name": {
+                                "legal_name": "創業者 O"
+                            },
                             "id": "test-securityholder-founder-o"
                         },
                         "number_of_electable_directors": "2"
@@ -143,12 +151,16 @@
                 "securityholders_who_agreed": [
                     {
                         "object_type": "SECURITY_HOLDER",
-                        "name": "投資家 X",
+                        "name": {
+                            "legal_name": "投資家 X"
+                        },
                         "id": "test-securityholder-investor-x"
                     },
                     {
                         "object_type": "SECURITY_HOLDER",
-                        "name": "創業者 O",
+                        "name": {
+                            "legal_name": "創業者 O"
+                        },
                         "id": "test-securityholder-founder-o"
                     }
                 ],

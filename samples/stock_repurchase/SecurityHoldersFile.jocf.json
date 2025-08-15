@@ -4,7 +4,9 @@
         {
             "object_type": "SECURITY_HOLDER",
             "id": "test-securityholder-investor-x",
-            "name": "株式会社 X(自社株買い対象の投資家)",
+            "name": {
+                "legal_name": "株式会社 X(自社株買い対象の投資家)"
+            },
             "contact_info": [
                 {
                     "phone_numbers": [

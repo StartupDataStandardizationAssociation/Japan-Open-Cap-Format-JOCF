@@ -48,7 +48,10 @@
                             "conversion_mechanism": {
                                 "type": "RATIO_CONVERSION",
                                 "conversion_price": "0",
-                                "ratio": "1",
+                                "ratio": {
+                                    "numerator": "1",
+                                    "denominator": "1"
+                                },
                                 "rounding_type": "CEILING"
                             },
                             "converts_to_future_round": true
@@ -65,7 +68,10 @@
                             "conversion_mechanism": {
                                 "type": "RATIO_CONVERSION",
                                 "conversion_price": "0",
-                                "ratio": "1",
+                                "ratio": {
+                                    "numerator": "1",
+                                    "denominator": "1"
+                                },
                                 "rounding_type": "CEILING"
                             },
                             "converts_to_stock_class_id": "test-stock-class-1"

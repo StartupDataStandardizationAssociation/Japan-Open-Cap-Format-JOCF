@@ -49,3 +49,18 @@ Thumbs.db
 # MkDocs #
 ##########
 site/*
+
+# 作業ディレクトリを除外 #
+######################
+tmp/*
+local/*
+
+# Roo Codeの設定を除外 #
+######################
+.roo/*
+.roomodes
+
+# Claude Codeの設定を除外 #
+#########################
+CLAUDE.md
+.claude/*

@@ -5,10 +5,10 @@
             "object_type": "TX_STOCK_ISSUANCE",
             "id": "test-initial-stock-issuance-1",
             "stock_class_id": "test-stock-class-common",
-            "security_holder_id": "test-securityholder-investor-a",
+            "securityholder_id": "test-securityholder-investor-a",
             "share_price": {
-                "ammount": "100",
-                "cuurency_code": "JPY"
+                "amount": "100",
+                "currency": "JPY"
             },
             "quantity": "1000",
             "description": "創業時株式発行",
@@ -31,10 +31,10 @@
             "object_type": "TX_STOCK_ISSUANCE",
             "id": "test-initial-stock-issuance-2",
             "stock_class_id": "test-stock-class-common",
-            "security_holder_id": "test-securityholder-investor-a",
+            "securityholder_id": "test-securityholder-investor-a",
             "share_price": {
-                "ammount": "10000",
-                "cuurency_code": "JPY"
+                "amount": "10000",
+                "currency": "JPY"
             },
             "quantity": "750",
             "description": "一部株式譲渡後の創業者Aの残高",
@@ -45,10 +45,10 @@
             "object_type": "TX_STOCK_ISSUANCE",
             "id": "test-initial-stock-issuance-3",
             "stock_class_id": "test-stock-class-common",
-            "security_holder_id": "test-securityholder-investor-x",
+            "securityholder_id": "test-securityholder-investor-x",
             "share_price": {
-                "ammount": "10000",
-                "cuurency_code": "JPY"
+                "amount": "10000",
+                "currency": "JPY"
             },
             "quantity": "250",
             "description": "株式譲渡を受けた株式会社Xの残高",
